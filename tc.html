@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ensaio de TC</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        body { background: #f4f7f6; font-size: 0.85rem; padding: 10px; }
+        .group-box { background: white; border-radius: 12px; padding: 18px; margin-bottom: 12px; border: 1px solid #dee2e6; }
+        .label-eng { font-weight: bold; color: #0d6efd; font-size: 0.75rem; display: block; margin-bottom: 8px; text-transform: uppercase; }
+        .status-badge { padding: 4px 10px; border-radius: 4px; font-weight: bold; font-size: 0.7rem; }
+        .bg-ok { background: #d1e7dd; color: #0f5132; }
+        .bg-fail { background: #f8d7da; color: #842029; }
+        .bg-warn { background: #e2e3e5; color: #41464b; }
+        .bg-reg { background: #cfe2ff; color: #084298; } /* Azul para REGISTRADO */
+        .rn-box { background: #fff3cd; color: #856404; padding: 10px; border-radius: 8px; font-weight: bold; text-align: center; border: 1px solid #ffe69c; }
+        .table-laudo { width: 100%; margin-top: 5px; border-collapse: collapse; }
+        .table-laudo th, .table-laudo td { border: 1px solid #eee; padding: 6px; text-align: center; }
+        .header-laudo { background: #f8f9fa; font-weight: bold; color: #333; padding: 10px; border-radius: 5px; margin-bottom: 10px; border: 1px solid #ddd; }
+        @media print { .no-print { display: none !important; } }
+    </style>
+</head>
+<body>
+    <div class="container" style="max-width: 550px;">
+        <a href="/" class="btn btn-sm btn-outline-secondary mb-3 no-print">⬅️ Voltar ao Menu</a>
+        <h5 class="text-center text-secondary mb-3">⭕ Ensaio de Transformador de Corrente (TC)</h5>
+        
+        <form id="formEnsaios">
+            <div class="group-box shadow-sm">
+                <span class="label-eng">Identificação e Configuração</span>
+                <input type="hidden" id="tipo" value="TC">
+                <div class="row g-2 mb-2">
+                    <div class="col-8"><input type="text" id="usina" class="form-control" placeholder="Usina" required></div>
+                    <div class="col-4">
+                        <select id="qtd_sec" class="form-select text-center" onchange="ajustarCampos()">
+                            <option value="1">1 Secundário</option>
+                            <option value="2">2 Secundários</option>
+                            <option value="3">3 Secundários</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row g-2 mb-3">
+                    <div class="col"><input type="text" id="tag" class="form-control" placeholder="TAG do TC" required></div>
+                </div>
+                <div class="row g-2">
+                    <div class="col"><label class="small fw-bold">Corrente Primária (A)</label><input type="text" id="nom_pri" class="form-control" placeholder="Ex: 600" oninput="calcRN()"></div>
+                    <div class="col"><label class="small fw-bold">Corrente Secundária (A)</label><input type="text" id="nom_sec" class="form-control" placeholder="Ex: 5" oninput="calcRN()"></div>
+                </div>
+                <div class="rn-box mt-3">RELAÇÃO TEÓRICA (RN): <span id="rn_val">0.0000</span></div>
+            </div>
+
+            <div class="group-box shadow-sm">
+                <span class="label-eng">Relação Medida (TTR)</span>
+                <div class="row g-2">
+                    <div class="col" id="col_ttr_1"><input type="text" id="ttr_a" class="form-control" placeholder="Núcleo 1"></div>
+                    <div class="col d-none" id="col_ttr_2"><input type="text" id="ttr_b" class="form-control" placeholder="Núcleo 2"></div>
+                    <div class="col d-none" id="col_ttr_3"><input type="text" id="ttr_c" class="form-control" placeholder="Núcleo 3"></div>
+                </div>
+            </div>
+
+            <div class="group-box shadow-sm">
+                <span class="label-eng">Resistência Ôhmica</span>
+                <div class="d-flex justify-content-between mb-1"><span class="fw-bold small">PRIMÁRIO (1 Bobina):</span><select id="h_uni" class="form-select form-select-sm w-auto"><option value="uOhm">µΩ</option><option value="mOhm">mΩ</option><option value="Ohm" selected>Ω</option></select></div>
+                <div class="row g-2 mb-3">
+                    <div class="col-12"><input type="text" id="h1" class="form-control" placeholder="Bobina Primária (P1-P2)"></div>
+                    <input type="hidden" id="h2" value=""><input type="hidden" id="h3" value="">
+                </div>
+                <div class="d-flex justify-content-between mb-1"><span class="fw-bold small">SECUNDÁRIO(S):</span><select id="x_uni" class="form-select form-select-sm w-auto"><option value="uOhm">µΩ</option><option value="mOhm" selected>mΩ</option><option value="Ohm">Ω</option></select></div>
+                <div class="row g-2">
+                    <div class="col" id="col_x_1"><input type="text" id="x1" class="form-control" placeholder="Núcleo 1"></div>
+                    <div class="col d-none" id="col_x_2"><input type="text" id="x2" class="form-control" placeholder="Núcleo 2"></div>
+                    <div class="col d-none" id="col_x_3"><input type="text" id="x3" class="form-control" placeholder="Núcleo 3"></div>
+                </div>
+            </div>
+
+            <div class="group-box shadow-sm">
+                <span class="label-eng">Isolamento (GΩ)</span>
+                <div class="row g-2">
+                    <div class="col"><label class="small text-muted">Pri / Terra</label><input type="text" id="at_t" class="form-control"></div>
+                    <div class="col"><label class="small text-muted">Pri / Sec</label><input type="text" id="at_bt" class="form-control"></div>
+                    <div class="col"><label class="small text-muted">Sec / Terra</label><input type="text" id="bt_t" class="form-control"></div>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100 py-3 fw-bold shadow no-print">GERAR LAUDO TÉCNICO</button>
+        </form>
+
+        <div id="box_laudo" class="mt-4 p-4 bg-white border rounded d-none shadow">
+            <h6 class="text-center fw-bold border-bottom pb-2 mb-3">LAUDO TÉCNICO DE TC</h6>
+            <div id="laudo_header" class="header-laudo"></div>
+            <div id="laudo_body"></div>
+            <button onclick="gerarPDF()" class="btn btn-danger w-100 mt-4 fw-bold no-print">📥 DESCARREGAR PDF</button>
+        </div>
+    </div>
+
+    <script>
+        const parseF = (id) => { let v = document.getElementById(id).value.replace(',', '.'); return v === "" ? 0 : parseFloat(v); };
+        function calcRN() { const p = parseF('nom_pri'), s = parseF('nom_sec'); document.getElementById('rn_val').innerText = s > 0 ? (p / s).toFixed(4) : "0.0000"; }
+        
+        function badgeClass(status) { 
+            if(status === 'CONFORME') return 'bg-ok';
+            if(status === 'REGISTRADO') return 'bg-reg';
+            if(status === 'NÃO AVALIADO' || status === 'DADOS INSUFICIENTES') return 'bg-warn';
+            return 'bg-fail'; 
+        }
+
+        // FUNÇÃO QUE MOSTRA/ESCONDE CAMPOS DINAMICAMENTE
+        function ajustarCampos() {
+            const qtd = parseInt(document.getElementById('qtd_sec').value);
+            // Mostrar/Esconder TTR
+            document.getElementById('col_ttr_2').classList.toggle('d-none', qtd < 2);
+            document.getElementById('col_ttr_3').classList.toggle('d-none', qtd < 3);
+            if(qtd < 2) document.getElementById('ttr_b').value = "";
+            if(qtd < 3) document.getElementById('ttr_c').value = "";
+            
+            // Mostrar/Esconder Resistência Secundária
+            document.getElementById('col_x_2').classList.toggle('d-none', qtd < 2);
+            document.getElementById('col_x_3').classList.toggle('d-none', qtd < 3);
+            if(qtd < 2) document.getElementById('x2').value = "";
+            if(qtd < 3) document.getElementById('x3').value = "";
+        }
+
+        document.getElementById('formEnsaios').onsubmit = async (e) => {
+            e.preventDefault();
+            const qtd = parseInt(document.getElementById('qtd_sec').value);
+            const payload = {
+                usina: document.getElementById('usina').value, tag: document.getElementById('tag').value, tipo: document.getElementById('tipo').value, tap: "N/A",
+                nom_pri: parseF('nom_pri'), nom_sec: parseF('nom_sec'), 
+                ttr_medidos: [parseF('ttr_a'), parseF('ttr_b'), parseF('ttr_c')],
+                h_res: [parseF('h1'), parseF('h2'), parseF('h3')], h_unidade: document.getElementById('h_uni').value,
+                x_res: [parseF('x1'), parseF('x2'), parseF('x3')], x_unidade: document.getElementById('x_uni').value,
+                at_t: parseF('at_t'), at_bt: parseF('at_bt'), bt_t: parseF('bt_t')
+            };
+
+            const response = await fetch('/ensaio/validar', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+            const d = await response.json();
+            
+            const box = document.getElementById('box_laudo');
+            box.classList.remove('d-none');
+            
+            document.getElementById('laudo_header').innerHTML = `<div class="row text-center"><div class="col-6"><b>TAG:</b> ${payload.tag} (${payload.tipo})</div><div class="col-6"><b>Usina:</b> ${payload.usina}</div><div class="col-12 mt-2 text-primary"><b>RN Teórico:</b> ${d.rn_teorico}</div></div>`;
+
+            // Construção dinâmica da tabela do Laudo conforme os secundários selecionados
+            let ttr_rows = `<tr><td>Núcleo 1</td><td>${d.ttr.erros[0]}%</td></tr>`;
+            if(qtd >= 2) ttr_rows += `<tr><td>Núcleo 2</td><td>${d.ttr.erros[1]}%</td></tr>`;
+            if(qtd >= 3) ttr_rows += `<tr><td>Núcleo 3</td><td>${d.ttr.erros[2]}%</td></tr>`;
+
+            document.getElementById('laudo_body').innerHTML = `
+                <div class="mb-3">
+                    <span class="label-eng">1. Relação TTR (Núcleos)</span>
+                    <table class="table-laudo"><tr><th>Bobina</th><th>Erro (%)</th></tr>${ttr_rows}</table>
+                    <div class="mt-2 text-end">Veredito: <span class="status-badge ${badgeClass(d.ttr.status)}">${d.ttr.status}</span></div>
+                </div>
+                <div class="mb-3">
+                    <span class="label-eng">2. Resistência Ôhmica</span>
+                    <div class="small mb-1">Primário (P1-P2): <span class="status-badge ${badgeClass(d.res_h.status)}">${d.res_h.status}</span></div>
+                    <div class="small">Secundário (${qtd} núcleos) Desvio: <b>${qtd > 1 ? d.res_x.desvio + '%' : 'N/A'}</b> | <span class="status-badge ${badgeClass(d.res_x.status)}">${d.res_x.status}</span></div>
+                </div>
+                <div class="mb-2">
+                    <span class="label-eng">3. Resistência de Isolamento</span>
+                    <table class="table-laudo">
+                        <tr><th>Pri/Terra</th><th>Pri/Sec</th><th>Sec/Terra</th></tr>
+                        <tr>
+                            <td><span class="status-badge ${badgeClass(d.isolamento.att)}">${d.isolamento.att}</span></td>
+                            <td><span class="status-badge ${badgeClass(d.isolamento.atbt)}">${d.isolamento.atbt}</span></td>
+                            <td><span class="status-badge ${badgeClass(d.isolamento.btt)}">${d.isolamento.btt}</span></td>
+                        </tr>
+                    </table>
+                </div>
+            `;
+            box.scrollIntoView({ behavior: 'smooth' });
+        };
+
+        function gerarPDF() {
+            const elemento = document.getElementById('box_laudo');
+            document.querySelector('.no-print.btn-danger').style.display = 'none';
+            html2pdf().set({ margin: 15, filename: `Laudo_TC_${document.getElementById('tag').value}.pdf`, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2, scrollY: 0, useCORS: true }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } }).from(elemento).save().then(() => { document.querySelector('.no-print.btn-danger').style.display = 'block'; });
+        }
+    </script>
+</body>
+</html>

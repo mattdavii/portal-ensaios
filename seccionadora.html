@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chave Seccionadora - Portal de Engenharia</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        body { background: #f4f7f6; font-size: 0.85rem; padding: 10px; }
+        .group-box { background: white; border-radius: 12px; padding: 18px; margin-bottom: 12px; border: 1px solid #dee2e6; }
+        .label-eng { font-weight: bold; color: #0d6efd; font-size: 0.75rem; display: block; margin-bottom: 8px; text-transform: uppercase; }
+        .norma { background: #e3f2fd; color: #055160; padding: 5px; border-radius: 4px; font-size: 0.7rem; font-style: italic; margin-bottom: 10px; border-left: 3px solid #0d6efd; display: block; }
+        .status-badge { padding: 4px 10px; border-radius: 4px; font-weight: bold; font-size: 0.7rem; }
+        .bg-ok { background: #d1e7dd; color: #0f5132; }
+        .bg-fail { background: #f8d7da; color: #842029; }
+        .bg-warn { background: #e2e3e5; color: #41464b; }
+        .table-laudo { width: 100%; margin-top: 5px; border-collapse: collapse; }
+        .table-laudo th, .table-laudo td { border: 1px solid #eee; padding: 6px; text-align: center; }
+        .header-laudo { background: #f8f9fa; font-weight: bold; color: #333; padding: 10px; border-radius: 5px; margin-bottom: 10px; border: 1px solid #ddd; }
+        @media print { .no-print { display: none !important; } }
+    </style>
+</head>
+<body>
+    <div class="container" style="max-width: 550px;">
+        <a href="/" class="btn btn-sm btn-outline-secondary mb-3 no-print">⬅️ Voltar ao Menu</a>
+        <h5 class="text-center text-secondary mb-3">🎚️ Ensaio de Chave Seccionadora</h5>
+        
+        <form id="formEnsaios">
+            <div class="group-box shadow-sm">
+                <span class="label-eng">Identificação</span>
+                <div class="row g-2 mb-2">
+                    <div class="col-8"><input type="text" id="usina" class="form-control" placeholder="Usina" required></div>
+                    <div class="col-4"><input type="text" id="fabricante" class="form-control" placeholder="Fabricante"></div>
+                </div>
+                <div class="row g-2">
+                    <div class="col"><input type="text" id="tag" class="form-control" placeholder="TAG da Seccionadora" required></div>
+                </div>
+            </div>
+
+            <div class="group-box shadow-sm">
+                <span class="label-eng">1. Resistência Ôhmica de Contatos</span>
+                <span class="norma">Critério: <= 300 µΩ e valores próximos entre fases.</span>
+                <div class="row g-2">
+                    <div class="col"><label class="small text-muted">Fase R (µΩ)</label><input type="text" id="r_c_r" class="form-control" placeholder="Ent-Saí"></div>
+                    <div class="col"><label class="small text-muted">Fase S (µΩ)</label><input type="text" id="r_c_s" class="form-control" placeholder="Ent-Saí"></div>
+                    <div class="col"><label class="small text-muted">Fase T (µΩ)</label><input type="text" id="r_c_t" class="form-control" placeholder="Ent-Saí"></div>
+                </div>
+            </div>
+
+            <div class="group-box shadow-sm">
+                <span class="label-eng">2. Isolamento: Contatos Fechados (Fase-Terra)</span>
+                <span class="norma">Critério MT: >= 6 MΩ (0.006 GΩ)</span>
+                <div class="row g-2">
+                    <div class="col"><label class="small text-muted">R/Massa</label><input type="text" id="iso_ft_r" class="form-control" placeholder="GΩ"></div>
+                    <div class="col"><label class="small text-muted">S/Massa</label><input type="text" id="iso_ft_s" class="form-control" placeholder="GΩ"></div>
+                    <div class="col"><label class="small text-muted">T/Massa</label><input type="text" id="iso_ft_t" class="form-control" placeholder="GΩ"></div>
+                </div>
+            </div>
+
+            <div class="group-box shadow-sm">
+                <span class="label-eng">3. Isolamento: Contatos Fechados (Fase-Fase)</span>
+                <div class="row g-2">
+                    <div class="col"><label class="small text-muted">R/S</label><input type="text" id="iso_ff_rs" class="form-control" placeholder="GΩ"></div>
+                    <div class="col"><label class="small text-muted">S/T</label><input type="text" id="iso_ff_st" class="form-control" placeholder="GΩ"></div>
+                    <div class="col"><label class="small text-muted">T/R</label><input type="text" id="iso_ff_tr" class="form-control" placeholder="GΩ"></div>
+                </div>
+            </div>
+
+            <div class="group-box shadow-sm">
+                <span class="label-eng">4. Isolamento: Contatos Abertos (Entrada-Saída)</span>
+                <div class="row g-2">
+                    <div class="col"><label class="small text-muted">R(Ent/Saí)</label><input type="text" id="iso_ab_r" class="form-control" placeholder="GΩ"></div>
+                    <div class="col"><label class="small text-muted">S(Ent/Saí)</label><input type="text" id="iso_ab_s" class="form-control" placeholder="GΩ"></div>
+                    <div class="col"><label class="small text-muted">T(Ent/Saí)</label><input type="text" id="iso_ab_t" class="form-control" placeholder="GΩ"></div>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100 py-3 fw-bold shadow no-print">GERAR LAUDO SECCIONADORA</button>
+        </form>
+
+        <div id="box_laudo" class="mt-4 p-4 bg-white border rounded d-none shadow">
+            <h6 class="text-center fw-bold border-bottom pb-2 mb-3">LAUDO TÉCNICO - SECCIONADORA</h6>
+            <div id="laudo_header" class="header-laudo"></div>
+            <div id="laudo_body"></div>
+            <button onclick="gerarPDF()" class="btn btn-danger w-100 mt-4 fw-bold no-print">📥 DESCARREGAR PDF</button>
+        </div>
+    </div>
+
+    <script>
+        const parseF = (id) => { let v = document.getElementById(id).value.replace(',', '.'); return v === "" ? 0 : parseFloat(v); };
+        function badgeClass(status) { if(status === 'CONFORME') return 'bg-ok'; if(status === 'NÃO AVALIADO') return 'bg-warn'; return 'bg-fail'; }
+
+        document.getElementById('formEnsaios').onsubmit = async (e) => {
+            e.preventDefault();
+            const payload = {
+                usina: document.getElementById('usina').value, tag: document.getElementById('tag').value, fabricante: document.getElementById('fabricante').value,
+                res_c_r: parseF('r_c_r'), res_c_s: parseF('r_c_s'), res_c_t: parseF('r_c_t'),
+                iso_ft_r: parseF('iso_ft_r'), iso_ft_s: parseF('iso_ft_s'), iso_ft_t: parseF('iso_ft_t'),
+                iso_ff_rs: parseF('iso_ff_rs'), iso_ff_st: parseF('iso_ff_st'), iso_ff_tr: parseF('iso_ff_tr'),
+                iso_ab_r: parseF('iso_ab_r'), iso_ab_s: parseF('iso_ab_s'), iso_ab_t: parseF('iso_ab_t')
+            };
+
+            try {
+                const response = await fetch('/ensaio/seccionadora/validar', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+                const d = await response.json();
+                
+                const box = document.getElementById('box_laudo');
+                box.classList.remove('d-none');
+                
+                document.getElementById('laudo_header').innerHTML = `<div class="row text-center"><div class="col-6"><b>TAG:</b> ${payload.tag}</div><div class="col-6"><b>Usina:</b> ${payload.usina}</div><div class="col-12 mt-2"><b>Fabricante:</b> ${payload.fabricante || 'N/A'}</div></div>`;
+
+                document.getElementById('laudo_body').innerHTML = `
+                    <div class="mb-3">
+                        <span class="label-eng">1. Resistência Ôhmica de Contatos (µΩ)</span>
+                        <table class="table-laudo">
+                            <tr><th>Fase R</th><th>Fase S</th><th>Fase T</th></tr>
+                            <tr>
+                                <td><span class="status-badge ${badgeClass(d.contato.r)}">${d.contato.r}</span></td>
+                                <td><span class="status-badge ${badgeClass(d.contato.s)}">${d.contato.s}</span></td>
+                                <td><span class="status-badge ${badgeClass(d.contato.t)}">${d.contato.t}</span></td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="mb-3">
+                        <span class="label-eng">2. Resistência de Isolamento (GΩ)</span>
+                        <table class="table-laudo">
+                            <tr><th>Teste</th><th>Fase R / RS</th><th>Fase S / ST</th><th>Fase T / TR</th></tr>
+                            <tr><td><b>Fase-Terra</b></td><td><span class="status-badge ${badgeClass(d.iso_ft.r)}">${d.iso_ft.r}</span></td><td><span class="status-badge ${badgeClass(d.iso_ft.s)}">${d.iso_ft.s}</span></td><td><span class="status-badge ${badgeClass(d.iso_ft.t)}">${d.iso_ft.t}</span></td></tr>
+                            <tr><td><b>Fase-Fase</b></td><td><span class="status-badge ${badgeClass(d.iso_ff.rs)}">${d.iso_ff.rs}</span></td><td><span class="status-badge ${badgeClass(d.iso_ff.st)}">${d.iso_ff.st}</span></td><td><span class="status-badge ${badgeClass(d.iso_ff.tr)}">${d.iso_ff.tr}</span></td></tr>
+                            <tr><td><b>Abertos</b></td><td><span class="status-badge ${badgeClass(d.iso_ab.r)}">${d.iso_ab.r}</span></td><td><span class="status-badge ${badgeClass(d.iso_ab.s)}">${d.iso_ab.s}</span></td><td><span class="status-badge ${badgeClass(d.iso_ab.t)}">${d.iso_ab.t}</span></td></tr>
+                        </table>
+                    </div>
+                `;
+                box.scrollIntoView({ behavior: 'smooth' });
+            } catch (error) { alert("Erro ao validar. Verifique o servidor."); }
+        };
+
+        function gerarPDF() {
+            const elemento = document.getElementById('box_laudo');
+            document.querySelector('.no-print.btn-danger').style.display = 'none';
+            html2pdf().set({ margin: 15, filename: `Laudo_Seccionadora_${document.getElementById('tag').value}.pdf`, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2, scrollY: 0, useCORS: true }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } }).from(elemento).save().then(() => { document.querySelector('.no-print.btn-danger').style.display = 'block'; });
+        }
+    </script>
+</body>
+</html>
