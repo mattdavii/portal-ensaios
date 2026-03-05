@@ -1,4 +1,4 @@
-const CACHE_NAME = 'portal-premium-v7';
+const CACHE_NAME = 'portal-premium-v8';
 const ASSETS = [
   '/', '/cabos-cc', '/res-malha', '/cont-malha', '/disjuntor-mt', '/disjuntor-bt', '/seccionadora', '/trafo', '/tp', '/tc', '/manifest.json',
   'https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css',
@@ -22,4 +22,5 @@ self.addEventListener('fetch', e => {
         return res;
       }).catch(() => caches.match(e.request))
   );
+
 });
