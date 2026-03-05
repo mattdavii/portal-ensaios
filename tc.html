@@ -38,22 +38,39 @@
                 <div class="row g-2 align-items-center border-bottom pb-3 mb-3">
                     <div class="col-8 fw-bold text-muted small">Quantos Núcleos/Relações ensaiados?</div>
                     <div class="col-4">
-                        <input type="number" id="qtd_taps" class="form-control border-danger text-center" placeholder="Ex: 2" min="1" max="10" required oninput="gerarTaps()">
+                        <input type="number" id="qtd_taps" class="form-control border-danger text-center" placeholder="Ex: 2" min="1" max="10" oninput="gerarTaps()">
                     </div>
                 </div>
                 <div id="dynamic_taps"></div>
             </div>
 
             <div class="group-box">
-                <span class="label-eng">Resistência Ôhmica (mΩ)</span>
+                <span class="label-eng">Resistência Ôhmica</span>
+                
+                <div class="section-title d-flex justify-content-between align-items-center">
+                    <span>Primário (P1-P2)</span>
+                    <select id="uni_h" class="form-select form-select-sm w-auto border-danger text-danger fw-bold">
+                        <option value="Ω">Ohms (Ω)</option>
+                        <option value="mΩ" selected>miliOhms (mΩ)</option>
+                        <option value="µΩ">microOhms (µΩ)</option>
+                    </select>
+                </div>
                 <div class="row g-2 mb-2">
-                    <div class="col-12"><label class="small text-muted fw-bold">Primário (P1-P2)</label><input type="number" step="0.1" id="h1" class="form-control form-control-sm" required></div>
+                    <div class="col-12"><input type="number" step="0.001" id="h1" class="form-control form-control-sm" placeholder="Valor Medido"></div>
                 </div>
                 
-                <div class="row g-2 align-items-center mt-3 border-top pt-3">
+                <div class="section-title d-flex justify-content-between align-items-center mt-3 border-top pt-2">
+                    <span>Núcleos Secundários</span>
+                    <select id="uni_x" class="form-select form-select-sm w-auto border-danger text-danger fw-bold">
+                        <option value="Ω">Ohms (Ω)</option>
+                        <option value="mΩ" selected>miliOhms (mΩ)</option>
+                        <option value="µΩ">microOhms (µΩ)</option>
+                    </select>
+                </div>
+                <div class="row g-2 align-items-center mb-2">
                     <div class="col-8 fw-bold text-muted small">Quantos enrolamentos Secundários?</div>
                     <div class="col-4">
-                        <input type="number" id="qtd_sec" class="form-control form-control-sm border-danger text-center" placeholder="Máx 3" min="1" max="3" required oninput="gerarSecundarios()">
+                        <input type="number" id="qtd_sec" class="form-control form-control-sm border-danger text-center" placeholder="Máx 3" min="1" max="3" oninput="gerarSecundarios()">
                     </div>
                 </div>
                 <div id="dynamic_secundarios" class="row g-2 mt-1"></div>
@@ -62,13 +79,13 @@
             <div class="group-box">
                 <span class="label-eng">Resistência de Isolamento (MΩ)</span>
                 <div class="row g-2">
-                    <div class="col"><label class="small text-muted" style="font-size: 0.65rem;">AT x Terra</label><input type="number" id="at_t" class="form-control form-control-sm" required></div>
-                    <div class="col"><label class="small text-muted" style="font-size: 0.65rem;">AT x BT</label><input type="number" id="at_bt" class="form-control form-control-sm" required></div>
-                    <div class="col"><label class="small text-muted" style="font-size: 0.65rem;">BT x Terra</label><input type="number" id="bt_t" class="form-control form-control-sm" required></div>
+                    <div class="col"><label class="small text-muted" style="font-size: 0.65rem;">AT x Terra</label><input type="number" id="at_t" class="form-control form-control-sm"></div>
+                    <div class="col"><label class="small text-muted" style="font-size: 0.65rem;">AT x BT</label><input type="number" id="at_bt" class="form-control form-control-sm"></div>
+                    <div class="col"><label class="small text-muted" style="font-size: 0.65rem;">BT x Terra</label><input type="number" id="bt_t" class="form-control form-control-sm"></div>
                 </div>
             </div>
 
-            <button type="submit" id="btn_salvar" class="btn btn-danger w-100 py-3 fw-bold shadow-sm no-print d-none">GERAR LAUDO E SALVAR</button>
+            <button type="submit" id="btn_salvar" class="btn btn-danger w-100 py-3 fw-bold shadow-sm no-print">GERAR LAUDO E SALVAR</button>
         </form>
 
         <div id="box_laudo" class="mt-4 p-4 bg-white border rounded d-none shadow-sm">
@@ -79,22 +96,26 @@
     </div>
 
     <script>
+        // --- FUNÇÕES AUXILIARES DE INTELIGÊNCIA ---
+        const pF = (id) => { let el = document.getElementById(id); return (el && el.value !== "") ? parseFloat(el.value) : null; };
+        const vDB = (val) => val === null ? 0 : val; // Previne erro no banco de dados
+        const vRender = (val) => val === null ? "-" : val; // Mostra traço no PDF
+
         // Cálculo do RTC
         function calcRn(i) {
-            let vpri = parseFloat(document.getElementById(`vpri_${i}`).value) || 0;
-            let vsec = parseFloat(document.getElementById(`vsec_${i}`).value) || 0;
+            let vpri = parseFloat(document.getElementById(`vpri_${i}`).value) || null;
+            let vsec = parseFloat(document.getElementById(`vsec_${i}`).value) || null;
             let rnInput = document.getElementById(`rn_${i}`);
-            rnInput.value = (vpri > 0 && vsec > 0) ? (vpri / vsec).toFixed(3) : "";
+            rnInput.value = (vpri && vsec) ? (vpri / vsec).toFixed(3) : "";
         }
 
+        // Geração dos TAPs do RTC
         function gerarTaps() {
-            let qtd = parseInt(document.getElementById('qtd_taps').value);
+            let qtd = parseInt(document.getElementById('qtd_taps').value) || 0;
             let container = document.getElementById('dynamic_taps');
-            let btn = document.getElementById('btn_salvar');
             container.innerHTML = '';
             
             if(qtd > 0 && qtd <= 10) {
-                btn.classList.remove('d-none');
                 for(let i = 1; i <= qtd; i++) {
                     container.innerHTML += `
                     <div class="p-2 border rounded mb-2 bg-light shadow-sm">
@@ -103,26 +124,27 @@
                             <input type="text" id="nome_tap_${i}" class="form-control form-control-sm w-50 text-end" placeholder="Ex: Núc 1" value="Núcleo ${i}" required>
                         </div>
                         <div class="row g-1 mb-2">
-                            <div class="col-4"><label class="small text-muted" style="font-size:0.65rem">Corrente Primária</label><input type="number" step="0.1" id="vpri_${i}" class="form-control form-control-sm" placeholder="(A)" required oninput="calcRn(${i})"></div>
-                            <div class="col-4"><label class="small text-muted" style="font-size:0.65rem">Corrente Secundária</label><input type="number" step="0.1" id="vsec_${i}" class="form-control form-control-sm" placeholder="(A)" required oninput="calcRn(${i})"></div>
+                            <div class="col-4"><label class="small text-muted" style="font-size:0.65rem">Corrente Primária</label><input type="number" step="0.1" id="vpri_${i}" class="form-control form-control-sm" placeholder="(A)" oninput="calcRn(${i})"></div>
+                            <div class="col-4"><label class="small text-muted" style="font-size:0.65rem">Corrente Secundária</label><input type="number" step="0.1" id="vsec_${i}" class="form-control form-control-sm" placeholder="(A)" oninput="calcRn(${i})"></div>
                             <div class="col-4"><label class="small text-muted" style="font-size:0.65rem">Relação Teórica</label><input type="text" id="rn_${i}" class="form-control form-control-sm text-primary fw-bold bg-white" placeholder="Rn" readonly></div>
                         </div>
                         <div class="row g-1 justify-content-center">
-                            <div class="col-6"><label class="small text-muted fw-bold text-center w-100" style="font-size:0.65rem">Valor Medido (RTC)</label><input type="number" step="0.001" id="ttr_a_${i}" class="form-control form-control-sm text-center border-danger" placeholder="Relação Lida" required></div>
+                            <div class="col-6"><label class="small text-muted fw-bold text-center w-100" style="font-size:0.65rem">Valor Medido (RTC)</label><input type="number" step="0.001" id="ttr_a_${i}" class="form-control form-control-sm text-center border-danger" placeholder="Relação Lida"></div>
                         </div>
                     </div>`;
                 }
-            } else { btn.classList.add('d-none'); }
+            }
         }
 
+        // Geração Dinâmica da Resistência Secundária
         function gerarSecundarios() {
-            let qtd = parseInt(document.getElementById('qtd_sec').value);
+            let qtd = parseInt(document.getElementById('qtd_sec').value) || 0;
             let container = document.getElementById('dynamic_secundarios');
             container.innerHTML = '';
             let labels = ['Núc 1 (1S1-1S2)', 'Núc 2 (2S1-2S2)', 'Núc 3 (3S1-3S2)'];
             if(qtd > 0 && qtd <= 3) {
                 for(let i=1; i<=qtd; i++) {
-                    container.innerHTML += `<div class="col-4"><label class="small text-muted" style="font-size:0.65rem">${labels[i-1]}</label><input type="number" step="0.1" id="x${i}" class="form-control form-control-sm" required></div>`;
+                    container.innerHTML += `<div class="col-4"><label class="small text-muted" style="font-size:0.65rem">${labels[i-1]}</label><input type="number" step="0.001" id="x${i}" class="form-control form-control-sm" placeholder="Valor"></div>`;
                 }
             }
         }
@@ -137,39 +159,77 @@
         }
 
         function formatFase(val, rn) {
-            if(!val) return "-";
-            let err = rn > 0 ? ((Math.abs(val - rn) / rn) * 100).toFixed(2) : 0;
+            if(val === null || rn === null || rn === 0) return "-";
+            let err = ((Math.abs(val - rn) / rn) * 100).toFixed(2);
             let st = err <= 0.5 ? 'OK' : 'FALHA';
-            return `${val} <br><span class="${err<=0.5?'text-success':'text-danger'} fw-bold" style="font-size:0.65rem;">(${err}% - ${st})</span>`;
+            let cls = err <= 0.5 ? 'text-success' : 'text-danger';
+            return `${val} <br><span class="${cls} fw-bold" style="font-size:0.65rem;">(${err}% - ${st})</span>`;
+        }
+        
+        function calcIso(val) {
+            if (val === null) return '-';
+            let st = val >= 1000 ? 'OK' : 'FALHA';
+            let cls = val >= 1000 ? 'text-success' : 'text-danger';
+            return `${val} <span class="${cls} fw-bold">(${st})</span>`;
         }
 
         document.getElementById('formTC').onsubmit = async (e) => {
-            e.preventDefault(); const pF = (id) => parseFloat(document.getElementById(id)) ? parseFloat(document.getElementById(id).value) || 0 : 0;
-            const usina = document.getElementById('usina').value; const tag = document.getElementById('tag').value;
-            const qtd_taps = parseInt(document.getElementById('qtd_taps').value);
+            e.preventDefault(); 
+            const usina = document.getElementById('usina').value; 
+            const tag = document.getElementById('tag').value;
+            const qtd_taps = parseInt(document.getElementById('qtd_taps').value) || 0;
             const qtd_sec = parseInt(document.getElementById('qtd_sec').value) || 0;
+
+            const uniH = document.getElementById('uni_h').value;
+            const uniX = document.getElementById('uni_x').value;
 
             const dFixos = { h1: pF('h1'), x1: pF('x1'), x2: pF('x2'), x3: pF('x3'), at_t: pF('at_t'), at_bt: pF('at_bt'), bt_t: pF('bt_t') };
             let payloads = []; let htmlTTR = "";
 
-            for(let i = 1; i <= qtd_taps; i++) {
-                let tap = document.getElementById(`nome_tap_${i}`).value; let vpri = parseFloat(document.getElementById(`vpri_${i}`).value); let vsec = parseFloat(document.getElementById(`vsec_${i}`).value);
-                let rn = parseFloat(document.getElementById(`rn_${i}`).value) || 0;
-                let ta = parseFloat(document.getElementById(`ttr_a_${i}`).value) || 0; 
+            if (qtd_taps > 0) {
+                for(let i = 1; i <= qtd_taps; i++) {
+                    let tap = document.getElementById(`nome_tap_${i}`).value; 
+                    let vpri = pF(`vpri_${i}`); 
+                    let vsec = pF(`vsec_${i}`);
+                    let rn = pF(`rn_${i}`);
+                    let ta = pF(`ttr_a_${i}`); 
 
-                payloads.push({ usina: usina, tag: tag, tipo: "TC", tap: tap, nom_pri: vpri, nom_sec: vsec, rn_teorico: rn, ttr_a: ta, ttr_b: 0, ttr_c: 0, h1: dFixos.h1, h2: 0, h3: 0, uni_h: "mΩ", x1: dFixos.x1, x2: dFixos.x2, x3: dFixos.x3, uni_x: "mΩ", at_t: dFixos.at_t, at_bt: dFixos.at_bt, bt_t: dFixos.bt_t });
-                htmlTTR += `<tr><td class="fw-bold bg-light align-middle">${tap}</td><td class="align-middle">${vpri} / ${vsec}</td><td class="text-primary fw-bold align-middle">${rn.toFixed(3)}</td><td class="fw-bold">${ta}</td><td>${formatFase(ta, rn)}</td></tr>`;
+                    let strTensao = (vpri !== null && vsec !== null) ? `${vpri} / ${vsec}` : '-';
+
+                    payloads.push({ 
+                        usina: usina, tag: tag, tipo: "TC", tap: tap, 
+                        nom_pri: vDB(vpri), nom_sec: vDB(vsec), rn_teorico: vDB(rn), 
+                        ttr_a: vDB(ta), ttr_b: 0, ttr_c: 0, 
+                        h1: vDB(dFixos.h1), h2: 0, h3: 0, uni_h: uniH, 
+                        x1: vDB(dFixos.x1), x2: vDB(dFixos.x2), x3: vDB(dFixos.x3), uni_x: uniX, 
+                        at_t: vDB(dFixos.at_t), at_bt: vDB(dFixos.at_bt), bt_t: vDB(dFixos.bt_t) 
+                    });
+                    
+                    htmlTTR += `<tr><td class="fw-bold bg-light align-middle">${tap}</td><td class="align-middle">${strTensao}</td><td class="text-primary fw-bold align-middle">${vRender(rn)}</td><td class="fw-bold">${vRender(ta)}</td><td>${formatFase(ta, rn)}</td></tr>`;
+                }
+            } else {
+                payloads.push({ 
+                    usina: usina, tag: tag, tipo: "TC", tap: "-", 
+                    nom_pri: 0, nom_sec: 0, rn_teorico: 0, ttr_a: 0, ttr_b: 0, ttr_c: 0, 
+                    h1: vDB(dFixos.h1), h2: 0, h3: 0, uni_h: uniH, 
+                    x1: vDB(dFixos.x1), x2: vDB(dFixos.x2), x3: vDB(dFixos.x3), uni_x: uniX, 
+                    at_t: vDB(dFixos.at_t), at_bt: vDB(dFixos.at_bt), bt_t: vDB(dFixos.bt_t) 
+                });
+                htmlTTR = `<tr><td colspan="5" class="text-muted">Nenhum Núcleo ensaiado</td></tr>`;
             }
 
             await salvarLoteHibrido(payloads, '/api/sync/trafo');
 
             let htmlSecHeaders = ""; let htmlSecValues = "";
-            for(let i=1; i<=qtd_sec; i++) {
-                htmlSecHeaders += `<th>Núcleo ${i}</th>`;
-                htmlSecValues += `<td>${dFixos['x'+i]}</td>`;
+            if (qtd_sec > 0) {
+                for(let i=1; i<=qtd_sec; i++) {
+                    htmlSecHeaders += `<th>Núcleo ${i}</th>`;
+                    htmlSecValues += `<td>${vRender(dFixos['x'+i])}</td>`;
+                }
+            } else {
+                htmlSecHeaders = `<th class="text-muted fw-normal">Sem Secundários declarados</th>`;
+                htmlSecValues = `<td>-</td>`;
             }
-
-            const st_at = dFixos.at_t >= 1000 ? "OK" : "FALHA"; const st_atbt = dFixos.at_bt >= 1000 ? "OK" : "FALHA"; const st_bt = dFixos.bt_t >= 1000 ? "OK" : "FALHA";
 
             document.getElementById('laudo_render').innerHTML = `
                 <div class="header-laudo text-center"><div class="row mb-1"><div class="col-6"><b>Usina:</b> ${usina}</div><div class="col-6"><b>TAG:</b> ${tag}</div></div><div class="row"><div class="col-12 text-primary small">(${qtd_taps} Núcleos Analisados)</div></div></div>
@@ -177,11 +237,11 @@
                 <span class="label-eng">Relação de Corrente (RTC)</span>
                 <table class="table-laudo mb-3"><tr class="bg-light"><th>Núcleo</th><th>I. Pri / I. Sec</th><th>Rn. Teórica</th><th>RTC Medida</th><th>Erro / Status</th></tr>${htmlTTR}</table>
                 
-                <span class="label-eng">Resistência Ôhmica (mΩ)</span>
-                <table class="table-laudo mb-3"><tr class="bg-light"><th>Primário (P1-P2)</th>${htmlSecHeaders}</tr><tr><td class="fw-bold">${dFixos.h1}</td>${htmlSecValues}</tr></table>
+                <span class="label-eng">Resistência Ôhmica</span>
+                <table class="table-laudo mb-3"><tr class="bg-light"><th>Primário P1-P2 (${uniH})</th>${htmlSecHeaders}</tr><tr><td class="fw-bold">${vRender(dFixos.h1)}</td>${htmlSecValues}</tr></table>
                 
                 <span class="label-eng">Resistência de Isolamento (MΩ)</span>
-                <table class="table-laudo mb-3"><tr class="bg-light"><th>AT x Terra</th><th>AT x BT</th><th>BT x Terra</th></tr><tr><td>${dFixos.at_t} <span class="${st_at==='OK'?'text-success':'text-danger'} fw-bold">(${st_at})</span></td><td>${dFixos.at_bt} <span class="${st_atbt==='OK'?'text-success':'text-danger'} fw-bold">(${st_atbt})</span></td><td>${dFixos.bt_t} <span class="${st_bt==='OK'?'text-success':'text-danger'} fw-bold">(${st_bt})</span></td></tr></table>
+                <table class="table-laudo mb-3"><tr class="bg-light"><th>AT x Terra</th><th>AT x BT</th><th>BT x Terra</th></tr><tr><td>${calcIso(dFixos.at_t)}</td><td>${calcIso(dFixos.at_bt)}</td><td>${calcIso(dFixos.bt_t)}</td></tr></table>
             `;
             document.getElementById('box_laudo').classList.remove('d-none'); document.getElementById('box_laudo').scrollIntoView({ behavior: 'smooth' });
         };
