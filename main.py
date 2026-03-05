@@ -11,7 +11,18 @@ app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], all
 database.criar_tabelas()
 
 # ==========================================
-# 1. ROTAS DO FRONTEND (Páginas HTML)
+# 1. ROTAS DO PWA (Offline)
+# ==========================================
+@app.get("/sw.js")
+def service_worker(): 
+    return FileResponse("sw.js", media_type="application/javascript")
+
+@app.get("/manifest.json")
+def manifest(): 
+    return FileResponse("manifest.json")
+
+# ==========================================
+# 2. ROTAS DO FRONTEND (Páginas HTML)
 # ==========================================
 @app.get("/")
 def home(): 
@@ -25,17 +36,6 @@ def paginas(pagina: str):
         nome_arquivo = f"{pagina.replace('-', '_')}.html"
         return FileResponse(nome_arquivo)
     return {"erro": "Página não encontrada"}
-
-# ==========================================
-# 2. ROTAS DO PWA (Offline)
-# ==========================================
-@app.get("/sw.js")
-def service_worker(): 
-    return FileResponse("sw.js", media_type="application/javascript")
-
-@app.get("/manifest.json")
-def manifest(): 
-    return FileResponse("manifest.json")
 
 # ==========================================
 # 3. ROTAS DE SINCRONIZAÇÃO (Backend)
