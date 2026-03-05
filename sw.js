@@ -22,5 +22,4 @@ self.addEventListener('fetch', e => {
         return res;
       }).catch(() => caches.match(e.request))
   );
-
 });
