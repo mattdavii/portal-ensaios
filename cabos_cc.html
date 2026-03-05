@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cabos CC - Portal de Engenharia</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        body { background: #f4f7f6; font-size: 0.85rem; padding: 10px; }
+        .group-box { background: white; border-radius: 12px; padding: 18px; margin-bottom: 12px; border: 1px solid #dee2e6; }
+        .label-eng { font-weight: bold; color: #0d6efd; font-size: 0.75rem; display: block; margin-bottom: 8px; text-transform: uppercase; }
+        .norma { background: #e3f2fd; color: #055160; padding: 5px; border-radius: 4px; font-size: 0.7rem; font-style: italic; margin-bottom: 10px; border-left: 3px solid #0d6efd; display: block; }
+        .status-badge { padding: 4px 10px; border-radius: 4px; font-weight: bold; font-size: 0.7rem; }
+        .bg-ok { background: #d1e7dd; color: #0f5132; }
+        .bg-fail { background: #f8d7da; color: #842029; }
+        .bg-warn { background: #e2e3e5; color: #41464b; }
+        .bg-investigar { background: #ffeb3b; color: #856404; border: 1px solid #ffeeba; } 
+        .alerta-fuga { background-color: #fff3cd; border-left: 4px solid #ffc107; font-size: 0.75rem; color: #856404; padding: 8px; margin-top: 8px; border-radius: 0 4px 4px 0; }
+        .table-laudo { width: 100%; margin-top: 5px; border-collapse: collapse; }
+        .table-laudo th, .table-laudo td { border: 1px solid #eee; padding: 6px; text-align: center; }
+        .header-laudo { background: #f8f9fa; font-weight: bold; color: #333; padding: 10px; border-radius: 5px; margin-bottom: 10px; border: 1px solid #ddd; }
+        @media print { .no-print { display: none !important; } }
+    </style>
+</head>
+<body>
+    <div class="container" style="max-width: 550px;">
+        <a href="/" class="btn btn-sm btn-outline-secondary mb-3 no-print">⬅️ Voltar ao Menu</a>
+        <h5 class="text-center text-secondary mb-3">🔌 Ensaio de Cabos CC (Strings)</h5>
+        
+        <form id="formEnsaios">
+            
+            <div class="group-box shadow-sm">
+                <span class="label-eng">Identificação da String</span>
+                <div class="row g-2 mb-2">
+                    <div class="col"><input type="text" id="usina" class="form-control" placeholder="Usina" required></div>
+                    <div class="col"><input type="text" id="tag" class="form-control" placeholder="TAG (Ex: String 01)" required></div>
+                </div>
+                <div class="row g-2">
+                    <div class="col"><input type="text" id="origem" class="form-control" placeholder="Origem (Ex: Arranjo A)"></div>
+                    <div class="col"><input type="text" id="destino" class="form-control" placeholder="Destino (Ex: Inv 01)"></div>
+                </div>
+            </div>
+
+            <div class="group-box shadow-sm">
+                <span class="label-eng">1. Tensão de Circuito Aberto (VOC)</span>
+                <span class="norma">Multímetro: Ponta Positiva com Ponta Negativa</span>
+                <div class="row g-2 mb-3">
+                    <div class="col-12"><input type="text" id="voc" class="form-control" placeholder="Tensão Medida (Vdc)"></div>
+                </div>
+            </div>
+
+            <div class="group-box shadow-sm">
+                <span class="label-eng">2. Pesquisa de Falha de Isolamento (RI)</span>
+                <span class="norma">Critério: Valores >= 120V indicam falha e exigem investigação.</span>
+                <div class="row g-2">
+                    <div class="col">
+                        <label class="small text-muted">Positivo / Terra (Vdc)</label>
+                        <input type="text" id="v_pos_terra" class="form-control" placeholder="Tensão Vdc">
+                    </div>
+                    <div class="col">
+                        <label class="small text-muted">Negativo / Terra (Vdc)</label>
+                        <input type="text" id="v_neg_terra" class="form-control" placeholder="Tensão Vdc">
+                    </div>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100 py-3 fw-bold shadow no-print">GERAR LAUDO CC</button>
+        </form>
+
+        <div id="box_laudo" class="mt-4 p-4 bg-white border rounded d-none shadow">
+            <h6 class="text-center fw-bold border-bottom pb-2 mb-3">LAUDO TÉCNICO - CABOS CC</h6>
+            <div id="laudo_header" class="header-laudo"></div>
+            <div id="laudo_body"></div>
+            
+            <button onclick="gerarPDF()" class="btn btn-danger w-100 mt-4 fw-bold no-print">📥 DESCARREGAR PDF</button>
+        </div>
+    </div>
+
+    <script>
+        const parseF = (id) => { let v = document.getElementById(id).value.replace(',', '.'); return v === "" ? 0 : parseFloat(v); };
+        
+        function badgeClass(status) { 
+            if(status === 'CONFORME') return 'bg-ok';
+            if(status === 'INVESTIGAR STRING') return 'bg-investigar';
+            if(status === 'NÃO AVALIADO') return 'bg-warn';
+            return 'bg-fail'; 
+        }
+
+        document.getElementById('formEnsaios').onsubmit = async (e) => {
+            e.preventDefault();
+            const payload = {
+                usina: document.getElementById('usina').value, tag: document.getElementById('tag').value, 
+                origem: document.getElementById('origem').value, destino: document.getElementById('destino').value,
+                voc: parseF('voc'), v_pos_terra: parseF('v_pos_terra'), v_neg_terra: parseF('v_neg_terra')
+            };
+
+            try {
+                const response = await fetch('/ensaio/cabos-cc/validar', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+                const d = await response.json();
+                
+                const box = document.getElementById('box_laudo');
+                box.classList.remove('d-none');
+                
+                document.getElementById('laudo_header').innerHTML = `
+                    <div class="row text-center">
+                        <div class="col-6"><b>TAG:</b> ${payload.tag}</div>
+                        <div class="col-6"><b>Usina:</b> ${payload.usina}</div>
+                        <div class="col-12 mt-2"><b>Trecho:</b> ${payload.origem || 'N/A'} ➔ ${payload.destino || 'N/A'}</div>
+                    </div>
+                `;
+
+                // LÓGICA DE ALERTAS INTELIGENTES PARA FUGA DE ISOLAMENTO
+                let alertasFuga = "";
+                if (d.status_pos === 'INVESTIGAR STRING') {
+                    alertasFuga += `<div class="alerta-fuga"><b>⚠️ Ação Recomendada:</b> Alta tensão detectada no teste Positivo/Terra. Seguir investigando a linha do <b>NEGATIVO</b>, pois isso indica uma fuga do negativo com o terra.</div>`;
+                }
+                if (d.status_neg === 'INVESTIGAR STRING') {
+                    alertasFuga += `<div class="alerta-fuga"><b>⚠️ Ação Recomendada:</b> Alta tensão detectada no teste Negativo/Terra. Seguir investigando a linha do <b>POSITIVO</b>, pois isso indica uma fuga do positivo com o terra.</div>`;
+                }
+
+                document.getElementById('laudo_body').innerHTML = `
+                    <div class="mb-3 text-center p-2 bg-light border rounded">
+                        <span class="d-block small text-muted text-uppercase fw-bold">Tensão de Circuito Aberto (VOC)</span>
+                        <span class="fs-5 fw-bold text-primary">${d.voc} Vdc</span>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <span class="label-eng">Análise de Fuga para o Terra (Queda de Tensão)</span>
+                        <table class="table-laudo">
+                            <tr><th>Pólo / Terra</th><th>Veredito</th></tr>
+                            <tr>
+                                <td><b>Positivo / Terra</b><br><small class="text-muted">${payload.v_pos_terra} Vdc</small></td>
+                                <td><span class="status-badge ${badgeClass(d.status_pos)}">${d.status_pos}</span></td>
+                            </tr>
+                            <tr>
+                                <td><b>Negativo / Terra</b><br><small class="text-muted">${payload.v_neg_terra} Vdc</small></td>
+                                <td><span class="status-badge ${badgeClass(d.status_neg)}">${d.status_neg}</span></td>
+                            </tr>
+                        </table>
+                        ${alertasFuga}
+                    </div>
+                    <div class="text-end mt-2 border-top pt-2">
+                        Status Geral da String: <span class="status-badge ${badgeClass(d.status_geral)}">${d.status_geral}</span>
+                    </div>
+                `;
+                box.scrollIntoView({ behavior: 'smooth' });
+            } catch (error) { alert("Erro ao validar. Verifique o servidor."); }
+        };
+
+        function gerarPDF() {
+            const elemento = document.getElementById('box_laudo');
+            document.querySelector('.no-print.btn-danger').style.display = 'none';
+            html2pdf().set({ margin: 15, filename: `Laudo_CaboCC_${document.getElementById('tag').value}.pdf`, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2, scrollY: 0, useCORS: true }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } }).from(elemento).save().then(() => { document.querySelector('.no-print.btn-danger').style.display = 'block'; });
+        }
+    </script>
+</body>
+</html>

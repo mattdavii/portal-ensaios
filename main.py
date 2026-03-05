@@ -51,6 +51,14 @@ def pagina_seccionadora():
 def pagina_disjuntor_bt(): 
     return FileResponse("disjuntor_bt.html")
 
+@app.get("/cabos-cc")
+def pagina_cabos_cc(): return FileResponse("cabos_cc.html")
+
+@app.get("/cont-malha")
+def pagina_cont_malha(): return FileResponse("cont_malha.html")
+
+@app.get("/res-malha")
+def pagina_res_malha(): return FileResponse("res_malha.html")
 
 # ==========================================
 # ROTAS DE API (BACKEND - PROCESSAMENTO DE DADOS)
@@ -146,6 +154,44 @@ async def validar_disjuntor_bt(d: models.EnsaioDisjuntorBT):
         print(f"Erro no servidor: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
+@app.post("/ensaio/cabos-cc/validar")
+async def validar_cabos_cc(d: models.EnsaioCabosCC):
+    try:
+        res = d.validar()
+        conn = database.get_db_connection()
+        conn.execute("""INSERT INTO ensaio_cabos_cc 
+            (usina, tag, origem, destino, voc, v_pos_terra, v_neg_terra, status_pos, status_neg, status_geral) 
+            VALUES (?,?,?,?,?,?,?,?,?,?)""", 
+            (d.usina, d.tag, d.origem, d.destino, d.voc, d.v_pos_terra, d.v_neg_terra, res['status_pos'], res['status_neg'], res['status_geral']))
+        conn.commit(); conn.close()
+        return res
+    except Exception as e:
+        print(f"Erro no servidor: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/ensaio/cont-malha/validar")
+async def validar_cont_malha(d: models.EnsaioContMalha):
+    res = d.validar()
+    conn = database.get_db_connection()
+    conn.execute("""INSERT INTO ensaio_cont_malha (usina, tag, pt1_nome, pt1_res, pt2_nome, pt2_res, pt3_nome, pt3_res, status_geral) VALUES (?,?,?,?,?,?,?,?,?)""", (d.usina, d.tag, d.pt1_nome, d.pt1_res, d.pt2_nome, d.pt2_res, d.pt3_nome, d.pt3_res, res['status_geral']))
+    conn.commit(); conn.close()
+    return res
+
+@app.post("/ensaio/res-malha/validar")
+async def validar_res_malha(d: models.EnsaioResMalha):
+    try:
+        res = d.validar()
+        conn = database.get_db_connection()
+        conn.execute("""INSERT INTO ensaio_res_malha 
+            (usina, tag, metodo, d_total, r52, r62, r72, r_media, desvio, status_plat, status_geral) 
+            VALUES (?,?,?,?,?,?,?,?,?,?,?)""", 
+            (d.usina, d.tag, d.metodo, d.d_total, d.r52, d.r62, d.r72, res['r_media'], res['desvio'], res['status_plat'], res['status_geral']))
+        conn.commit()
+        conn.close()
+        return res
+    except Exception as e:
+        print(f"Erro no servidor: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 if __name__ == "__main__":
     # Pega a porta injetada pela nuvem (ex: Render). Se rodar localmente no seu PC, ele usa 8000.
