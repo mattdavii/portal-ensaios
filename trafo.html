@@ -38,38 +38,55 @@
                 <div class="row g-2 align-items-center border-bottom pb-3 mb-3">
                     <div class="col-8 fw-bold text-muted small">Quantos TAPs serão ensaiados?</div>
                     <div class="col-4">
-                        <input type="number" id="qtd_taps" class="form-control border-primary text-center" placeholder="Ex: 5" min="1" max="30" required oninput="gerarTaps()">
+                        <input type="number" id="qtd_taps" class="form-control border-primary text-center" placeholder="Ex: 5" min="1" max="30" oninput="gerarTaps()">
                     </div>
                 </div>
                 <div id="dynamic_taps"></div>
             </div>
 
             <div class="group-box">
-                <span class="label-eng">Resistência Ôhmica (mΩ)</span>
-                <div class="section-title">Alta Tensão (H1, H2, H3)</div>
-                <div class="row g-2 mb-2">
-                    <div class="col"><input type="number" step="0.1" id="h1" class="form-control form-control-sm" placeholder="H1-H2"></div>
-                    <div class="col"><input type="number" step="0.1" id="h2" class="form-control form-control-sm" placeholder="H2-H3"></div>
-                    <div class="col"><input type="number" step="0.1" id="h3" class="form-control form-control-sm" placeholder="H3-H1"></div>
+                <span class="label-eng">Resistência Ôhmica</span>
+                <span class="norma">Critério: Desequilíbrio entre fases ≤ 10%</span>
+                
+                <div class="section-title d-flex justify-content-between align-items-center">
+                    <span>Alta Tensão (H1, H2, H3)</span>
+                    <select id="uni_h" class="form-select form-select-sm w-auto border-primary text-primary fw-bold">
+                        <option value="Ω">Ohms (Ω)</option>
+                        <option value="mΩ" selected>miliOhms (mΩ)</option>
+                        <option value="µΩ">microOhms (µΩ)</option>
+                    </select>
                 </div>
-                <div class="section-title">Baixa Tensão (X1, X2, X3)</div>
+                <div class="row g-2 mb-3">
+                    <div class="col"><input type="number" step="0.001" id="h1" class="form-control form-control-sm" placeholder="H1-H2"></div>
+                    <div class="col"><input type="number" step="0.001" id="h2" class="form-control form-control-sm" placeholder="H2-H3"></div>
+                    <div class="col"><input type="number" step="0.001" id="h3" class="form-control form-control-sm" placeholder="H3-H1"></div>
+                </div>
+
+                <div class="section-title d-flex justify-content-between align-items-center">
+                    <span>Baixa Tensão (X1, X2, X3)</span>
+                    <select id="uni_x" class="form-select form-select-sm w-auto border-primary text-primary fw-bold">
+                        <option value="Ω">Ohms (Ω)</option>
+                        <option value="mΩ" selected>miliOhms (mΩ)</option>
+                        <option value="µΩ">microOhms (µΩ)</option>
+                    </select>
+                </div>
                 <div class="row g-2">
-                    <div class="col"><input type="number" step="0.1" id="x1" class="form-control form-control-sm" placeholder="X1-X2"></div>
-                    <div class="col"><input type="number" step="0.1" id="x2" class="form-control form-control-sm" placeholder="X2-X3"></div>
-                    <div class="col"><input type="number" step="0.1" id="x3" class="form-control form-control-sm" placeholder="X3-X1"></div>
+                    <div class="col"><input type="number" step="0.001" id="x1" class="form-control form-control-sm" placeholder="X1-X2"></div>
+                    <div class="col"><input type="number" step="0.001" id="x2" class="form-control form-control-sm" placeholder="X2-X3"></div>
+                    <div class="col"><input type="number" step="0.001" id="x3" class="form-control form-control-sm" placeholder="X3-X1"></div>
                 </div>
             </div>
 
             <div class="group-box">
                 <span class="label-eng">Resistência de Isolamento (MΩ)</span>
                 <div class="row g-2">
-                    <div class="col"><label class="small text-muted" style="font-size: 0.65rem;">AT x Terra</label><input type="number" id="at_t" class="form-control form-control-sm" required></div>
-                    <div class="col"><label class="small text-muted" style="font-size: 0.65rem;">AT x BT</label><input type="number" id="at_bt" class="form-control form-control-sm" required></div>
-                    <div class="col"><label class="small text-muted" style="font-size: 0.65rem;">BT x Terra</label><input type="number" id="bt_t" class="form-control form-control-sm" required></div>
+                    <div class="col"><label class="small text-muted" style="font-size: 0.65rem;">AT x Terra</label><input type="number" id="at_t" class="form-control form-control-sm"></div>
+                    <div class="col"><label class="small text-muted" style="font-size: 0.65rem;">AT x BT</label><input type="number" id="at_bt" class="form-control form-control-sm"></div>
+                    <div class="col"><label class="small text-muted" style="font-size: 0.65rem;">BT x Terra</label><input type="number" id="bt_t" class="form-control form-control-sm"></div>
                 </div>
             </div>
 
-            <button type="submit" id="btn_salvar" class="btn btn-primary w-100 py-3 fw-bold shadow-sm no-print d-none">GERAR LAUDO E SALVAR</button>
+            <button type="submit" id="btn_salvar" class="btn btn-primary w-100 py-3 fw-bold shadow-sm no-print">GERAR LAUDO E SALVAR</button>
         </form>
 
         <div id="box_laudo" class="mt-4 p-4 bg-white border rounded d-none shadow-sm">
@@ -80,28 +97,25 @@
     </div>
 
     <script>
-        // --- CÁLCULO DA RELAÇÃO TEÓRICA EM TEMPO REAL ---
+        // --- FUNÇÕES AUXILIARES DE INTELIGÊNCIA ---
+        const pF = (id) => { let v = document.getElementById(id).value; return v === "" ? null : parseFloat(v); };
+        const vDB = (val) => val === null ? 0 : val; // Envia 0 pro banco para não quebrar a tipagem
+        const vRender = (val) => val === null ? "-" : val; // Mostra traço no PDF se estiver vazio
+
         function calcRn(i) {
-            let vpri = parseFloat(document.getElementById(`vpri_${i}`).value) || 0;
-            let vsec = parseFloat(document.getElementById(`vsec_${i}`).value) || 0;
+            let vpri = parseFloat(document.getElementById(`vpri_${i}`).value) || null;
+            let vsec = parseFloat(document.getElementById(`vsec_${i}`).value) || null;
             let rnInput = document.getElementById(`rn_${i}`);
-            
-            if(vpri > 0 && vsec > 0) {
-                rnInput.value = (vpri / vsec).toFixed(3);
-            } else {
-                rnInput.value = "";
-            }
+            if(vpri && vsec) rnInput.value = (vpri / vsec).toFixed(3);
+            else rnInput.value = "";
         }
 
-        // --- GERAÇÃO DINÂMICA DE TAPS ---
         function gerarTaps() {
-            let qtd = parseInt(document.getElementById('qtd_taps').value);
+            let qtd = parseInt(document.getElementById('qtd_taps').value) || 0;
             let container = document.getElementById('dynamic_taps');
-            let btn = document.getElementById('btn_salvar');
             container.innerHTML = '';
             
             if(qtd > 0 && qtd <= 30) {
-                btn.classList.remove('d-none');
                 for(let i = 1; i <= qtd; i++) {
                     container.innerHTML += `
                     <div class="p-2 border rounded mb-2 bg-light shadow-sm">
@@ -110,27 +124,23 @@
                             <input type="text" id="nome_tap_${i}" class="form-control form-control-sm w-50 text-end" placeholder="Ex: 1 ou Nominal" value="${i}" required>
                         </div>
                         <div class="row g-1 mb-2">
-                            <div class="col-4"><label class="small text-muted" style="font-size:0.65rem">Tensão Primária</label><input type="number" step="0.1" id="vpri_${i}" class="form-control form-control-sm" placeholder="(V)" required oninput="calcRn(${i})"></div>
-                            <div class="col-4"><label class="small text-muted" style="font-size:0.65rem">Tensão Secundária</label><input type="number" step="0.1" id="vsec_${i}" class="form-control form-control-sm" placeholder="(V)" required oninput="calcRn(${i})"></div>
+                            <div class="col-4"><label class="small text-muted" style="font-size:0.65rem">Tensão Primária</label><input type="number" step="0.1" id="vpri_${i}" class="form-control form-control-sm" placeholder="(V)" oninput="calcRn(${i})"></div>
+                            <div class="col-4"><label class="small text-muted" style="font-size:0.65rem">Tensão Secundária</label><input type="number" step="0.1" id="vsec_${i}" class="form-control form-control-sm" placeholder="(V)" oninput="calcRn(${i})"></div>
                             <div class="col-4"><label class="small text-muted" style="font-size:0.65rem">Relação Teórica</label><input type="text" id="rn_${i}" class="form-control form-control-sm text-primary fw-bold bg-white" placeholder="Rn" readonly></div>
                         </div>
                         <div class="row g-1">
-                            <div class="col-4"><label class="small text-muted" style="font-size:0.65rem">TTR Fase A</label><input type="number" step="0.001" id="ttr_a_${i}" class="form-control form-control-sm text-center" placeholder="Valor" required></div>
-                            <div class="col-4"><label class="small text-muted" style="font-size:0.65rem">TTR Fase B</label><input type="number" step="0.001" id="ttr_b_${i}" class="form-control form-control-sm text-center" placeholder="Valor" required></div>
-                            <div class="col-4"><label class="small text-muted" style="font-size:0.65rem">TTR Fase C</label><input type="number" step="0.001" id="ttr_c_${i}" class="form-control form-control-sm text-center" placeholder="Valor" required></div>
+                            <div class="col-4"><label class="small text-muted" style="font-size:0.65rem">TTR Fase A</label><input type="number" step="0.001" id="ttr_a_${i}" class="form-control form-control-sm text-center" placeholder="Valor"></div>
+                            <div class="col-4"><label class="small text-muted" style="font-size:0.65rem">TTR Fase B</label><input type="number" step="0.001" id="ttr_b_${i}" class="form-control form-control-sm text-center" placeholder="Valor"></div>
+                            <div class="col-4"><label class="small text-muted" style="font-size:0.65rem">TTR Fase C</label><input type="number" step="0.001" id="ttr_c_${i}" class="form-control form-control-sm text-center" placeholder="Valor"></div>
                         </div>
                     </div>`;
                 }
-            } else {
-                btn.classList.add('d-none');
             }
         }
 
-        // --- SALVAR LOTE DE TAPS (HÍBRIDO) ---
         async function salvarLoteHibrido(payloads, url) {
             let salvosOnline = 0; let salvosOffline = 0;
             let fila = JSON.parse(localStorage.getItem('sync_queue') || '[]');
-
             if(navigator.onLine) {
                 for(let p of payloads) {
                     try {
@@ -138,89 +148,108 @@
                         if(r.ok) salvosOnline++; else { fila.push({url: url, data: p}); salvosOffline++; }
                     } catch(e) { fila.push({url: url, data: p}); salvosOffline++; }
                 }
-            } else {
-                for(let p of payloads) { fila.push({url: url, data: p}); salvosOffline++; }
-            }
-
+            } else { for(let p of payloads) { fila.push({url: url, data: p}); salvosOffline++; } }
             if(salvosOffline > 0) localStorage.setItem('sync_queue', JSON.stringify(fila));
-            
             if(salvosOnline > 0 && salvosOffline === 0) alert(`✅ Trafo salvo com sucesso na nuvem!`);
             else alert(`⚠️ Dados salvos no telemóvel para sincronia. (${salvosOffline} pendentes)`);
+        }
+
+        function calcularEquilibrio(v1, v2, v3) {
+            if(v1 === null || v2 === null || v3 === null) return { val: '-', st: '-', cls: 'text-muted' };
+            let max = Math.max(v1, v2, v3);
+            let min = Math.min(v1, v2, v3);
+            if (min === 0) return { val: 'Erro', st: 'FALHA', cls: 'text-danger' };
+            
+            let desvio = ((max - min) / min) * 100;
+            let status = desvio <= 10 ? 'OK' : 'FALHA';
+            let classe = desvio <= 10 ? 'text-success' : 'text-danger';
+            return { val: desvio.toFixed(2) + '%', st: status, cls: classe };
+        }
+
+        function calcErroTTR(medido, teorico) {
+            if (medido === null || teorico === null || teorico === 0) return '-';
+            let err = ((Math.abs(medido - teorico) / teorico) * 100).toFixed(2);
+            let st = err <= 0.5 ? 'OK' : 'FALHA';
+            let cls = err <= 0.5 ? 'text-success' : 'text-danger';
+            return `${medido} <br><span class="${cls} fw-bold" style="font-size:0.65rem;">(${err}% - ${st})</span>`;
+        }
+
+        function calcIso(val) {
+            if (val === null) return '-';
+            let st = val >= 1000 ? 'OK' : 'FALHA';
+            let cls = val >= 1000 ? 'text-success' : 'text-danger';
+            return `${val} <span class="${cls} fw-bold">(${st})</span>`;
         }
 
         // --- PROCESSAMENTO DO LAUDO ---
         document.getElementById('formTrafo').onsubmit = async (e) => {
             e.preventDefault(); 
-            const pF = (id) => parseFloat(document.getElementById(id).value) || 0;
             const usina = document.getElementById('usina').value;
             const tag = document.getElementById('tag').value;
-            const qtd = parseInt(document.getElementById('qtd_taps').value);
+            const qtd = parseInt(document.getElementById('qtd_taps').value) || 0;
 
-            // Coletar dados fixos de Resistência e Isolamento
+            const uniH = document.getElementById('uni_h').value;
+            const uniX = document.getElementById('uni_x').value;
+            
             const dFixos = {
-                h1: pF('h1'), h2: pF('h2'), h3: pF('h3'),
-                x1: pF('x1'), x2: pF('x2'), x3: pF('x3'),
+                h1: pF('h1'), h2: pF('h2'), h3: pF('h3'), uni_h: uniH,
+                x1: pF('x1'), x2: pF('x2'), x3: pF('x3'), uni_x: uniX,
                 at_t: pF('at_t'), at_bt: pF('at_bt'), bt_t: pF('bt_t')
             };
+
+            const eqH = calcularEquilibrio(dFixos.h1, dFixos.h2, dFixos.h3);
+            const eqX = calcularEquilibrio(dFixos.x1, dFixos.x2, dFixos.x3);
 
             let payloads = [];
             let htmlTTR = "";
 
-            // Processar cada TAP
-            for(let i = 1; i <= qtd; i++) {
-                let tap = document.getElementById(`nome_tap_${i}`).value;
-                let vpri = parseFloat(document.getElementById(`vpri_${i}`).value);
-                let vsec = parseFloat(document.getElementById(`vsec_${i}`).value);
-                let rn = parseFloat(document.getElementById(`rn_${i}`).value) || 0;
-                let ta = parseFloat(document.getElementById(`ttr_a_${i}`).value);
-                let tb = parseFloat(document.getElementById(`ttr_b_${i}`).value);
-                let tc = parseFloat(document.getElementById(`ttr_c_${i}`).value);
+            if(qtd > 0) {
+                for(let i = 1; i <= qtd; i++) {
+                    let tap = document.getElementById(`nome_tap_${i}`).value;
+                    let vpri = pF(`vpri_${i}`);
+                    let vsec = pF(`vsec_${i}`);
+                    let rn = pF(`rn_${i}`);
+                    let ta = pF(`ttr_a_${i}`);
+                    let tb = pF(`ttr_b_${i}`);
+                    let tc = pF(`ttr_c_${i}`);
 
-                // Cálculos de Erro Percentual (%)
-                let errA = rn > 0 ? ((Math.abs(ta - rn) / rn) * 100).toFixed(2) : 0;
-                let errB = rn > 0 ? ((Math.abs(tb - rn) / rn) * 100).toFixed(2) : 0;
-                let errC = rn > 0 ? ((Math.abs(tc - rn) / rn) * 100).toFixed(2) : 0;
+                    let strTensao = (vpri !== null && vsec !== null) ? `${vpri} / ${vsec}` : '-';
 
-                // Conformidade (Limite de 0.5%)
-                let clsA = errA <= 0.5 ? 'text-success' : 'text-danger';
-                let clsB = errB <= 0.5 ? 'text-success' : 'text-danger';
-                let clsC = errC <= 0.5 ? 'text-success' : 'text-danger';
-                
-                let stA = errA <= 0.5 ? 'OK' : 'FALHA';
-                let stB = errB <= 0.5 ? 'OK' : 'FALHA';
-                let stC = errC <= 0.5 ? 'OK' : 'FALHA';
+                    payloads.push({ 
+                        usina: usina, tag: tag, tipo: "TRAFO", tap: "TAP " + tap,
+                        nom_pri: vDB(vpri), nom_sec: vDB(vsec), rn_teorico: vDB(rn),
+                        ttr_a: vDB(ta), ttr_b: vDB(tb), ttr_c: vDB(tc),
+                        h1: vDB(dFixos.h1), h2: vDB(dFixos.h2), h3: vDB(dFixos.h3), uni_h: uniH,
+                        x1: vDB(dFixos.x1), x2: vDB(dFixos.x2), x3: vDB(dFixos.x3), uni_x: uniX,
+                        at_t: vDB(dFixos.at_t), at_bt: vDB(dFixos.at_bt), bt_t: vDB(dFixos.bt_t)
+                    });
 
-                // Criar o pacote para o Banco de Dados
+                    htmlTTR += `
+                        <tr>
+                            <td class="fw-bold bg-light align-middle">${tap}</td>
+                            <td class="align-middle">${strTensao}</td>
+                            <td class="text-primary fw-bold align-middle">${vRender(rn)}</td>
+                            <td>${calcErroTTR(ta, rn)}</td>
+                            <td>${calcErroTTR(tb, rn)}</td>
+                            <td>${calcErroTTR(tc, rn)}</td>
+                        </tr>
+                    `;
+                }
+            } else {
+                // Se não ensaiou TTR, manda só os dados fixos
                 payloads.push({ 
-                    usina: usina, tag: tag, tipo: "TRAFO", tap: "TAP " + tap,
-                    nom_pri: vpri, nom_sec: vsec, rn_teorico: rn,
-                    ttr_a: ta, ttr_b: tb, ttr_c: tc,
-                    h1: dFixos.h1, h2: dFixos.h2, h3: dFixos.h3, uni_h: "mΩ",
-                    x1: dFixos.x1, x2: dFixos.x2, x3: dFixos.x3, uni_x: "mΩ",
-                    at_t: dFixos.at_t, at_bt: dFixos.at_bt, bt_t: dFixos.bt_t
+                    usina: usina, tag: tag, tipo: "TRAFO", tap: "-",
+                    nom_pri: 0, nom_sec: 0, rn_teorico: 0,
+                    ttr_a: 0, ttr_b: 0, ttr_c: 0,
+                    h1: vDB(dFixos.h1), h2: vDB(dFixos.h2), h3: vDB(dFixos.h3), uni_h: uniH,
+                    x1: vDB(dFixos.x1), x2: vDB(dFixos.x2), x3: vDB(dFixos.x3), uni_x: uniX,
+                    at_t: vDB(dFixos.at_t), at_bt: vDB(dFixos.at_bt), bt_t: vDB(dFixos.bt_t)
                 });
-
-                // Criar linha da Tabela PDF (Com Erros embutidos)
-                htmlTTR += `
-                    <tr>
-                        <td class="fw-bold bg-light align-middle">${tap}</td>
-                        <td class="align-middle">${vpri} / ${vsec}</td>
-                        <td class="text-primary fw-bold align-middle">${rn.toFixed(3)}</td>
-                        <td>${ta} <br><span class="${clsA} fw-bold" style="font-size:0.65rem;">(${errA}% - ${stA})</span></td>
-                        <td>${tb} <br><span class="${clsB} fw-bold" style="font-size:0.65rem;">(${errB}% - ${stB})</span></td>
-                        <td>${tc} <br><span class="${clsC} fw-bold" style="font-size:0.65rem;">(${errC}% - ${stC})</span></td>
-                    </tr>
-                `;
+                htmlTTR = `<tr><td colspan="6" class="text-muted">Nenhum TAP ensaiado</td></tr>`;
             }
 
-            // Envia tudo para a nuvem ou para a fila
             await salvarLoteHibrido(payloads, '/api/sync/trafo');
 
-            const st_at_t = dFixos.at_t >= 1000 ? "OK" : "FALHA";
-            const st_at_bt = dFixos.at_bt >= 1000 ? "OK" : "FALHA";
-            const st_bt_t = dFixos.bt_t >= 1000 ? "OK" : "FALHA";
-
-            // Renderizar PDF
             document.getElementById('laudo_render').innerHTML = `
                 <div class="header-laudo text-center">
                     <div class="row mb-1"><div class="col-6"><b>Usina:</b> ${usina}</div><div class="col-6"><b>TAG:</b> ${tag}</div></div>
@@ -238,20 +267,24 @@
                     ${htmlTTR}
                 </table>
 
-                <span class="label-eng">Resistência Ôhmica (mΩ)</span>
+                <span class="label-eng">Resistência Ôhmica</span>
                 <table class="table-laudo mb-3">
-                    <tr class="bg-light"><th colspan="3">Alta Tensão</th><th colspan="3">Baixa Tensão</th></tr>
+                    <tr class="bg-light"><th colspan="3">Alta Tensão (${uniH})</th><th colspan="3">Baixa Tensão (${uniX})</th></tr>
                     <tr class="bg-light"><th>H1-H2</th><th>H2-H3</th><th>H3-H1</th><th>X1-X2</th><th>X2-X3</th><th>X3-X1</th></tr>
-                    <tr><td>${dFixos.h1}</td><td>${dFixos.h2}</td><td>${dFixos.h3}</td><td>${dFixos.x1}</td><td>${dFixos.x2}</td><td>${dFixos.x3}</td></tr>
+                    <tr><td>${vRender(dFixos.h1)}</td><td>${vRender(dFixos.h2)}</td><td>${vRender(dFixos.h3)}</td><td>${vRender(dFixos.x1)}</td><td>${vRender(dFixos.x2)}</td><td>${vRender(dFixos.x3)}</td></tr>
+                    <tr class="bg-light">
+                        <td colspan="3" class="small">Equilíbrio: <span class="fw-bold ${eqH.cls}">${eqH.val} ${eqH.st !== '-' ? '('+eqH.st+')' : ''}</span></td>
+                        <td colspan="3" class="small">Equilíbrio: <span class="fw-bold ${eqX.cls}">${eqX.val} ${eqX.st !== '-' ? '('+eqX.st+')' : ''}</span></td>
+                    </tr>
                 </table>
 
                 <span class="label-eng">Resistência de Isolamento (MΩ)</span>
                 <table class="table-laudo mb-3">
                     <tr class="bg-light"><th>AT x Terra</th><th>AT x BT</th><th>BT x Terra</th></tr>
                     <tr>
-                        <td>${dFixos.at_t} <span class="${st_at_t==='OK'?'text-success':'text-danger'} fw-bold">(${st_at_t})</span></td>
-                        <td>${dFixos.at_bt} <span class="${st_at_bt==='OK'?'text-success':'text-danger'} fw-bold">(${st_at_bt})</span></td>
-                        <td>${dFixos.bt_t} <span class="${st_bt_t==='OK'?'text-success':'text-danger'} fw-bold">(${st_bt_t})</span></td>
+                        <td>${calcIso(dFixos.at_t)}</td>
+                        <td>${calcIso(dFixos.at_bt)}</td>
+                        <td>${calcIso(dFixos.bt_t)}</td>
                     </tr>
                 </table>
             `;
