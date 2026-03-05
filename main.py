@@ -29,13 +29,13 @@ def paginas(pagina: str):
 # ==========================================
 # 2. ROTAS DO PWA (Offline)
 # ==========================================
+@app.get("/sw.js")
+def service_worker(): 
+    return FileResponse("sw.js", media_type="application/javascript")
+
 @app.get("/manifest.json")
 def manifest(): 
     return FileResponse("manifest.json")
-
-@app.get("/sw.js")
-def sw(): 
-    return FileResponse("sw.js", media_type="application/javascript")
 
 # ==========================================
 # 3. ROTAS DE SINCRONIZAÇÃO (Backend)
