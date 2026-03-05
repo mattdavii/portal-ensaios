@@ -11,10 +11,14 @@
         .group-box { background: white; border-radius: 12px; padding: 18px; margin-bottom: 12px; border: 1px solid #dee2e6; }
         .label-eng { font-weight: bold; color: #0d6efd; font-size: 0.75rem; display: block; margin-bottom: 8px; text-transform: uppercase; }
         .norma { background: #e3f2fd; color: #055160; padding: 5px; border-radius: 4px; font-size: 0.7rem; font-style: italic; margin-bottom: 10px; border-left: 3px solid #0d6efd; display: block; }
-        .status-badge { padding: 4px 10px; border-radius: 4px; font-weight: bold; font-size: 0.7rem; }
+        .status-badge { padding: 4px 10px; border-radius: 4px; font-weight: bold; font-size: 0.7rem; display: inline-block; text-align: center; }
+        
+        /* Cores dos Badges */
         .bg-ok { background: #d1e7dd; color: #0f5132; }
         .bg-fail { background: #f8d7da; color: #842029; }
         .bg-warn { background: #e2e3e5; color: #41464b; }
+        .bg-alerta { background: #fff3cd; color: #856404; border: 1px solid #ffeeba; } /* Amarelo/Laranja para acima de 10 ohms */
+        
         .calculo-dist { background: #e9ecef; padding: 8px; border-radius: 6px; font-size: 0.75rem; text-align: center; font-weight: bold; color: #495057; border: 1px dashed #ced4da;}
         .table-laudo { width: 100%; margin-top: 5px; border-collapse: collapse; }
         .table-laudo th, .table-laudo td { border: 1px solid #eee; padding: 6px; text-align: center; }
@@ -75,9 +79,14 @@
 
     <script>
         const parseF = (id) => { let v = document.getElementById(id).value.replace(',', '.'); return v === "" ? 0 : parseFloat(v); };
-        function badgeClass(status) { return status === 'CONFORME' ? 'bg-ok' : (status.includes('NÃO AVALIADO') ? 'bg-warn' : 'bg-fail'); }
+        
+        function badgeClass(status) { 
+            if (status === 'CONFORME') return 'bg-ok';
+            if (status.includes('NÃO AVALIADO')) return 'bg-warn';
+            if (status.includes('EQUILIBRADO')) return 'bg-alerta';
+            return 'bg-fail'; 
+        }
 
-        // MÁGICA: Calcula as posições da haste de tensão em tempo real
         function calcularDistancias() {
             let d = parseF('d_total');
             let box = document.getElementById('box_distancias');
@@ -133,8 +142,9 @@
                         </div>
                     </div>
                     
-                    <div class="text-end mt-2 border-top pt-2">
-                        Veredito Final: <span class="status-badge ${badgeClass(d.status_geral)}">${d.status_geral}</span>
+                    <div class="text-center mt-3 border-top pt-3">
+                        <span class="d-block small text-muted text-uppercase fw-bold mb-1">Veredito Final</span>
+                        <span class="status-badge ${badgeClass(d.status_geral)} w-100 py-2 fs-6">${d.status_geral}</span>
                     </div>
                 `;
                 box.scrollIntoView({ behavior: 'smooth' });

@@ -137,18 +137,23 @@ class EnsaioResMalha(BaseModel):
         medicoes = [self.r52, self.r62, self.r72]
         r_media = round(sum(medicoes) / 3, 2)
         
-        # LÓGICA CORRIGIDA: Compara os extremos com o valor central (62%)
+        # Compara os extremos com o valor central (62%)
         if self.r62 > 0:
             desvio_52 = (abs(self.r52 - self.r62) / self.r62) * 100
             desvio_72 = (abs(self.r72 - self.r62) / self.r62) * 100
-            # Pega o pior desvio entre as duas hastes
             desvio = round(max(desvio_52, desvio_72), 2)
         else:
             desvio = 0
 
-        # Regras Normativas
+        # Regras Normativas e Nova Lógica de Veredito
         status_plat = "CONFORME" if desvio <= 10.0 else "FALSO PATAMAR"
-        status_geral = "CONFORME" if r_media <= 10.0 and status_plat == "CONFORME" else "REFAZER"
+        
+        if status_plat == "FALSO PATAMAR":
+            status_geral = "REFAZER TESTE (FALSO PATAMAR)"
+        elif r_media <= 10.0:
+            status_geral = "CONFORME"
+        else:
+            status_geral = "VALOR EQUILIBRADO, PORÉM ACIMA DO ESPERADO"
 
         return {
             "r_media": r_media,
