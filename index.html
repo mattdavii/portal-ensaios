@@ -4,105 +4,79 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Portal de Engenharia</title>
+    <link rel="manifest" href="/manifest.json">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    
     <style>
         body { background: #f0f2f5; padding: 20px; font-family: 'Segoe UI', sans-serif; }
-        .menu-card { 
-            background: white; border-radius: 12px; padding: 15px 20px; text-decoration: none; 
-            color: #333; display: flex; align-items: center; margin-bottom: 15px; 
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05); border: 2px solid transparent; transition: 0.3s; 
-        }
+        .menu-card { background: white; border-radius: 12px; padding: 15px 20px; text-decoration: none; color: #333; display: flex; align-items: center; margin-bottom: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border: 2px solid transparent; transition: 0.3s; }
         .menu-card:hover { border-color: #0d6efd; background: #f8fbff; transform: translateY(-2px); }
         .menu-icon { font-size: 2.2rem; margin-right: 18px; min-width: 45px; text-align: center; }
         .menu-text h6 { margin: 0; font-weight: bold; font-size: 1.1rem; color: #0d6efd; }
         .menu-text small { color: #6c757d; font-size: 0.85rem; }
-        .section-title { font-size: 0.85rem; font-weight: bold; color: #adb5bd; text-transform: uppercase; margin-bottom: 15px; letter-spacing: 1px; }
+        .section-title { font-size: 0.85rem; font-weight: bold; color: #adb5bd; text-transform: uppercase; margin-bottom: 15px; margin-top: 25px; letter-spacing: 1px; }
+        .sync-banner { background: #0d6efd; color: white; border-radius: 12px; padding: 15px; margin-bottom: 20px; display: none; }
     </style>
 </head>
 <body>
     <div class="container" style="max-width: 600px;">
-        <h4 class="text-center fw-bold text-dark mb-4"><i class="bi bi-clipboard2-data text-primary me-2"></i> Portal de Ensaios</h4>
+        <h4 class="text-center fw-bold text-dark mb-4"><i class="bi bi-clipboard2-data text-primary me-2"></i> Ensaios PWA</h4>
 
-        <div class="section-title mt-4">Ativos de Potência</div>
-        
-        <a href="/trafo" class="menu-card">
-            <div class="menu-icon"><i class="bi bi-hdd-stack-fill text-primary"></i></div>
-            <div class="menu-text">
-                <h6>Transformador de Força</h6>
-                <small>TTR, Resistência Ôhmica e Isolamento</small>
+        <div id="syncBanner" class="sync-banner shadow">
+            <div class="d-flex justify-content-between align-items-center">
+                <div><i class="bi bi-cloud-arrow-up-fill me-2"></i> <b id="syncCount">0</b> ensaios pendentes</div>
+                <button onclick="sincronizarAgora()" class="btn btn-light btn-sm fw-bold">SINCRONIZAR</button>
             </div>
-        </a>
+        </div>
 
-        <a href="/tp" class="menu-card">
-            <div class="menu-icon"><i class="bi bi-lightning-charge-fill text-warning"></i></div>
-            <div class="menu-text">
-                <h6>Transformador de Potencial (TP)</h6>
-                <small>Relação de Tensão e Estáticos</small>
-            </div>
-        </a>
+        <div class="section-title">Ativos de Potência</div>
+        <a href="/trafo" class="menu-card"><div class="menu-icon"><i class="bi bi-hdd-stack-fill text-primary"></i></div><div class="menu-text"><h6>Transformador de Força</h6><small>TTR, Resistência e Isolamento</small></div></a>
+        <a href="/tp" class="menu-card"><div class="menu-icon"><i class="bi bi-lightning-charge-fill text-warning"></i></div><div class="menu-text"><h6>Transformador Potencial (TP)</h6><small>Relação de Tensão e Estáticos</small></div></a>
+        <a href="/tc" class="menu-card"><div class="menu-icon"><i class="bi bi-record-circle-fill text-danger"></i></div><div class="menu-text"><h6>Transformador Corrente (TC)</h6><small>Relação de Corrente e Estáticos</small></div></a>
 
-        <a href="/tc" class="menu-card">
-            <div class="menu-icon"><i class="bi bi-record-circle-fill text-danger"></i></div>
-            <div class="menu-text">
-                <h6>Transformador de Corrente (TC)</h6>
-                <small>Relação de Corrente e Estáticos</small>
-            </div>
-        </a>
+        <div class="section-title">Manobra e Proteção</div>
+        <a href="/disjuntor-mt" class="menu-card"><div class="menu-icon"><i class="bi bi-shield-fill text-dark"></i></div><div class="menu-text"><h6>Disjuntor MT</h6><small>Contatos e Isolamento</small></div></a>
+        <a href="/disjuntor-bt" class="menu-card"><div class="menu-icon"><i class="bi bi-shield-plus text-secondary"></i></div><div class="menu-text"><h6>Disjuntor BT</h6><small>Contatos e Isolamento</small></div></a>
+        <a href="/seccionadora" class="menu-card"><div class="menu-icon"><i class="bi bi-toggle-off text-info"></i></div><div class="menu-text"><h6>Chave Seccionadora</h6><small>Contatos e Isolação</small></div></a>
 
-        <div class="section-title mt-4">Manobra e Proteção</div>
-        
-        <a href="/disjuntor-mt" class="menu-card">
-            <div class="menu-icon"><i class="bi bi-shield-fill text-dark"></i></div>
-            <div class="menu-text">
-                <h6>Disjuntor MT</h6>
-                <small>Resistência de Contatos e Isolamento</small>
-            </div>
-        </a>
-
-        <a href="/disjuntor-bt" class="menu-card">
-            <div class="menu-icon"><i class="bi bi-shield-plus text-secondary"></i></div>
-            <div class="menu-text">
-                <h6>Disjuntor BT</h6>
-                <small>Resistência de Contatos e Isolamento</small>
-            </div>
-        </a>
-
-        <a href="/seccionadora" class="menu-card">
-            <div class="menu-icon"><i class="bi bi-toggle-off text-info"></i></div>
-            <div class="menu-text">
-                <h6>Chave Seccionadora</h6>
-                <small>Avaliação de Contatos e Isolação</small>
-            </div>
-        </a>
-
-        <div class="section-title mt-4">Cabeamento e Malhas</div>
-        
-        <a href="/cabos-cc" class="menu-card">
-            <div class="menu-icon"><i class="bi bi-sun-fill text-warning"></i></div>
-            <div class="menu-text">
-                <h6>Cabos CC (Strings)</h6>
-                <small>Tensão VOC e Fuga de Isolamento</small>
-            </div>
-        </a>
-
-        <a href="/cont-malha" class="menu-card">
-            <div class="menu-icon"><i class="bi bi-link-45deg text-success"></i></div>
-            <div class="menu-text">
-                <h6>Continuidade de Malha</h6>
-                <small>Conexões Equipotenciais (Microhmímetro)</small>
-            </div>
-        </a>
-
-        <a href="/res-malha" class="menu-card">
-            <div class="menu-icon"><i class="bi bi-globe-americas text-success"></i></div>
-            <div class="menu-text">
-                <h6>Resistência de Malha</h6>
-                <small>Terrômetro (Queda de Potencial 62%)</small>
-            </div>
-        </a>
+        <div class="section-title">Cabeamento e Malhas</div>
+        <a href="/cabos-cc" class="menu-card"><div class="menu-icon"><i class="bi bi-sun-fill text-warning"></i></div><div class="menu-text"><h6>Cabos CC (Strings)</h6><small>Tensão VOC e Fuga (Lote)</small></div></a>
+        <a href="/cont-malha" class="menu-card"><div class="menu-icon"><i class="bi bi-link-45deg text-success"></i></div><div class="menu-text"><h6>Continuidade de Malha</h6><small>Conexões Equipotenciais (mΩ)</small></div></a>
+        <a href="/res-malha" class="menu-card"><div class="menu-icon"><i class="bi bi-globe-americas text-primary"></i></div><div class="menu-text"><h6>Resistência de Malha</h6><small>Terrômetro (Patamar 62%)</small></div></a>
 
     </div>
+
+    <script>
+        // Registra o Service Worker
+        if ('serviceWorker' in navigator) { navigator.serviceWorker.register('/sw.js'); }
+
+        function atualizarInterface() {
+            const fila = JSON.parse(localStorage.getItem('sync_queue') || '[]');
+            const banner = document.getElementById('syncBanner');
+            if (fila.length > 0) { banner.style.display = 'block'; document.getElementById('syncCount').innerText = fila.length; } 
+            else { banner.style.display = 'none'; }
+        }
+
+        async function sincronizarAgora() {
+            let fila = JSON.parse(localStorage.getItem('sync_queue') || '[]');
+            if (!navigator.onLine) { alert("Você continua sem internet!"); return; }
+            const btn = document.querySelector('.sync-banner button');
+            btn.innerText = "ENVIANDO..."; btn.disabled = true;
+
+            for (let i = fila.length - 1; i >= 0; i--) {
+                try {
+                    let r = await fetch(fila[i].url, { method: 'POST', body: JSON.stringify(fila[i].data), headers: { 'Content-Type': 'application/json' } });
+                    if (r.ok) fila.splice(i, 1);
+                } catch (e) { console.error("Erro na sincronia"); }
+            }
+            localStorage.setItem('sync_queue', JSON.stringify(fila));
+            atualizarInterface();
+            btn.innerText = "SINCRONIZAR"; btn.disabled = false;
+            if (fila.length === 0) alert("✅ Sincronizado com o Servidor!");
+            else alert("⚠️ Alguns itens não foram enviados. Verifique a conexão.");
+        }
+        
+        window.onload = atualizarInterface;
+    </script>
 </body>
 </html>

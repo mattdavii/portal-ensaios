@@ -1,148 +1,194 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ensaio de TP</title>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Transformador de Potencial (TP)</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
-        body { background: #f4f7f6; font-size: 0.85rem; padding: 10px; }
-        .group-box { background: white; border-radius: 12px; padding: 18px; margin-bottom: 12px; border: 1px solid #dee2e6; }
-        .label-eng { font-weight: bold; color: #0d6efd; font-size: 0.75rem; display: block; margin-bottom: 8px; text-transform: uppercase; }
-        .status-badge { padding: 4px 10px; border-radius: 4px; font-weight: bold; font-size: 0.7rem; }
-        .bg-ok { background: #d1e7dd; color: #0f5132; }
-        .bg-fail { background: #f8d7da; color: #842029; }
-        .bg-warn { background: #e2e3e5; color: #41464b; }
-        .bg-reg { background: #cfe2ff; color: #084298; }
-        .rn-box { background: #fff3cd; color: #856404; padding: 10px; border-radius: 8px; font-weight: bold; text-align: center; border: 1px solid #ffe69c; }
-        .table-laudo { width: 100%; margin-top: 5px; border-collapse: collapse; }
-        .table-laudo th, .table-laudo td { border: 1px solid #eee; padding: 6px; text-align: center; }
-        .header-laudo { background: #f8f9fa; font-weight: bold; color: #333; padding: 10px; border-radius: 5px; margin-bottom: 10px; border: 1px solid #ddd; }
-        @media print { .no-print { display: none !important; } }
+        body{background:#f0f2f5;font-size:0.85rem;padding:10px}
+        .group-box{background:white;border-radius:12px;padding:18px;margin-bottom:15px;border:1px solid #dee2e6;box-shadow:0 2px 4px rgba(0,0,0,0.02)}
+        .label-eng{font-weight:bold;color:#ffc107;font-size:0.75rem;display:block;margin-bottom:8px;text-transform:uppercase; text-shadow: 0px 0px 1px #a67c00;}
+        .norma{background:#fff3cd;color:#856404;padding:5px;border-radius:4px;font-size:0.7rem;font-style:italic;margin-bottom:10px;border-left:3px solid #ffc107;display:block}
+        .status-badge{padding:4px 10px;border-radius:4px;font-weight:bold;font-size:0.75rem;text-align:center}
+        .bg-ok{background:#d1e7dd;color:#0f5132} .bg-fail{background:#f8d7da;color:#842029}
+        .table-laudo{width:100%;border-collapse:collapse;margin-bottom:10px;font-size:0.75rem}
+        .table-laudo th,.table-laudo td{border:1px solid #eee;padding:6px;text-align:center;vertical-align:middle}
+        .header-laudo{background:#f8f9fa;font-weight:bold;color:#333;padding:10px;border-radius:5px;margin-bottom:15px;border:1px solid #ddd}
+        .section-title{font-size:0.75rem;font-weight:bold;color:#6c757d;background:#f8f9fa;padding:5px;border-radius:4px;margin-top:10px;margin-bottom:10px}
+        @media print{.no-print{display:none !important}}
     </style>
 </head>
 <body>
-    <div class="container" style="max-width: 550px;">
+    <div class="container" style="max-width: 600px;">
         <a href="/" class="btn btn-sm btn-outline-secondary mb-3 no-print">⬅️ Voltar ao Menu</a>
-        <h5 class="text-center text-secondary mb-3">🔌 Ensaio de Transformador de Potencial (TP)</h5>
+        <h5 class="text-center text-warning fw-bold mb-3" style="text-shadow: 0px 0px 1px #a67c00;">⚡ Transformador de Potencial (TP)</h5>
         
-        <form id="formEnsaios">
-            <div class="group-box shadow-sm">
-                <span class="label-eng">Identificação</span>
-                <input type="hidden" id="tipo" value="TP">
+        <form id="formTP">
+            <div class="group-box">
+                <span class="label-eng">Identificação do Ativo</span>
                 <div class="row g-2 mb-2">
-                    <div class="col-8"><input type="text" id="usina" class="form-control" placeholder="Usina" required></div>
+                    <div class="col"><input type="text" id="usina" class="form-control form-control-sm" placeholder="Usina" required></div>
+                    <div class="col"><input type="text" id="tag" class="form-control form-control-sm" placeholder="TAG do TP" required></div>
+                </div>
+            </div>
+
+            <div class="group-box">
+                <span class="label-eng">Relação de Tensão (RTP)</span>
+                <span class="norma">Critério: Erro Máximo ≤ 0.5% (NBR / IEEE)</span>
+                <div class="row g-2 align-items-center border-bottom pb-3 mb-3">
+                    <div class="col-8 fw-bold text-muted small">Quantos Núcleos/Relações ensaiados?</div>
                     <div class="col-4">
-                        <select id="qtd_sec" class="form-select text-center" onchange="ajustarCampos()">
-                            <option value="1">1 Secundário</option>
-                            <option value="2">2 Secundários</option>
-                            <option value="3">3 Secundários</option>
-                        </select>
+                        <input type="number" id="qtd_taps" class="form-control border-warning text-center" placeholder="Ex: 2" min="1" max="10" required oninput="gerarTaps()">
                     </div>
                 </div>
-                <div class="row g-2 mb-3">
-                    <div class="col"><input type="text" id="tag" class="form-control" placeholder="TAG do TP" required></div>
-                </div>
-                <div class="row g-2">
-                    <div class="col"><label class="small fw-bold">Tensão Primária (V)</label><input type="text" id="nom_pri" class="form-control" placeholder="Ex: 13800" oninput="calcRN()"></div>
-                    <div class="col"><label class="small fw-bold">Tensão Secundária (V)</label><input type="text" id="nom_sec" class="form-control" placeholder="Ex: 115" oninput="calcRN()"></div>
-                </div>
-                <div class="rn-box mt-3">RELAÇÃO TEÓRICA (RN): <span id="rn_val">0.0000</span></div>
+                <div id="dynamic_taps"></div>
             </div>
 
-            <div class="group-box shadow-sm">
-                <span class="label-eng">Relação Medida (TTR)</span>
-                <div class="row g-2">
-                    <div class="col" id="col_ttr_1"><input type="text" id="ttr_a" class="form-control" placeholder="Sec 1"></div>
-                    <div class="col d-none" id="col_ttr_2"><input type="text" id="ttr_b" class="form-control" placeholder="Sec 2"></div>
-                    <div class="col d-none" id="col_ttr_3"><input type="text" id="ttr_c" class="form-control" placeholder="Sec 3"></div>
+            <div class="group-box">
+                <span class="label-eng">Resistência Ôhmica (mΩ)</span>
+                <div class="row g-2 mb-2">
+                    <div class="col-12"><label class="small text-muted fw-bold">Primário (H1-H2)</label><input type="number" step="0.1" id="h1" class="form-control form-control-sm" required></div>
                 </div>
+                
+                <div class="row g-2 align-items-center mt-3 border-top pt-3">
+                    <div class="col-8 fw-bold text-muted small">Quantos enrolamentos Secundários?</div>
+                    <div class="col-4">
+                        <input type="number" id="qtd_sec" class="form-control form-control-sm border-warning text-center" placeholder="Máx 3" min="1" max="3" required oninput="gerarSecundarios()">
+                    </div>
+                </div>
+                <div id="dynamic_secundarios" class="row g-2 mt-1"></div>
             </div>
 
-            <div class="group-box shadow-sm">
-                <span class="label-eng">Resistência Ôhmica</span>
-                <div class="d-flex justify-content-between mb-1"><span class="fw-bold small">PRIMÁRIO (H1-H2):</span><select id="h_uni" class="form-select form-select-sm w-auto"><option value="mOhm">mΩ</option><option value="Ohm" selected>Ω</option></select></div>
-                <div class="row g-2 mb-3">
-                    <div class="col-12"><input type="text" id="h1" class="form-control" placeholder="Bobina Primária (H1-H2)"></div>
-                    <input type="hidden" id="h2" value=""><input type="hidden" id="h3" value="">
-                </div>
-                <div class="d-flex justify-content-between mb-1"><span class="fw-bold small">SECUNDÁRIO(S):</span><select id="x_uni" class="form-select form-select-sm w-auto"><option value="uOhm">µΩ</option><option value="mOhm" selected>mΩ</option><option value="Ohm">Ω</option></select></div>
+            <div class="group-box">
+                <span class="label-eng">Resistência de Isolamento (MΩ)</span>
                 <div class="row g-2">
-                    <div class="col" id="col_x_1"><input type="text" id="x1" class="form-control" placeholder="Sec 1"></div>
-                    <div class="col d-none" id="col_x_2"><input type="text" id="x2" class="form-control" placeholder="Sec 2"></div>
-                    <div class="col d-none" id="col_x_3"><input type="text" id="x3" class="form-control" placeholder="Sec 3"></div>
+                    <div class="col"><label class="small text-muted" style="font-size: 0.65rem;">AT x Terra</label><input type="number" id="at_t" class="form-control form-control-sm" required></div>
+                    <div class="col"><label class="small text-muted" style="font-size: 0.65rem;">AT x BT</label><input type="number" id="at_bt" class="form-control form-control-sm" required></div>
+                    <div class="col"><label class="small text-muted" style="font-size: 0.65rem;">BT x Terra</label><input type="number" id="bt_t" class="form-control form-control-sm" required></div>
                 </div>
             </div>
 
-            <div class="group-box shadow-sm">
-                <span class="label-eng">Isolamento (GΩ)</span>
-                <div class="row g-2">
-                    <div class="col"><label class="small text-muted">Pri / Terra</label><input type="text" id="at_t" class="form-control"></div>
-                    <div class="col"><label class="small text-muted">Pri / Sec</label><input type="text" id="at_bt" class="form-control"></div>
-                    <div class="col"><label class="small text-muted">Sec / Terra</label><input type="text" id="bt_t" class="form-control"></div>
-                </div>
-            </div>
-
-            <button type="submit" class="btn btn-primary w-100 py-3 fw-bold shadow no-print">GERAR LAUDO TÉCNICO</button>
+            <button type="submit" id="btn_salvar" class="btn btn-warning text-dark w-100 py-3 fw-bold shadow-sm no-print d-none">GERAR LAUDO E SALVAR</button>
         </form>
 
-        <div id="box_laudo" class="mt-4 p-4 bg-white border rounded d-none shadow">
-            <h6 class="text-center fw-bold border-bottom pb-2 mb-3">LAUDO TÉCNICO DE TP</h6>
-            <div id="laudo_header" class="header-laudo"></div>
-            <div id="laudo_body"></div>
+        <div id="box_laudo" class="mt-4 p-4 bg-white border rounded d-none shadow-sm">
+            <h6 class="text-center fw-bold border-bottom pb-2 mb-3">LAUDO TÉCNICO - TP</h6>
+            <div id="laudo_render"></div>
             <button onclick="gerarPDF()" class="btn btn-danger w-100 mt-4 fw-bold no-print">📥 DESCARREGAR PDF</button>
         </div>
     </div>
 
     <script>
-        const parseF = (id) => { let v = document.getElementById(id).value.replace(',', '.'); return v === "" ? 0 : parseFloat(v); };
-        function calcRN() { const p = parseF('nom_pri'), s = parseF('nom_sec'); document.getElementById('rn_val').innerText = s > 0 ? (p / s).toFixed(4) : "0.0000"; }
-        function badgeClass(status) { if(status === 'CONFORME') return 'bg-ok'; if(status === 'REGISTRADO') return 'bg-reg'; if(status === 'NÃO AVALIADO' || status === 'DADOS INSUFICIENTES') return 'bg-warn'; return 'bg-fail'; }
-
-        function ajustarCampos() {
-            const qtd = parseInt(document.getElementById('qtd_sec').value);
-            document.getElementById('col_ttr_2').classList.toggle('d-none', qtd < 2); document.getElementById('col_ttr_3').classList.toggle('d-none', qtd < 3);
-            if(qtd < 2) document.getElementById('ttr_b').value = ""; if(qtd < 3) document.getElementById('ttr_c').value = "";
-            document.getElementById('col_x_2').classList.toggle('d-none', qtd < 2); document.getElementById('col_x_3').classList.toggle('d-none', qtd < 3);
-            if(qtd < 2) document.getElementById('x2').value = ""; if(qtd < 3) document.getElementById('x3').value = "";
+        // Cálculo do TTR
+        function calcRn(i) {
+            let vpri = parseFloat(document.getElementById(`vpri_${i}`).value) || 0;
+            let vsec = parseFloat(document.getElementById(`vsec_${i}`).value) || 0;
+            let rnInput = document.getElementById(`rn_${i}`);
+            rnInput.value = (vpri > 0 && vsec > 0) ? (vpri / vsec).toFixed(3) : "";
         }
 
-        document.getElementById('formEnsaios').onsubmit = async (e) => {
-            e.preventDefault();
-            const qtd = parseInt(document.getElementById('qtd_sec').value);
-            const payload = {
-                usina: document.getElementById('usina').value, tag: document.getElementById('tag').value, tipo: document.getElementById('tipo').value, tap: "N/A",
-                nom_pri: parseF('nom_pri'), nom_sec: parseF('nom_sec'), ttr_medidos: [parseF('ttr_a'), parseF('ttr_b'), parseF('ttr_c')],
-                h_res: [parseF('h1'), parseF('h2'), parseF('h3')], h_unidade: document.getElementById('h_uni').value,
-                x_res: [parseF('x1'), parseF('x2'), parseF('x3')], x_unidade: document.getElementById('x_uni').value,
-                at_t: parseF('at_t'), at_bt: parseF('at_bt'), bt_t: parseF('bt_t')
-            };
-
-            const response = await fetch('/ensaio/validar', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-            const d = await response.json();
+        // Geração dos TAPs do TTR
+        function gerarTaps() {
+            let qtd = parseInt(document.getElementById('qtd_taps').value);
+            let container = document.getElementById('dynamic_taps');
+            let btn = document.getElementById('btn_salvar');
+            container.innerHTML = '';
             
-            const box = document.getElementById('box_laudo');
-            box.classList.remove('d-none');
-            document.getElementById('laudo_header').innerHTML = `<div class="row text-center"><div class="col-6"><b>TAG:</b> ${payload.tag} (${payload.tipo})</div><div class="col-6"><b>Usina:</b> ${payload.usina}</div><div class="col-12 mt-2 text-primary"><b>RN Teórico:</b> ${d.rn_teorico}</div></div>`;
-
-            let ttr_rows = `<tr><td>Sec 1</td><td>${d.ttr.erros[0]}%</td></tr>`;
-            if(qtd >= 2) ttr_rows += `<tr><td>Sec 2</td><td>${d.ttr.erros[1]}%</td></tr>`;
-            if(qtd >= 3) ttr_rows += `<tr><td>Sec 3</td><td>${d.ttr.erros[2]}%</td></tr>`;
-
-            document.getElementById('laudo_body').innerHTML = `
-                <div class="mb-3"><span class="label-eng">1. Relação TTR</span><table class="table-laudo"><tr><th>Bobina</th><th>Erro (%)</th></tr>${ttr_rows}</table><div class="mt-2 text-end">Veredito: <span class="status-badge ${badgeClass(d.ttr.status)}">${d.ttr.status}</span></div></div>
-                <div class="mb-3"><span class="label-eng">2. Resistência Ôhmica</span><div class="small mb-1">Primário (H1-H2): <span class="status-badge ${badgeClass(d.res_h.status)}">${d.res_h.status}</span></div><div class="small">Secundário (${qtd}) Desvio: <b>${qtd > 1 ? d.res_x.desvio + '%' : 'N/A'}</b> | <span class="status-badge ${badgeClass(d.res_x.status)}">${d.res_x.status}</span></div></div>
-                <div class="mb-2"><span class="label-eng">3. Resistência de Isolamento</span><table class="table-laudo"><tr><th>Pri/Terra</th><th>Pri/Sec</th><th>Sec/Terra</th></tr><tr><td><span class="status-badge ${badgeClass(d.isolamento.att)}">${d.isolamento.att}</span></td><td><span class="status-badge ${badgeClass(d.isolamento.atbt)}">${d.isolamento.atbt}</span></td><td><span class="status-badge ${badgeClass(d.isolamento.btt)}">${d.isolamento.btt}</span></td></tr></table></div>
-            `;
-            box.scrollIntoView({ behavior: 'smooth' });
-        };
-
-        function gerarPDF() {
-            const elemento = document.getElementById('box_laudo');
-            document.querySelector('.no-print.btn-danger').style.display = 'none';
-            html2pdf().set({ margin: 15, filename: `Laudo_TP_${document.getElementById('tag').value}.pdf`, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2, scrollY: 0, useCORS: true }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } }).from(elemento).save().then(() => { document.querySelector('.no-print.btn-danger').style.display = 'block'; });
+            if(qtd > 0 && qtd <= 10) {
+                btn.classList.remove('d-none');
+                for(let i = 1; i <= qtd; i++) {
+                    container.innerHTML += `
+                    <div class="p-2 border rounded mb-2 bg-light shadow-sm">
+                        <div class="d-flex justify-content-between mb-2 align-items-center">
+                            <span class="fw-bold text-warning small" style="text-shadow: 0px 0px 1px #a67c00;">Núcleo / Relação</span>
+                            <input type="text" id="nome_tap_${i}" class="form-control form-control-sm w-50 text-end" placeholder="Ex: Sec 1" value="Núcleo ${i}" required>
+                        </div>
+                        <div class="row g-1 mb-2">
+                            <div class="col-4"><label class="small text-muted" style="font-size:0.65rem">Tensão Primária</label><input type="number" step="0.1" id="vpri_${i}" class="form-control form-control-sm" placeholder="(V)" required oninput="calcRn(${i})"></div>
+                            <div class="col-4"><label class="small text-muted" style="font-size:0.65rem">Tensão Secundária</label><input type="number" step="0.1" id="vsec_${i}" class="form-control form-control-sm" placeholder="(V)" required oninput="calcRn(${i})"></div>
+                            <div class="col-4"><label class="small text-muted" style="font-size:0.65rem">Relação Teórica</label><input type="text" id="rn_${i}" class="form-control form-control-sm text-primary fw-bold bg-white" placeholder="Rn" readonly></div>
+                        </div>
+                        <div class="row g-1 justify-content-center">
+                            <div class="col-6"><label class="small text-muted fw-bold text-center w-100" style="font-size:0.65rem">Valor Medido (RTP)</label><input type="number" step="0.001" id="ttr_a_${i}" class="form-control form-control-sm text-center border-warning" placeholder="Relação Lida" required></div>
+                        </div>
+                    </div>`;
+                }
+            } else { btn.classList.add('d-none'); }
         }
+
+        // Geração Dinâmica da Resistência Secundária
+        function gerarSecundarios() {
+            let qtd = parseInt(document.getElementById('qtd_sec').value);
+            let container = document.getElementById('dynamic_secundarios');
+            container.innerHTML = '';
+            let labels = ['Sec 1 (X1-X2)', 'Sec 2 (Y1-Y2)', 'Sec 3 (Z1-Z2)'];
+            if(qtd > 0 && qtd <= 3) {
+                for(let i=1; i<=qtd; i++) {
+                    container.innerHTML += `<div class="col-4"><label class="small text-muted" style="font-size:0.65rem">${labels[i-1]}</label><input type="number" step="0.1" id="x${i}" class="form-control form-control-sm" required></div>`;
+                }
+            }
+        }
+
+        async function salvarLoteHibrido(payloads, url) {
+            let sOn = 0; let sOff = 0; let fila = JSON.parse(localStorage.getItem('sync_queue') || '[]');
+            if(navigator.onLine) {
+                for(let p of payloads) { try { let r = await fetch(url, {method: 'POST', body: JSON.stringify(p), headers: {'Content-Type': 'application/json'}}); if(r.ok) sOn++; else { fila.push({url: url, data: p}); sOff++; } } catch(e) { fila.push({url: url, data: p}); sOff++; } }
+            } else { for(let p of payloads) { fila.push({url: url, data: p}); sOff++; } }
+            if(sOff > 0) localStorage.setItem('sync_queue', JSON.stringify(fila));
+            if(sOn > 0 && sOff === 0) alert(`✅ TP salvo com sucesso na nuvem!`); else alert(`⚠️ Salvo no telemóvel. (${sOff} pendentes)`);
+        }
+
+        function formatFase(val, rn) {
+            if(!val) return "-";
+            let err = rn > 0 ? ((Math.abs(val - rn) / rn) * 100).toFixed(2) : 0;
+            let st = err <= 0.5 ? 'OK' : 'FALHA';
+            return `${val} <br><span class="${err<=0.5?'text-success':'text-danger'} fw-bold" style="font-size:0.65rem;">(${err}% - ${st})</span>`;
+        }
+
+        document.getElementById('formTP').onsubmit = async (e) => {
+            e.preventDefault(); const pF = (id) => parseFloat(document.getElementById(id)) ? parseFloat(document.getElementById(id).value) || 0 : 0;
+            const usina = document.getElementById('usina').value; const tag = document.getElementById('tag').value;
+            const qtd_taps = parseInt(document.getElementById('qtd_taps').value);
+            const qtd_sec = parseInt(document.getElementById('qtd_sec').value) || 0;
+
+            const dFixos = { h1: pF('h1'), x1: pF('x1'), x2: pF('x2'), x3: pF('x3'), at_t: pF('at_t'), at_bt: pF('at_bt'), bt_t: pF('bt_t') };
+            let payloads = []; let htmlTTR = "";
+
+            for(let i = 1; i <= qtd_taps; i++) {
+                let tap = document.getElementById(`nome_tap_${i}`).value; let vpri = parseFloat(document.getElementById(`vpri_${i}`).value); let vsec = parseFloat(document.getElementById(`vsec_${i}`).value);
+                let rn = parseFloat(document.getElementById(`rn_${i}`).value) || 0;
+                let ta = parseFloat(document.getElementById(`ttr_a_${i}`).value) || 0; 
+
+                payloads.push({ usina: usina, tag: tag, tipo: "TP", tap: tap, nom_pri: vpri, nom_sec: vsec, rn_teorico: rn, ttr_a: ta, ttr_b: 0, ttr_c: 0, h1: dFixos.h1, h2: 0, h3: 0, uni_h: "mΩ", x1: dFixos.x1, x2: dFixos.x2, x3: dFixos.x3, uni_x: "mΩ", at_t: dFixos.at_t, at_bt: dFixos.at_bt, bt_t: dFixos.bt_t });
+                htmlTTR += `<tr><td class="fw-bold bg-light align-middle">${tap}</td><td class="align-middle">${vpri} / ${vsec}</td><td class="text-primary fw-bold align-middle">${rn.toFixed(3)}</td><td class="fw-bold">${ta}</td><td>${formatFase(ta, rn)}</td></tr>`;
+            }
+
+            await salvarLoteHibrido(payloads, '/api/sync/trafo');
+
+            // Gerar Cabeçalhos Dinâmicos da Resistência Secundária para o PDF
+            let htmlSecHeaders = ""; let htmlSecValues = "";
+            for(let i=1; i<=qtd_sec; i++) {
+                htmlSecHeaders += `<th>Secundário ${i}</th>`;
+                htmlSecValues += `<td>${dFixos['x'+i]}</td>`;
+            }
+
+            const st_at = dFixos.at_t >= 1000 ? "OK" : "FALHA"; const st_atbt = dFixos.at_bt >= 1000 ? "OK" : "FALHA"; const st_bt = dFixos.bt_t >= 1000 ? "OK" : "FALHA";
+
+            document.getElementById('laudo_render').innerHTML = `
+                <div class="header-laudo text-center"><div class="row mb-1"><div class="col-6"><b>Usina:</b> ${usina}</div><div class="col-6"><b>TAG:</b> ${tag}</div></div><div class="row"><div class="col-12 text-primary small">(${qtd_taps} Núcleos Analisados)</div></div></div>
+                
+                <span class="label-eng">Relação de Tensão (RTP)</span>
+                <table class="table-laudo mb-3"><tr class="bg-light"><th>Núcleo</th><th>V. Pri / V. Sec</th><th>Rn. Teórica</th><th>RTP Medida</th><th>Erro / Status</th></tr>${htmlTTR}</table>
+                
+                <span class="label-eng">Resistência Ôhmica (mΩ)</span>
+                <table class="table-laudo mb-3"><tr class="bg-light"><th>Primário (H1-H2)</th>${htmlSecHeaders}</tr><tr><td class="fw-bold">${dFixos.h1}</td>${htmlSecValues}</tr></table>
+                
+                <span class="label-eng">Resistência de Isolamento (MΩ)</span>
+                <table class="table-laudo mb-3"><tr class="bg-light"><th>AT x Terra</th><th>AT x BT</th><th>BT x Terra</th></tr><tr><td>${dFixos.at_t} <span class="${st_at==='OK'?'text-success':'text-danger'} fw-bold">(${st_at})</span></td><td>${dFixos.at_bt} <span class="${st_atbt==='OK'?'text-success':'text-danger'} fw-bold">(${st_atbt})</span></td><td>${dFixos.bt_t} <span class="${st_bt==='OK'?'text-success':'text-danger'} fw-bold">(${st_bt})</span></td></tr></table>
+            `;
+            document.getElementById('box_laudo').classList.remove('d-none'); document.getElementById('box_laudo').scrollIntoView({ behavior: 'smooth' });
+        };
+        function gerarPDF() { html2pdf().set({ margin: 10, filename: `TP_${document.getElementById('tag').value}.pdf`, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } }).from(document.getElementById('box_laudo')).save(); }
     </script>
 </body>
 </html>

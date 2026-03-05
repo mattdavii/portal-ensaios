@@ -1,157 +1,169 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cabos CC - Portal de Engenharia</title>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Cabos CC - Múltiplas Strings</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
         body { background: #f4f7f6; font-size: 0.85rem; padding: 10px; }
-        .group-box { background: white; border-radius: 12px; padding: 18px; margin-bottom: 12px; border: 1px solid #dee2e6; }
+        .group-box { background: white; border-radius: 12px; padding: 18px; margin-bottom: 15px; border: 1px solid #dee2e6; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
         .label-eng { font-weight: bold; color: #0d6efd; font-size: 0.75rem; display: block; margin-bottom: 8px; text-transform: uppercase; }
-        .norma { background: #e3f2fd; color: #055160; padding: 5px; border-radius: 4px; font-size: 0.7rem; font-style: italic; margin-bottom: 10px; border-left: 3px solid #0d6efd; display: block; }
-        .status-badge { padding: 4px 10px; border-radius: 4px; font-weight: bold; font-size: 0.7rem; }
+        .status-badge { padding: 4px; border-radius: 4px; font-weight: bold; font-size: 0.65rem; text-align: center; display: block; }
         .bg-ok { background: #d1e7dd; color: #0f5132; }
         .bg-fail { background: #f8d7da; color: #842029; }
-        .bg-warn { background: #e2e3e5; color: #41464b; }
-        .bg-investigar { background: #ffeb3b; color: #856404; border: 1px solid #ffeeba; } 
-        .alerta-fuga { background-color: #fff3cd; border-left: 4px solid #ffc107; font-size: 0.75rem; color: #856404; padding: 8px; margin-top: 8px; border-radius: 0 4px 4px 0; }
-        .table-laudo { width: 100%; margin-top: 5px; border-collapse: collapse; }
-        .table-laudo th, .table-laudo td { border: 1px solid #eee; padding: 6px; text-align: center; }
-        .header-laudo { background: #f8f9fa; font-weight: bold; color: #333; padding: 10px; border-radius: 5px; margin-bottom: 10px; border: 1px solid #ddd; }
+        .alerta-fuga { background-color: #fff3cd; border-left: 4px solid #ffc107; font-size: 0.75rem; color: #856404; padding: 8px; margin-top: 5px; border-radius: 0 4px 4px 0; }
+        .table-laudo { width: 100%; border-collapse: collapse; font-size: 0.75rem; }
+        .table-laudo th, .table-laudo td { border: 1px solid #eee; padding: 6px; text-align: center; vertical-align: middle; }
+        .header-laudo { background: #f8f9fa; font-weight: bold; color: #333; padding: 10px; border-radius: 5px; margin-bottom: 15px; border: 1px solid #ddd; }
+        .string-card { background: #f8f9fa; border: 1px solid #e9ecef; border-radius: 8px; padding: 10px; margin-bottom: 10px; }
         @media print { .no-print { display: none !important; } }
     </style>
 </head>
 <body>
-    <div class="container" style="max-width: 550px;">
+    <div class="container" style="max-width: 600px;">
         <a href="/" class="btn btn-sm btn-outline-secondary mb-3 no-print">⬅️ Voltar ao Menu</a>
-        <h5 class="text-center text-secondary mb-3">🔌 Ensaio de Cabos CC (Strings)</h5>
+        <h5 class="text-center text-secondary mb-3">🔌 Ensaios Inversor (Strings CC)</h5>
         
-        <form id="formEnsaios">
-            
-            <div class="group-box shadow-sm">
-                <span class="label-eng">Identificação da String</span>
+        <form id="formCC">
+            <div class="group-box">
+                <span class="label-eng">Identificação do Equipamento</span>
                 <div class="row g-2 mb-2">
-                    <div class="col"><input type="text" id="usina" class="form-control" placeholder="Usina" required></div>
-                    <div class="col"><input type="text" id="tag" class="form-control" placeholder="TAG (Ex: String 01)" required></div>
+                    <div class="col"><input type="text" id="usina" class="form-control form-control-sm" placeholder="Usina" required></div>
+                    <div class="col"><input type="text" id="skid" class="form-control form-control-sm" placeholder="SKID" required></div>
                 </div>
-                <div class="row g-2">
-                    <div class="col"><input type="text" id="origem" class="form-control" placeholder="Origem (Ex: Arranjo A)"></div>
-                    <div class="col"><input type="text" id="destino" class="form-control" placeholder="Destino (Ex: Inv 01)"></div>
-                </div>
-            </div>
-
-            <div class="group-box shadow-sm">
-                <span class="label-eng">1. Tensão de Circuito Aberto (VOC)</span>
-                <span class="norma">Multímetro: Ponta Positiva com Ponta Negativa</span>
-                <div class="row g-2 mb-3">
-                    <div class="col-12"><input type="text" id="voc" class="form-control" placeholder="Tensão Medida (Vdc)"></div>
-                </div>
-            </div>
-
-            <div class="group-box shadow-sm">
-                <span class="label-eng">2. Pesquisa de Falha de Isolamento (RI)</span>
-                <span class="norma">Critério: Valores >= 120V indicam falha e exigem investigação.</span>
-                <div class="row g-2">
-                    <div class="col">
-                        <label class="small text-muted">Positivo / Terra (Vdc)</label>
-                        <input type="text" id="v_pos_terra" class="form-control" placeholder="Tensão Vdc">
-                    </div>
-                    <div class="col">
-                        <label class="small text-muted">Negativo / Terra (Vdc)</label>
-                        <input type="text" id="v_neg_terra" class="form-control" placeholder="Tensão Vdc">
+                <div class="row g-2 align-items-center">
+                    <div class="col-8"><input type="text" id="inversor" class="form-control form-control-sm" placeholder="Inversor" required></div>
+                    <div class="col-4">
+                        <input type="number" id="qtd_strings" class="form-control form-control-sm border-primary" placeholder="Qtd Strings (1-30)" min="1" max="30" required oninput="gerarCampos()">
                     </div>
                 </div>
             </div>
 
-            <button type="submit" class="btn btn-primary w-100 py-3 fw-bold shadow no-print">GERAR LAUDO CC</button>
+            <div id="dynamic_strings" class="mb-3"></div>
+
+            <button type="submit" id="btn_salvar" class="btn btn-primary w-100 py-3 fw-bold shadow-sm no-print d-none">GERAR LAUDO E SALVAR LOTE</button>
         </form>
 
-        <div id="box_laudo" class="mt-4 p-4 bg-white border rounded d-none shadow">
-            <h6 class="text-center fw-bold border-bottom pb-2 mb-3">LAUDO TÉCNICO - CABOS CC</h6>
-            <div id="laudo_header" class="header-laudo"></div>
-            <div id="laudo_body"></div>
-            
+        <div id="box_laudo" class="mt-4 p-3 bg-white border rounded d-none shadow-sm">
+            <h6 class="text-center fw-bold border-bottom pb-2 mb-3">LAUDO - STRINGS CC</h6>
+            <div id="laudo_render"></div>
             <button onclick="gerarPDF()" class="btn btn-danger w-100 mt-4 fw-bold no-print">📥 DESCARREGAR PDF</button>
         </div>
     </div>
 
     <script>
-        const parseF = (id) => { let v = document.getElementById(id).value.replace(',', '.'); return v === "" ? 0 : parseFloat(v); };
-        
-        function badgeClass(status) { 
-            if(status === 'CONFORME') return 'bg-ok';
-            if(status === 'INVESTIGAR STRING') return 'bg-investigar';
-            if(status === 'NÃO AVALIADO') return 'bg-warn';
-            return 'bg-fail'; 
+        // Função que desenha as caixas das Strings com base na quantidade
+        function gerarCampos() {
+            let qtd = parseInt(document.getElementById('qtd_strings').value);
+            let container = document.getElementById('dynamic_strings');
+            let btn = document.getElementById('btn_salvar');
+            container.innerHTML = '';
+            
+            if(qtd > 0 && qtd <= 30) {
+                btn.classList.remove('d-none');
+                for(let i = 1; i <= qtd; i++) {
+                    container.innerHTML += `
+                        <div class="string-card">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="fw-bold text-primary small">String ${i}</span>
+                                <input type="text" id="tag_${i}" class="form-control form-control-sm w-75" placeholder="TAG (Ex: STR-0${i})" required>
+                            </div>
+                            <div class="row g-1">
+                                <div class="col-4"><input type="number" step="0.1" id="voc_${i}" class="form-control form-control-sm text-center" placeholder="VOC" required></div>
+                                <div class="col-4"><input type="number" step="0.1" id="v_pos_${i}" class="form-control form-control-sm text-center" placeholder="Pos/T" required></div>
+                                <div class="col-4"><input type="number" step="0.1" id="v_neg_${i}" class="form-control form-control-sm text-center" placeholder="Neg/T" required></div>
+                            </div>
+                        </div>
+                    `;
+                }
+            } else {
+                btn.classList.add('d-none');
+            }
         }
 
-        document.getElementById('formEnsaios').onsubmit = async (e) => {
+        // Função de envio em Lote para não travar com dezenas de alertas
+        async function salvarLoteHibrido(payloads) {
+            let salvosOnline = 0; let salvosOffline = 0;
+            let fila = JSON.parse(localStorage.getItem('sync_queue') || '[]');
+
+            if(navigator.onLine) {
+                for(let p of payloads) {
+                    try {
+                        let r = await fetch('/api/sync/cabos-cc', {method: 'POST', body: JSON.stringify(p), headers: {'Content-Type': 'application/json'}});
+                        if(r.ok) salvosOnline++; else { fila.push({url: '/api/sync/cabos-cc', data: p}); salvosOffline++; }
+                    } catch(e) { fila.push({url: '/api/sync/cabos-cc', data: p}); salvosOffline++; }
+                }
+            } else {
+                for(let p of payloads) { fila.push({url: '/api/sync/cabos-cc', data: p}); salvosOffline++; }
+            }
+
+            if(salvosOffline > 0) localStorage.setItem('sync_queue', JSON.stringify(fila));
+            
+            if(salvosOnline > 0 && salvosOffline === 0) alert(`✅ Lote salvo com sucesso! (${salvosOnline} Strings na nuvem)`);
+            else alert(`⚠️ Lote salvo no telemóvel para sincronia. (${salvosOffline} Strings pendentes)`);
+        }
+
+        document.getElementById('formCC').onsubmit = async (e) => {
             e.preventDefault();
-            const payload = {
-                usina: document.getElementById('usina').value, tag: document.getElementById('tag').value, 
-                origem: document.getElementById('origem').value, destino: document.getElementById('destino').value,
-                voc: parseF('voc'), v_pos_terra: parseF('v_pos_terra'), v_neg_terra: parseF('v_neg_terra')
-            };
+            const usina = document.getElementById('usina').value;
+            const skid = document.getElementById('skid').value;
+            const inversor = document.getElementById('inversor').value;
+            const qtd = parseInt(document.getElementById('qtd_strings').value);
 
-            try {
-                const response = await fetch('/ensaio/cabos-cc/validar', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-                const d = await response.json();
-                
-                const box = document.getElementById('box_laudo');
-                box.classList.remove('d-none');
-                
-                document.getElementById('laudo_header').innerHTML = `
-                    <div class="row text-center">
-                        <div class="col-6"><b>TAG:</b> ${payload.tag}</div>
-                        <div class="col-6"><b>Usina:</b> ${payload.usina}</div>
-                        <div class="col-12 mt-2"><b>Trecho:</b> ${payload.origem || 'N/A'} ➔ ${payload.destino || 'N/A'}</div>
-                    </div>
+            let payloads = [];
+            let htmlTabela = "";
+            let alertas = "";
+
+            // Coletar dados de todas as strings geradas
+            for(let i = 1; i <= qtd; i++) {
+                let tag = document.getElementById(`tag_${i}`).value;
+                let voc = parseFloat(document.getElementById(`voc_${i}`).value);
+                let vp = parseFloat(document.getElementById(`v_pos_${i}`).value);
+                let vn = parseFloat(document.getElementById(`v_neg_${i}`).value);
+
+                payloads.push({ usina, skid, inversor, tag, origem: "Campo", destino: "Campo", voc, v_pos_terra: vp, v_neg_terra: vn });
+
+                // Validação de 120V para o PDF
+                let st_p = vp >= 120 ? 'FALHA' : 'OK';
+                let st_n = vn >= 120 ? 'FALHA' : 'OK';
+
+                if(st_p === 'FALHA') alertas += `<div class="alerta-fuga"><b>${tag}:</b> Falha Pos/Terra. Verificar cabo <b>NEGATIVO</b>.</div>`;
+                if(st_n === 'FALHA') alertas += `<div class="alerta-fuga"><b>${tag}:</b> Falha Neg/Terra. Verificar cabo <b>POSITIVO</b>.</div>`;
+
+                htmlTabela += `
+                    <tr>
+                        <td class="fw-bold">${tag}</td>
+                        <td>${voc}</td>
+                        <td class="${st_p==='FALHA'?'text-danger fw-bold':'text-success'}">${vp}</td>
+                        <td class="${st_n==='FALHA'?'text-danger fw-bold':'text-success'}">${vn}</td>
+                        <td><span class="status-badge ${st_p==='OK'&&st_n==='OK'?'bg-ok':'bg-fail'}">${st_p==='OK'&&st_n==='OK'?'OK':'FALHA'}</span></td>
+                    </tr>
                 `;
+            }
 
-                // LÓGICA DE ALERTAS INTELIGENTES PARA FUGA DE ISOLAMENTO
-                let alertasFuga = "";
-                if (d.status_pos === 'INVESTIGAR STRING') {
-                    alertasFuga += `<div class="alerta-fuga"><b>⚠️ Ação Recomendada:</b> Alta tensão detectada no teste Positivo/Terra. Seguir investigando a linha do <b>NEGATIVO</b>, pois isso indica uma fuga do negativo com o terra.</div>`;
-                }
-                if (d.status_neg === 'INVESTIGAR STRING') {
-                    alertasFuga += `<div class="alerta-fuga"><b>⚠️ Ação Recomendada:</b> Alta tensão detectada no teste Negativo/Terra. Seguir investigando a linha do <b>POSITIVO</b>, pois isso indica uma fuga do positivo com o terra.</div>`;
-                }
+            // Envia tudo para o banco (ou para o cache offline)
+            await salvarLoteHibrido(payloads);
 
-                document.getElementById('laudo_body').innerHTML = `
-                    <div class="mb-3 text-center p-2 bg-light border rounded">
-                        <span class="d-block small text-muted text-uppercase fw-bold">Tensão de Circuito Aberto (VOC)</span>
-                        <span class="fs-5 fw-bold text-primary">${d.voc} Vdc</span>
-                    </div>
-                    
-                    <div class="mb-3">
-                        <span class="label-eng">Análise de Fuga para o Terra (Queda de Tensão)</span>
-                        <table class="table-laudo">
-                            <tr><th>Pólo / Terra</th><th>Veredito</th></tr>
-                            <tr>
-                                <td><b>Positivo / Terra</b><br><small class="text-muted">${payload.v_pos_terra} Vdc</small></td>
-                                <td><span class="status-badge ${badgeClass(d.status_pos)}">${d.status_pos}</span></td>
-                            </tr>
-                            <tr>
-                                <td><b>Negativo / Terra</b><br><small class="text-muted">${payload.v_neg_terra} Vdc</small></td>
-                                <td><span class="status-badge ${badgeClass(d.status_neg)}">${d.status_neg}</span></td>
-                            </tr>
-                        </table>
-                        ${alertasFuga}
-                    </div>
-                    <div class="text-end mt-2 border-top pt-2">
-                        Status Geral da String: <span class="status-badge ${badgeClass(d.status_geral)}">${d.status_geral}</span>
-                    </div>
-                `;
-                box.scrollIntoView({ behavior: 'smooth' });
-            } catch (error) { alert("Erro ao validar. Verifique o servidor."); }
+            // Monta o Laudo Consolidado
+            document.getElementById('laudo_render').innerHTML = `
+                <div class="header-laudo text-center">
+                    <div class="row mb-1"><div class="col-6"><b>Usina:</b> ${usina}</div><div class="col-6"><b>SKID:</b> ${skid}</div></div>
+                    <div class="row"><div class="col-12"><b>Inversor:</b> ${inversor} <br><span class="text-primary small">(${qtd} Strings Analisadas)</span></div></div>
+                </div>
+                
+                <table class="table-laudo mb-2">
+                    <tr class="bg-light"><th>TAG</th><th>VOC</th><th>Pos/T</th><th>Neg/T</th><th>Status</th></tr>
+                    ${htmlTabela}
+                </table>
+                ${alertas}
+            `;
+            document.getElementById('box_laudo').classList.remove('d-none');
+            document.getElementById('box_laudo').scrollIntoView({ behavior: 'smooth' });
         };
 
-        function gerarPDF() {
-            const elemento = document.getElementById('box_laudo');
-            document.querySelector('.no-print.btn-danger').style.display = 'none';
-            html2pdf().set({ margin: 15, filename: `Laudo_CaboCC_${document.getElementById('tag').value}.pdf`, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2, scrollY: 0, useCORS: true }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } }).from(elemento).save().then(() => { document.querySelector('.no-print.btn-danger').style.display = 'block'; });
+        function gerarPDF() { 
+            const opt = { margin: 10, filename: `CabosCC_${document.getElementById('inversor').value}.pdf`, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } };
+            html2pdf().set(opt).from(document.getElementById('box_laudo')).save(); 
         }
     </script>
 </body>

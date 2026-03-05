@@ -1,129 +1,191 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Continuidade de Malha - Portal de Engenharia</title>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Continuidade de Malha</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
-        body { background: #f4f7f6; font-size: 0.85rem; padding: 10px; }
-        .group-box { background: white; border-radius: 12px; padding: 18px; margin-bottom: 12px; border: 1px solid #dee2e6; }
-        .label-eng { font-weight: bold; color: #0d6efd; font-size: 0.75rem; display: block; margin-bottom: 8px; text-transform: uppercase; }
-        .norma { background: #e3f2fd; color: #055160; padding: 5px; border-radius: 4px; font-size: 0.7rem; font-style: italic; margin-bottom: 10px; border-left: 3px solid #0d6efd; display: block; }
-        .status-badge { padding: 4px 10px; border-radius: 4px; font-weight: bold; font-size: 0.7rem; }
-        .bg-ok { background: #d1e7dd; color: #0f5132; }
-        .bg-fail { background: #f8d7da; color: #842029; }
-        .bg-warn { background: #e2e3e5; color: #41464b; }
-        .table-laudo { width: 100%; margin-top: 5px; border-collapse: collapse; }
-        .table-laudo th, .table-laudo td { border: 1px solid #eee; padding: 6px; text-align: center; }
-        .header-laudo { background: #f8f9fa; font-weight: bold; color: #333; padding: 10px; border-radius: 5px; margin-bottom: 10px; border: 1px solid #ddd; }
-        @media print { .no-print { display: none !important; } }
+        body{background:#f0f2f5;font-size:0.85rem;padding:10px}
+        .group-box{background:white;border-radius:12px;padding:18px;margin-bottom:15px;border:1px solid #dee2e6;box-shadow:0 2px 4px rgba(0,0,0,0.02)}
+        .label-eng{font-weight:bold;color:#198754;font-size:0.75rem;display:block;margin-bottom:8px;text-transform:uppercase}
+        .norma{background:#d1e7dd;color:#0f5132;padding:5px;border-radius:4px;font-size:0.7rem;font-style:italic;margin-bottom:10px;border-left:3px solid #198754;display:block}
+        .status-badge{padding:4px 8px;border-radius:4px;font-weight:bold;font-size:0.7rem;text-align:center;display:block}
+        .bg-ok{background:#d1e7dd;color:#0f5132} .bg-fail{background:#f8d7da;color:#842029}
+        .table-laudo{width:100%;border-collapse:collapse;margin-bottom:10px;font-size:0.75rem}
+        .table-laudo th,.table-laudo td{border:1px solid #eee;padding:6px;text-align:center;vertical-align:middle}
+        .header-laudo{background:#f8f9fa;font-weight:bold;color:#333;padding:10px;border-radius:5px;margin-bottom:15px;border:1px solid #ddd}
+        .linha-ponto{background:#f8f9fa;border:1px solid #e9ecef;border-radius:6px;padding:8px;margin-bottom:8px}
+        @media print{.no-print{display:none !important}}
     </style>
 </head>
 <body>
-    <div class="container" style="max-width: 550px;">
+    <div class="container" style="max-width: 600px;">
         <a href="/" class="btn btn-sm btn-outline-secondary mb-3 no-print">⬅️ Voltar ao Menu</a>
-        <h5 class="text-center text-secondary mb-3">🔗 Continuidade de Malha</h5>
+        <h5 class="text-center text-success fw-bold mb-3">🔗 Continuidade de Malha</h5>
         
-        <form id="formEnsaios">
-            <div class="group-box shadow-sm">
-                <span class="label-eng">Identificação do Setor</span>
+        <form id="formCont">
+            <div class="group-box">
+                <span class="label-eng">Identificação da Área</span>
                 <div class="row g-2 mb-2">
-                    <div class="col"><input type="text" id="usina" class="form-control" placeholder="Usina" required></div>
-                    <div class="col"><input type="text" id="tag" class="form-control" placeholder="Área/Setor (Ex: Inversor 1)" required></div>
+                    <div class="col"><input type="text" id="usina" class="form-control form-control-sm" placeholder="Usina" required></div>
+                    <div class="col"><input type="text" id="tag" class="form-control form-control-sm" placeholder="Local / Setor (Ex: Eletrocentro)" required></div>
                 </div>
             </div>
 
-            <div class="group-box shadow-sm">
-                <span class="label-eng">Pontos de Medição (Equipamento ➔ Malha)</span>
-                <span class="norma">Critério Normativo: <= 1000 mΩ (1 Ω)</span>
+            <div class="group-box">
+                <span class="label-eng">Pontos de Medição (mΩ)</span>
+                <span class="norma">Critério: Resistência de Contato ≤ 1000 mΩ (1 Ω)</span>
                 
-                <div class="row g-2 mb-3 align-items-center">
-                    <div class="col-8"><input type="text" id="pt1_nome" class="form-control" placeholder="Ponto 1 (Ex: Carcaça)"></div>
-                    <div class="col-4"><input type="text" inputmode="decimal" id="pt1_res" class="form-control border-primary" placeholder="Ex: 15,5 mΩ"></div>
-                </div>
-                
-                <div class="row g-2 mb-3 align-items-center">
-                    <div class="col-8"><input type="text" id="pt2_nome" class="form-control" placeholder="Ponto 2 (Ex: Porta do Painel)"></div>
-                    <div class="col-4"><input type="text" inputmode="decimal" id="pt2_res" class="form-control border-primary" placeholder="Ex: 22,3 mΩ"></div>
+                <div class="row g-2 align-items-center border-bottom pb-3 mb-3">
+                    <div class="col-8 fw-bold text-muted small">Quantos pontos serão ensaiados?</div>
+                    <div class="col-4">
+                        <input type="number" id="qtd_pontos" class="form-control border-success text-center" placeholder="Ex: 10" min="1" max="50" required oninput="gerarPontos()">
+                    </div>
                 </div>
 
-                <div class="row g-2 align-items-center">
-                    <div class="col-8"><input type="text" id="pt3_nome" class="form-control" placeholder="Ponto 3 (Ex: Estrutura)"></div>
-                    <div class="col-4"><input type="text" inputmode="decimal" id="pt3_res" class="form-control border-primary" placeholder="Ex: 8,1 mΩ"></div>
+                <div class="row g-1 mb-2 d-none" id="header_pontos">
+                    <div class="col-1"></div>
+                    <div class="col-4 small fw-bold text-success text-center" style="font-size:0.7rem">Referência</div>
+                    <div class="col-4 small fw-bold text-success text-center" style="font-size:0.7rem">Ponto Medido</div>
+                    <div class="col-3 small fw-bold text-success text-center" style="font-size:0.7rem">Valor (mΩ)</div>
                 </div>
+
+                <div id="dynamic_pontos"></div>
             </div>
 
-            <button type="submit" class="btn btn-primary w-100 py-3 fw-bold shadow no-print">GERAR LAUDO DE CONTINUIDADE</button>
+            <button type="submit" id="btn_salvar" class="btn btn-success w-100 py-3 fw-bold shadow-sm no-print d-none">GERAR LAUDO DE MALHA E SALVAR</button>
         </form>
 
-        <div id="box_laudo" class="mt-4 p-4 bg-white border rounded d-none shadow">
+        <div id="box_laudo" class="mt-4 p-4 bg-white border rounded d-none shadow-sm">
             <h6 class="text-center fw-bold border-bottom pb-2 mb-3">LAUDO - CONTINUIDADE DE MALHA</h6>
-            <div id="laudo_header" class="header-laudo"></div>
-            <div id="laudo_body"></div>
+            <div id="laudo_render"></div>
             <button onclick="gerarPDF()" class="btn btn-danger w-100 mt-4 fw-bold no-print">📥 DESCARREGAR PDF</button>
         </div>
     </div>
 
     <script>
-        // Esta função substitui a vírgula por ponto para que o Python entenda os decimais perfeitamente
-        const parseF = (id) => { 
-            let v = document.getElementById(id).value.replace(',', '.'); 
-            return v === "" ? 0 : parseFloat(v); 
-        };
-        
-        function badgeClass(status) { return status === 'CONFORME' ? 'bg-ok' : (status === 'NÃO AVALIADO' ? 'bg-warn' : 'bg-fail'); }
-
-        document.getElementById('formEnsaios').onsubmit = async (e) => {
-            e.preventDefault();
-            const payload = {
-                usina: document.getElementById('usina').value, tag: document.getElementById('tag').value,
-                pt1_nome: document.getElementById('pt1_nome').value, pt1_res: parseF('pt1_res'),
-                pt2_nome: document.getElementById('pt2_nome').value, pt2_res: parseF('pt2_res'),
-                pt3_nome: document.getElementById('pt3_nome').value, pt3_res: parseF('pt3_res')
-            };
-
-            try {
-                const response = await fetch('/ensaio/cont-malha/validar', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-                const d = await response.json();
-                
-                const box = document.getElementById('box_laudo');
-                box.classList.remove('d-none');
-                
-                document.getElementById('laudo_header').innerHTML = `<div class="row text-center"><div class="col-6"><b>Área/Setor:</b> ${payload.tag}</div><div class="col-6"><b>Usina:</b> ${payload.usina}</div></div>`;
-
-                let linhasTabela = "";
-                // Como devolvemos o valor com parseF (que usa ponto), podemos formatar com vírgula para ficar bonito no PDF:
-                const formataBR = (num) => num.toString().replace('.', ',');
-
-                if(payload.pt1_nome) linhasTabela += `<tr><td>${payload.pt1_nome}</td><td>${formataBR(payload.pt1_res)} mΩ</td><td><span class="status-badge ${badgeClass(d.p1)}">${d.p1}</span></td></tr>`;
-                if(payload.pt2_nome) linhasTabela += `<tr><td>${payload.pt2_nome}</td><td>${formataBR(payload.pt2_res)} mΩ</td><td><span class="status-badge ${badgeClass(d.p2)}">${d.p2}</span></td></tr>`;
-                if(payload.pt3_nome) linhasTabela += `<tr><td>${payload.pt3_nome}</td><td>${formataBR(payload.pt3_res)} mΩ</td><td><span class="status-badge ${badgeClass(d.p3)}">${d.p3}</span></td></tr>`;
-
-                if(linhasTabela === "") linhasTabela = `<tr><td colspan="3" class="text-muted">Nenhum ponto registrado.</td></tr>`;
-
-                document.getElementById('laudo_body').innerHTML = `
-                    <div class="mb-3">
-                        <span class="label-eng">Resultados das Conexões Equipotenciais</span>
-                        <table class="table-laudo">
-                            <tr><th>Ponto Testado</th><th>Resistência (mΩ)</th><th>Status</th></tr>
-                            ${linhasTabela}
-                        </table>
-                    </div>
-                    <div class="text-end mt-2">
-                        Status Geral: <span class="status-badge ${badgeClass(d.status_geral)}">${d.status_geral}</span>
-                    </div>
-                `;
-                box.scrollIntoView({ behavior: 'smooth' });
-            } catch (error) { alert("Erro ao validar. Verifique o servidor."); }
-        };
-
-        function gerarPDF() {
-            const elemento = document.getElementById('box_laudo');
-            document.querySelector('.no-print.btn-danger').style.display = 'none';
-            html2pdf().set({ margin: 15, filename: `Laudo_ContMalha_${document.getElementById('tag').value}.pdf`, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2, scrollY: 0, useCORS: true }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } }).from(elemento).save().then(() => { document.querySelector('.no-print.btn-danger').style.display = 'block'; });
+        // --- GERAÇÃO DINÂMICA DE PONTOS DE MEDIÇÃO ---
+        function gerarPontos() {
+            let qtd = parseInt(document.getElementById('qtd_pontos').value);
+            let container = document.getElementById('dynamic_pontos');
+            let header = document.getElementById('header_pontos');
+            let btn = document.getElementById('btn_salvar');
+            container.innerHTML = '';
+            
+            if(qtd > 0 && qtd <= 50) {
+                header.classList.remove('d-none');
+                btn.classList.remove('d-none');
+                for(let i = 1; i <= qtd; i++) {
+                    container.innerHTML += `
+                    <div class="linha-ponto row g-1 align-items-center">
+                        <div class="col-1 text-center fw-bold text-muted small">${i}</div>
+                        <div class="col-4"><input type="text" id="ref_${i}" class="form-control form-control-sm" placeholder="Ex: Haste 1" required></div>
+                        <div class="col-4"><input type="text" id="pt_${i}" class="form-control form-control-sm" placeholder="Ex: Inv 01" required></div>
+                        <div class="col-3"><input type="number" step="0.1" id="res_${i}" class="form-control form-control-sm text-center border-success" placeholder="mΩ" required></div>
+                    </div>`;
+                }
+            } else {
+                header.classList.add('d-none');
+                btn.classList.add('d-none');
+            }
         }
+
+        // --- SALVAR LOTE DE PONTOS (HÍBRIDO) ---
+        async function salvarLoteHibrido(payloads, url) {
+            let salvosOnline = 0; let salvosOffline = 0;
+            let fila = JSON.parse(localStorage.getItem('sync_queue') || '[]');
+
+            if(navigator.onLine) {
+                for(let p of payloads) {
+                    try {
+                        let r = await fetch(url, {method: 'POST', body: JSON.stringify(p), headers: {'Content-Type': 'application/json'}});
+                        if(r.ok) salvosOnline++; else { fila.push({url: url, data: p}); salvosOffline++; }
+                    } catch(e) { fila.push({url: url, data: p}); salvosOffline++; }
+                }
+            } else {
+                for(let p of payloads) { fila.push({url: url, data: p}); salvosOffline++; }
+            }
+
+            if(salvosOffline > 0) localStorage.setItem('sync_queue', JSON.stringify(fila));
+            
+            if(salvosOnline > 0 && salvosOffline === 0) alert(`✅ Lote de malha salvo com sucesso!`);
+            else alert(`⚠️ Dados salvos no telemóvel para sincronia. (${salvosOffline} pendentes)`);
+        }
+
+        // --- PROCESSAMENTO DO LAUDO ---
+        document.getElementById('formCont').onsubmit = async (e) => {
+            e.preventDefault(); 
+            const usina = document.getElementById('usina').value;
+            const tag = document.getElementById('tag').value;
+            const qtd = parseInt(document.getElementById('qtd_pontos').value);
+
+            let payloads = [];
+            let htmlTabela = "";
+            let erroGeral = false;
+
+            // Processar cada ponto
+            for(let i = 1; i <= qtd; i++) {
+                let ref = document.getElementById(`ref_${i}`).value;
+                let pt = document.getElementById(`pt_${i}`).value;
+                let res = parseFloat(document.getElementById(`res_${i}`).value) || 0;
+
+                // Verificação de Status
+                let st = res <= 1000 ? 'OK' : 'FALHA';
+                let cls = res <= 1000 ? 'text-success' : 'text-danger';
+                if(st === 'FALHA') erroGeral = true;
+
+                // Empacotar usando o banco de dados existente (pt1_nome recebe Ref + Pt)
+                payloads.push({ 
+                    usina: usina, tag: tag, 
+                    pt1_nome: `${ref} -> ${pt}`, pt1_res: res, 
+                    pt2_nome: "", pt2_res: 0, 
+                    pt3_nome: "", pt3_res: 0 
+                });
+
+                // Criar linha da Tabela PDF
+                htmlTabela += `
+                    <tr>
+                        <td class="text-muted fw-bold">${i}</td>
+                        <td>${ref}</td>
+                        <td class="fw-bold">${pt}</td>
+                        <td class="${cls} fw-bold">${res}</td>
+                        <td><span class="status-badge ${st==='OK'?'bg-ok':'bg-fail'}">${st}</span></td>
+                    </tr>
+                `;
+            }
+
+            // Envia tudo para a nuvem ou para a fila
+            await salvarLoteHibrido(payloads, '/api/sync/cont-malha');
+
+            // Renderizar PDF
+            document.getElementById('laudo_render').innerHTML = `
+                <div class="header-laudo text-center">
+                    <div class="row mb-1"><div class="col-6"><b>Usina:</b> ${usina}</div><div class="col-6"><b>Local:</b> ${tag}</div></div>
+                    <div class="row"><div class="col-12 text-success small">(${qtd} Pontos Ensaiados)</div></div>
+                </div>
+                
+                <table class="table-laudo mb-3">
+                    <tr class="bg-light">
+                        <th style="width:5%">#</th>
+                        <th>Referência</th>
+                        <th>Ponto Medido</th>
+                        <th>Valor (mΩ)</th>
+                        <th>Status</th>
+                    </tr>
+                    ${htmlTabela}
+                </table>
+
+                <div class="text-center border-top pt-3">
+                    <span class="d-block small text-muted text-uppercase fw-bold mb-1">Veredito do Setor</span>
+                    <span class="status-badge ${erroGeral ? 'bg-fail' : 'bg-ok'} w-100 py-2 fs-6">
+                        ${erroGeral ? 'REPROVADO - HÁ PONTOS ACIMA DE 1000 mΩ' : 'APROVADO - MALHA EQUIPOTENCIAL CONFORME'}
+                    </span>
+                </div>
+            `;
+            document.getElementById('box_laudo').classList.remove('d-none'); document.getElementById('box_laudo').scrollIntoView({ behavior: 'smooth' });
+        };
+
+        function gerarPDF() { html2pdf().set({ margin: 10, filename: `ContMalha_${document.getElementById('tag').value}.pdf`, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } }).from(document.getElementById('box_laudo')).save(); }
     </script>
 </body>
 </html>
