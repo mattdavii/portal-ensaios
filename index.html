@@ -263,6 +263,23 @@
             installBanner.style.display = 'none';
         });
 
+        // ==========================================
+        // LÓGICA EXCLUSIVA PARA DISPOSITIVOS DA APPLE (iOS)
+        // ==========================================
+        const isIos = () => {
+            const userAgent = window.navigator.userAgent.toLowerCase();
+            return /iphone|ipad|ipod/.test(userAgent);
+        };
+
+        // Verifica se o app já está rodando como PWA (tela cheia) no iOS
+        const isInStandaloneMode = () => ('standalone' in window.navigator) && (window.navigator.standalone);
+
+        // Se for um iPhone/iPad, e estiver usando o Safari no navegador normal (não instalado)
+        if (isIos() && !isInStandaloneMode()) {
+            // Mostra o nosso balão de dicas para o iOS
+            document.getElementById('iosInstallBanner').style.display = 'block';
+        }
+
         // Registro do Service Worker
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('/sw.js');
