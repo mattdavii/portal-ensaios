@@ -23,6 +23,34 @@
         #installBanner { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 400px; background: #0d6efd; color: white; padding: 15px; border-radius: 12px; display: none; z-index: 9999; box-shadow: 0 10px 25px rgba(0,0,0,0.2); animation: slideUp 0.5s ease-out; }
         @keyframes slideUp { from { bottom: -100px; opacity: 0; } to { bottom: 20px; opacity: 1; } }
         .install-content { display: flex; align-items: center; justify-content: space-between; }
+
+        /* Banner exclusivo para iOS */
+        #iosInstallBanner {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90%;
+            max-width: 400px;
+            background: rgba(255, 255, 255, 0.95);
+            color: #333;
+            padding: 15px;
+            border-radius: 12px;
+            display: none; /* Escondido por padrão */
+            z-index: 9999;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+            border: 1px solid #dee2e6;
+            text-align: center;
+            backdrop-filter: blur(10px);
+        }
+        .ios-icon-share {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="%230d6efd" d="M398.1 233.2c0-1.2.2-2.4.2-3.6 0-65-51.8-117.6-115.6-117.6-46.1 0-85.7 27.4-104.3 67-8.1-4.1-17.2-6.5-26.8-6.5-29.5 0-54.1 21.9-58.8 50.5C57.3 235.2 32 269.1 32 309c0 50.2 40.1 91 89.5 91H224v-135l-43 43-22.6-22.6 81.6-81.6 81.6 81.6-22.6 22.6-43-43V400h155.6c43.4 0 78.9-35.8 78.9-80 0-41.8-31.1-76.3-71.4-79.8z"/></svg>') no-repeat center center;
+            vertical-align: middle;
+        }
+
     </style>
 </head>
 <body>
@@ -34,6 +62,14 @@
                 <span class="fw-bold">Instalar Portal de Ensaios?</span>
                 <br><small style="font-size: 0.7rem; opacity: 0.9;">Funciona sem internet após instalado.</small>
             </div>
+    <div id="iosInstallBanner">
+        <div class="fw-bold mb-2 text-primary">Instale o Portal no seu iPhone!</div>
+        <div class="small text-muted mb-3">
+            Toque no ícone de <b>Compartilhar</b> <i class="bi bi-box-arrow-up text-primary fw-bold"></i> na barra inferior do Safari e depois em <b>"Adicionar à Tela de Início"</b> <i class="bi bi-plus-square text-primary fw-bold"></i>.
+        </div>
+        <button onclick="document.getElementById('iosInstallBanner').style.display='none'" class="btn btn-outline-secondary btn-sm w-100 fw-bold">Entendi, fechar</button>
+    </div>
+
             <div>
                 <button id="btnInstall" class="btn btn-light btn-sm fw-bold me-1">SIM</button>
                 <button onclick="document.getElementById('installBanner').style.display='none'" class="btn btn-outline-light btn-sm">NÃO</button>
