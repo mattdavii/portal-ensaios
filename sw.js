@@ -1,4 +1,4 @@
-const CACHE_NAME = 'portal-v11';
+const CACHE_NAME = 'portal-v12';
 const ASSETS = [
   '/',
   '/manifest.json',
