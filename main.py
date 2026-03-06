@@ -21,6 +21,10 @@ def service_worker():
 def manifest(): 
     return FileResponse("manifest.json")
 
+@app.get("/logo.png")
+def logo(): 
+    return FileResponse("logo.png")
+
 # ==========================================
 # 2. ROTAS DO FRONTEND (Páginas HTML)
 # ==========================================
