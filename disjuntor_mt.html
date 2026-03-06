@@ -147,9 +147,45 @@
         };
 
         function gerarPDF() { 
-            const opt = { margin: 10, filename: `Disjuntor_MT_${document.getElementById('tag').value}.pdf`, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } };
-            html2pdf().set(opt).from(document.getElementById('box_laudo')).save(); 
+            const elemento = document.getElementById('box_laudo');
+            const tag = document.getElementById('tag').value || 'Equipamento';
+            const nomeArquivo = `Laudo_${tag}.pdf`;
+            
+            const opt = { 
+                margin: 10, 
+                filename: nomeArquivo, 
+                image: { type: 'jpeg', quality: 0.98 }, 
+                // A SOLUÇÃO DO PDF BRANCO ESTÁ AQUI: scrollY: 0
+                html2canvas: { scale: 2, scrollY: 0 }, 
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } 
+            };
+
+            // Muda o botão para mostrar que está pensando
+            const btn = document.querySelector('button[onclick="gerarPDF()"]');
+            const textoOriginal = btn.innerHTML;
+            btn.innerHTML = '⏳ GERANDO PDF...';
+
+            // Deteção inteligente: É um iPhone/iPad?
+            const isApple = navigator.userAgent.match(/iphone|ipad|ipod/i);
+
+            if (isApple && navigator.canShare) {
+                // Modo iOS: Gera o arquivo e abre a tela nativa de Compartilhar (WhatsApp, Salvar, etc)
+                html2pdf().set(opt).from(elemento).output('blob').then(function(pdfBlob) {
+                    btn.innerHTML = textoOriginal;
+                    const file = new File([pdfBlob], nomeArquivo, { type: 'application/pdf' });
+                    navigator.share({
+                        title: 'Laudo Técnico',
+                        files: [file]
+                    }).catch(e => console.log('Partilha cancelada'));
+                });
+            } else {
+                // Modo Android / PC: Faz o Download direto normal e à prova de falhas
+                html2pdf().set(opt).from(elemento).save().then(() => {
+                    btn.innerHTML = textoOriginal; // Restaura o botão após baixar
+                });
+            }
         }
     </script>
 </body>
+
 </html>
