@@ -62,7 +62,45 @@
             document.getElementById('laudo_render').innerHTML = `<div class="header-laudo text-center"><div class="row mb-1"><div class="col-6"><b>Usina:</b> ${d.usina}</div><div class="col-6"><b>TAG:</b> ${d.tag}</div></div><div class="row"><div class="col-12"><b>Fabricante:</b> ${d.fabricante}</div></div></div><span class="label-eng">Contatos (µΩ)</span><table class="table-laudo"><tr class="bg-light"><th>R</th><th>S</th><th>T</th><th>Status</th></tr><tr><td>${d.res_c_r}</td><td>${d.res_c_s}</td><td>${d.res_c_t}</td><td><span class="status-badge ${st_cont==='CONFORME'?'bg-ok':'bg-fail'}">${st_cont}</span></td></tr></table><span class="label-eng mt-3">Isolamento (MΩ)</span><table class="table-laudo"><tr class="bg-light"><th>Teste</th><th>L1</th><th>L2</th><th>L3</th></tr><tr><td><b>F-T</b></td><td>${d.iso_ft_r}</td><td>${d.iso_ft_s}</td><td>${d.iso_ft_t}</td></tr><tr><td><b>F-F</b></td><td>${d.iso_ff_rs}</td><td>${d.iso_ff_st}</td><td>${d.iso_ff_tr}</td></tr><tr><td><b>Aberto</b></td><td>${d.iso_ab_r}</td><td>${d.iso_ab_s}</td><td>${d.iso_ab_t}</td></tr></table>`;
             document.getElementById('box_laudo').classList.remove('d-none'); document.getElementById('box_laudo').scrollIntoView({ behavior: 'smooth' });
         };
-        function gerarPDF() { html2pdf().set({ margin: 10, filename: `Disjuntor_BT_${document.getElementById('tag').value}.pdf`, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } }).from(document.getElementById('box_laudo')).save(); }
-    </script>
+        function gerarPDF() { 
+            const elemento = document.getElementById('box_laudo');
+            const tag = document.getElementById('tag').value || 'Equipamento';
+            const nomeArquivo = `Laudo_${tag}.pdf`;
+            
+            const opt = { 
+                margin: 10, 
+                filename: nomeArquivo, 
+                image: { type: 'jpeg', quality: 0.98 }, 
+                // A SOLUÇÃO DO PDF BRANCO ESTÁ AQUI: scrollY: 0
+                html2canvas: { scale: 2, scrollY: 0 }, 
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } 
+            };
+
+            // Muda o botão para mostrar que está pensando
+            const btn = document.querySelector('button[onclick="gerarPDF()"]');
+            const textoOriginal = btn.innerHTML;
+            btn.innerHTML = '⏳ GERANDO PDF...';
+
+            // Deteção inteligente: É um iPhone/iPad?
+            const isApple = navigator.userAgent.match(/iphone|ipad|ipod/i);
+
+            if (isApple && navigator.canShare) {
+                // Modo iOS: Gera o arquivo e abre a tela nativa de Compartilhar (WhatsApp, Salvar, etc)
+                html2pdf().set(opt).from(elemento).output('blob').then(function(pdfBlob) {
+                    btn.innerHTML = textoOriginal;
+                    const file = new File([pdfBlob], nomeArquivo, { type: 'application/pdf' });
+                    navigator.share({
+                        title: 'Laudo Técnico',
+                        files: [file]
+                    }).catch(e => console.log('Partilha cancelada'));
+                });
+            } else {
+                // Modo Android / PC: Faz o Download direto normal e à prova de falhas
+                html2pdf().set(opt).from(elemento).save().then(() => {
+                    btn.innerHTML = textoOriginal; // Restaura o botão após baixar
+                });
+            }
+        }
 </body>
+
 </html>
