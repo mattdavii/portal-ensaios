@@ -83,7 +83,7 @@
     </div>
 
     <script>
-        // Funções de formatação e inteligência (Mágica do Vazio)
+                // Funções de formatação e inteligência
         const pF = (id) => { let el = document.getElementById(id); return (el && el.value !== "") ? parseFloat(el.value) : null; };
         const vRender = (val) => val === null ? "-" : val;
         
@@ -92,6 +92,27 @@
             let st = val >= 1000 ? 'OK' : 'FALHA';
             let cls = val >= 1000 ? 'text-success' : 'text-danger';
             return `${val} <span class="${cls} fw-bold">(${st})</span>`;
+        }
+
+        // NOVA FUNÇÃO: Inteligência da Resistência de Contato (Limite + Desbalanceamento)
+        function calcContato(val, min_val, limit) {
+            if (val === null) return '-';
+            
+            // 1º Critério: Passou do limite absoluto (300 µΩ ou 0.3 mΩ)?
+            if (val >= limit) {
+                return `${val} <br><span class="text-danger fw-bold" style="font-size:0.65rem;">(FALHA > Limite)</span>`;
+            }
+            
+            // 2º Critério: Está desbalanceado em relação à menor fase? (> 10%)
+            if (min_val > 0) {
+                let desvio = ((val - min_val) / min_val) * 100;
+                if (desvio > 10) {
+                    return `${val} <br><span class="text-danger fw-bold" style="font-size:0.65rem;">(DESBALANCEADA)</span>`;
+                }
+            }
+            
+            // Se passou nos dois testes:
+            return `${val} <br><span class="text-success fw-bold" style="font-size:0.65rem;">(OK)</span>`;
         }
 
         async function salvarSincronismo(payload) {
@@ -124,15 +145,25 @@
 
             await salvarSincronismo(dados);
 
+            // CÁLCULO DINÂMICO DOS LIMITES E DO DESVIO
+            // Se a unidade for mΩ, o limite é 0.3. Se for µΩ, o limite é 300.
+            const limitContato = uniContato === 'mΩ' ? 0.3 : 300;
+            const valsContato = [dados.c_a, dados.c_b, dados.c_c].filter(v => v !== null);
+            const minContato = valsContato.length > 0 ? Math.min(...valsContato) : 0;
+
+            const resA = calcContato(dados.c_a, minContato, limitContato);
+            const resB = calcContato(dados.c_b, minContato, limitContato);
+            const resC = calcContato(dados.c_c, minContato, limitContato);
+
             document.getElementById('laudo_render').innerHTML = `
                 <div class="header-laudo text-center">
                     <div class="row mb-1"><div class="col-6"><b>Usina:</b> ${usina}</div><div class="col-6"><b>TAG:</b> ${tag}</div></div>
                 </div>
                 
-                <span class="label-eng">Resistência de Contato (${uniContato})</span>
+                <span class="label-eng">Resistência de Contato @ 10A (${uniContato})</span>
                 <table class="table-laudo mb-3">
                     <tr class="bg-light"><th>Fase A</th><th>Fase B</th><th>Fase C</th></tr>
-                    <tr><td class="fw-bold">${vRender(dados.c_a)}</td><td class="fw-bold">${vRender(dados.c_b)}</td><td class="fw-bold">${vRender(dados.c_c)}</td></tr>
+                    <tr><td>${resA}</td><td>${resB}</td><td>${resC}</td></tr>
                 </table>
                 
                 <span class="label-eng">Resistência de Isolamento (MΩ)</span>
@@ -178,6 +209,7 @@
                 html2pdf().set(opt).from(elemento).save().then(() => { btn.innerHTML = textoOriginal; });
             }
         }
+
     </script>
 </body>
 </html>
