@@ -5,187 +5,152 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
-        body { background: #f4f7f6; font-size: 0.85rem; padding: 10px; }
-        .group-box { background: white; border-radius: 12px; padding: 18px; margin-bottom: 15px; border: 1px solid #dee2e6; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
-        .label-eng { font-weight: bold; color: #212529; font-size: 0.75rem; display: block; margin-bottom: 8px; text-transform: uppercase; }
-        .norma { background: #e2e3e5; color: #41464b; padding: 5px; border-radius: 4px; font-size: 0.7rem; font-style: italic; margin-bottom: 10px; border-left: 3px solid #6c757d; display: block; }
-        .status-badge { padding: 4px 10px; border-radius: 4px; font-weight: bold; font-size: 0.75rem; text-align: center; }
-        .bg-ok { background: #d1e7dd; color: #0f5132; }
-        .bg-fail { background: #f8d7da; color: #842029; }
-        .table-laudo { width: 100%; border-collapse: collapse; margin-bottom: 10px; font-size: 0.75rem; }
-        .table-laudo th, .table-laudo td { border: 1px solid #eee; padding: 6px; text-align: center; vertical-align: middle; }
-        .header-laudo { background: #f8f9fa; font-weight: bold; color: #333; padding: 10px; border-radius: 5px; margin-bottom: 15px; border: 1px solid #ddd; }
-        .section-title { font-size: 0.75rem; font-weight: bold; color: #6c757d; background: #f8f9fa; padding: 5px; border-radius: 4px; margin-top: 10px; margin-bottom: 10px;}
-        @media print { .no-print { display: none !important; } }
+        body{background:#f0f2f5;font-size:0.85rem;padding:10px}
+        .group-box{background:white;border-radius:12px;padding:18px;margin-bottom:15px;border:1px solid #dee2e6;box-shadow:0 2px 4px rgba(0,0,0,0.02)}
+        .label-eng{font-weight:bold;color:#0dcaf0;font-size:0.75rem;display:block;margin-bottom:8px;text-transform:uppercase}
+        .norma{background:#cff4fc;color:#055160;padding:5px;border-radius:4px;font-size:0.7rem;font-style:italic;margin-bottom:10px;border-left:3px solid #0dcaf0;display:block}
+        .table-laudo{width:100%;border-collapse:collapse;margin-bottom:10px;font-size:0.75rem}
+        .table-laudo th,.table-laudo td{border:1px solid #eee;padding:6px;text-align:center;vertical-align:middle}
+        .header-laudo{background:#f8f9fa;font-weight:bold;color:#333;padding:10px;border-radius:5px;margin-bottom:15px;border:1px solid #ddd}
+        .section-title{font-size:0.75rem;font-weight:bold;color:#6c757d;background:#f8f9fa;padding:5px;border-radius:4px;margin-top:10px;margin-bottom:10px}
+        .tag-estado{font-size:0.7rem; letter-spacing: 0.5px; text-transform: uppercase;}
+        @media print{.no-print{display:none !important}}
     </style>
 </head>
 <body>
-    <div class="container" style="max-width: 550px;">
+    <div class="container" style="max-width: 600px;">
         <a href="/" class="btn btn-sm btn-outline-secondary mb-3 no-print">⬅️ Voltar ao Menu</a>
-        <h5 class="text-center text-dark fw-bold mb-3">🛡️ Disjuntor Média Tensão</h5>
+        <h5 class="text-center text-info fw-bold mb-3" style="text-shadow: 0 0 1px #000;">⚡ Disjuntor de Média Tensão</h5>
         
-        <form id="formDisj">
+        <form id="formMT">
             <div class="group-box">
-                <span class="label-eng">Identificação</span>
+                <span class="label-eng">Identificação do Ativo</span>
                 <div class="row g-2 mb-2">
                     <div class="col"><input type="text" id="usina" class="form-control form-control-sm" placeholder="Usina" required></div>
-                    <div class="col"><input type="text" id="tag" class="form-control form-control-sm" placeholder="TAG Disjuntor" required></div>
-                </div>
-                <input type="text" id="fabricante" class="form-control form-control-sm" placeholder="Fabricante / Modelo" required>
-            </div>
-
-            <div class="group-box">
-                <span class="label-eng">Resistência de Contatos</span>
-                <span class="norma">Critério Sugerido: ≤ 300 µΩ</span>
-                <div class="row g-2">
-                    <div class="col"><label class="small text-muted">Fase R (µΩ)</label><input type="number" step="0.1" id="cr" class="form-control form-control-sm" required></div>
-                    <div class="col"><label class="small text-muted">Fase S (µΩ)</label><input type="number" step="0.1" id="cs" class="form-control form-control-sm" required></div>
-                    <div class="col"><label class="small text-muted">Fase T (µΩ)</label><input type="number" step="0.1" id="ct" class="form-control form-control-sm" required></div>
+                    <div class="col"><input type="text" id="tag" class="form-control form-control-sm" placeholder="TAG do Disjuntor" required></div>
                 </div>
             </div>
 
             <div class="group-box">
-                <span class="label-eng">Resistência de Isolamento</span>
-                <span class="norma">Critério Sugerido: ≥ 1000 MΩ (1 GΩ)</span>
+                <span class="label-eng">Resistência de Contato (10A)</span>
+                <span class="norma">Critério: Limite 300µΩ | Desequilíbrio ≤ 10%</span>
                 
-                <div class="section-title">Fase - Terra (MΩ)</div>
-                <div class="row g-2">
-                    <div class="col"><input type="number" id="ift_r" class="form-control form-control-sm" placeholder="R-T" required></div>
-                    <div class="col"><input type="number" id="ift_s" class="form-control form-control-sm" placeholder="S-T" required></div>
-                    <div class="col"><input type="number" id="ift_t" class="form-control form-control-sm" placeholder="T-T" required></div>
+                <div class="section-title d-flex justify-content-between align-items-center">
+                    <span>Valores Medidos</span>
+                    <select id="uni_contato" class="form-select form-select-sm w-auto border-info fw-bold">
+                        <option value="µΩ" selected>microOhms (µΩ)</option>
+                        <option value="mΩ">miliOhms (mΩ)</option>
+                    </select>
                 </div>
-
-                <div class="section-title">Fase - Fase (MΩ)</div>
-                <div class="row g-2">
-                    <div class="col"><input type="number" id="iff_rs" class="form-control form-control-sm" placeholder="R-S" required></div>
-                    <div class="col"><input type="number" id="iff_st" class="form-control form-control-sm" placeholder="S-T" required></div>
-                    <div class="col"><input type="number" id="iff_tr" class="form-control form-control-sm" placeholder="T-R" required></div>
-                </div>
-
-                <div class="section-title">Contato Aberto (MΩ)</div>
-                <div class="row g-2">
-                    <div class="col"><input type="number" id="iab_r" class="form-control form-control-sm" placeholder="R" required></div>
-                    <div class="col"><input type="number" id="iab_s" class="form-control form-control-sm" placeholder="S" required></div>
-                    <div class="col"><input type="number" id="iab_t" class="form-control form-control-sm" placeholder="T" required></div>
+                <div class="row g-2 mb-3">
+                    <div class="col"><label class="small text-muted fw-bold">Fase A</label><input type="number" step="0.001" id="contato_a" class="form-control form-control-sm" placeholder="Valor"></div>
+                    <div class="col"><label class="small text-muted fw-bold">Fase B</label><input type="number" step="0.001" id="contato_b" class="form-control form-control-sm" placeholder="Valor"></div>
+                    <div class="col"><label class="small text-muted fw-bold">Fase C</label><input type="number" step="0.001" id="contato_c" class="form-control form-control-sm" placeholder="Valor"></div>
                 </div>
             </div>
 
-            <button type="submit" class="btn btn-dark w-100 py-3 fw-bold shadow-sm no-print">GERAR LAUDO E SALVAR</button>
+            <div class="group-box">
+                <span class="label-eng mb-3">Resistência de Isolamento (MΩ)</span>
+                
+                <div class="bg-info text-dark text-center fw-bold p-1 rounded mb-2 tag-estado">DISJUNTOR FECHADO</div>
+                <div class="row g-2 mb-2">
+                    <div class="col"><label class="small text-muted" style="font-size: 0.65rem;">Fase A x Terra</label><input type="number" id="iso_at" class="form-control form-control-sm"></div>
+                    <div class="col"><label class="small text-muted" style="font-size: 0.65rem;">Fase B x Terra</label><input type="number" id="iso_bt" class="form-control form-control-sm"></div>
+                    <div class="col"><label class="small text-muted" style="font-size: 0.65rem;">Fase C x Terra</label><input type="number" id="iso_ct" class="form-control form-control-sm"></div>
+                </div>
+                <div class="row g-2 mb-4">
+                    <div class="col"><label class="small text-muted" style="font-size: 0.65rem;">Fase A x B</label><input type="number" id="iso_ab" class="form-control form-control-sm"></div>
+                    <div class="col"><label class="small text-muted" style="font-size: 0.65rem;">Fase B x C</label><input type="number" id="iso_bc" class="form-control form-control-sm"></div>
+                    <div class="col"><label class="small text-muted" style="font-size: 0.65rem;">Fase C x A</label><input type="number" id="iso_ca" class="form-control form-control-sm"></div>
+                </div>
+
+                <div class="bg-secondary text-white text-center fw-bold p-1 rounded mb-2 tag-estado border-top">DISJUNTOR ABERTO</div>
+                <div class="row g-2">
+                    <div class="col"><label class="small text-muted" style="font-size: 0.65rem;">Fase A (Ent. x Saída)</label><input type="number" id="iso_esa" class="form-control form-control-sm"></div>
+                    <div class="col"><label class="small text-muted" style="font-size: 0.65rem;">Fase B (Ent. x Saída)</label><input type="number" id="iso_esb" class="form-control form-control-sm"></div>
+                    <div class="col"><label class="small text-muted" style="font-size: 0.65rem;">Fase C (Ent. x Saída)</label><input type="number" id="iso_esc" class="form-control form-control-sm"></div>
+                </div>
+            </div>
+
+            <button type="submit" id="btn_salvar" class="btn btn-info text-dark w-100 py-3 fw-bold shadow-sm no-print">GERAR LAUDO E SALVAR</button>
         </form>
 
         <div id="box_laudo" class="mt-4 p-4 bg-white border rounded d-none shadow-sm">
-            <h6 class="text-center fw-bold border-bottom pb-2 mb-3">LAUDO - DISJUNTOR MT</h6>
+            <h6 class="text-center fw-bold border-bottom pb-2 mb-3">LAUDO TÉCNICO - DISJUNTOR MT</h6>
             <div id="laudo_render"></div>
             <button onclick="gerarPDF()" class="btn btn-danger w-100 mt-4 fw-bold no-print">📥 DESCARREGAR PDF</button>
         </div>
     </div>
 
     <script>
-        async function salvarHibrido(url, payload) {
-            if(navigator.onLine) {
-                try { let r = await fetch(url, {method: 'POST', body: JSON.stringify(payload), headers: {'Content-Type': 'application/json'}});
-                      if(r.ok) { return true; } } catch(e) {}
-            }
-            let fila = JSON.parse(localStorage.getItem('sync_queue') || '[]');
-            fila.push({url: url, data: payload});
-            localStorage.setItem('sync_queue', JSON.stringify(fila));
-            alert("⚠️ Sem Internet. O ensaio foi salvo no seu telemóvel para ser enviado depois.");
-            return false;
+        const pF = (id) => { let el = document.getElementById(id); return (el && el.value !== "") ? parseFloat(el.value) : null; };
+        const vRender = (val) => val === null ? "-" : val;
+        
+        function calcIso(val) {
+            if (val === null) return '-';
+            let st = val >= 1000 ? 'OK' : 'FALHA';
+            let cls = val >= 1000 ? 'text-success' : 'text-danger';
+            return `${val} <span class="${cls} fw-bold">(${st})</span>`;
         }
 
-        document.getElementById('formDisj').onsubmit = async (e) => {
-            e.preventDefault();
-            const parseF = (id) => parseFloat(document.getElementById(id).value) || 0;
-            
-            const d = { 
-                usina: document.getElementById('usina').value, tag: document.getElementById('tag').value, fabricante: document.getElementById('fabricante').value,
-                res_c_r: parseF('cr'), res_c_s: parseF('cs'), res_c_t: parseF('ct'),
-                iso_ft_r: parseF('ift_r'), iso_ft_s: parseF('ift_s'), iso_ft_t: parseF('ift_t'),
-                iso_ff_rs: parseF('iff_rs'), iso_ff_st: parseF('iff_st'), iso_ff_tr: parseF('iff_tr'),
-                iso_ab_r: parseF('iab_r'), iso_ab_s: parseF('iab_s'), iso_ab_t: parseF('iab_t')
+        function calcContato(val, min_val, limit) {
+            if (val === null) return '-';
+            if (val >= limit) return `${val} <br><span class="text-danger fw-bold" style="font-size:0.65rem;">(FALHA > Limite)</span>`;
+            if (min_val > 0) {
+                let desvio = ((val - min_val) / min_val) * 100;
+                if (desvio > 10) return `${val} <br><span class="text-danger fw-bold" style="font-size:0.65rem;">(DESBALANCEADA)</span>`;
+            }
+            return `${val} <br><span class="text-success fw-bold" style="font-size:0.65rem;">(OK)</span>`;
+        }
+
+        async function salvarSincronismo(payload) {
+            let fila = JSON.parse(localStorage.getItem('sync_queue') || '[]');
+            if(navigator.onLine) {
+                try {
+                    let r = await fetch('/api/sync/disjuntor_mt', {method: 'POST', body: JSON.stringify(payload), headers: {'Content-Type': 'application/json'}});
+                    if(r.ok) alert(`✅ Salvo na nuvem!`); else { fila.push({url: '/api/sync/disjuntor_mt', data: payload}); alert(`⚠️ Salvo offline.`); }
+                } catch(e) { fila.push({url: '/api/sync/disjuntor_mt', data: payload}); alert(`⚠️ Salvo offline.`); }
+            } else { fila.push({url: '/api/sync/disjuntor_mt', data: payload}); alert(`⚠️ Salvo offline.`); }
+            localStorage.setItem('sync_queue', JSON.stringify(fila));
+        }
+
+        document.getElementById('formMT').onsubmit = async (e) => {
+            e.preventDefault(); 
+            const usina = document.getElementById('usina').value; const tag = document.getElementById('tag').value; const uniContato = document.getElementById('uni_contato').value;
+
+            const dados = {
+                usina: usina, tag: tag, tipo: "DISJUNTOR_MT", uni_contato: uniContato,
+                c_a: pF('contato_a'), c_b: pF('contato_b'), c_c: pF('contato_c'),
+                i_at: pF('iso_at'), i_bt: pF('iso_bt'), i_ct: pF('iso_ct'), i_ab: pF('iso_ab'), i_bc: pF('iso_bc'), i_ca: pF('iso_ca'),
+                i_esa: pF('iso_esa'), i_esb: pF('iso_esb'), i_esc: pF('iso_esc')
             };
 
-            // Lógica de Veredito Rápido (Local)
-            const st_contato = (Math.max(d.res_c_r, d.res_c_s, d.res_c_t) <= 300) ? "CONFORME" : "REFAZER";
-            const st_iso_ft = (Math.min(d.iso_ft_r, d.iso_ft_s, d.iso_ft_t) >= 1000) ? "CONFORME" : "REFAZER";
-            const st_iso_ff = (Math.min(d.iso_ff_rs, d.iso_ff_st, d.iso_ff_tr) >= 1000) ? "CONFORME" : "REFAZER";
-            const st_iso_ab = (Math.min(d.iso_ab_r, d.iso_ab_s, d.iso_ab_t) >= 1000) ? "CONFORME" : "REFAZER";
-            const status_geral = (st_contato === "CONFORME" && st_iso_ft === "CONFORME" && st_iso_ff === "CONFORME" && st_iso_ab === "CONFORME") ? "APROVADO" : "REPROVADO";
+            await salvarSincronismo(dados);
 
-            // Sincroniza
-            await salvarHibrido('/api/sync/disjuntor-mt', d);
+            // LIMITE DE 300 MICROOHMS PARA O DISJUNTOR MT
+            const limitContato = uniContato === 'mΩ' ? 0.3 : 300;
+            const valsContato = [dados.c_a, dados.c_b, dados.c_c].filter(v => v !== null);
+            const minContato = valsContato.length > 0 ? Math.min(...valsContato) : 0;
 
-            // Renderiza Laudo
             document.getElementById('laudo_render').innerHTML = `
-                <div class="header-laudo text-center">
-                    <div class="row mb-1"><div class="col-6"><b>Usina:</b> ${d.usina}</div><div class="col-6"><b>TAG:</b> ${d.tag}</div></div>
-                    <div class="row"><div class="col-12"><b>Fabricante:</b> ${d.fabricante}</div></div>
-                </div>
-                
-                <span class="label-eng">Contatos (µΩ)</span>
-                <table class="table-laudo">
-                    <tr class="bg-light"><th>Fase R</th><th>Fase S</th><th>Fase T</th><th>Status</th></tr>
-                    <tr><td>${d.res_c_r}</td><td>${d.res_c_s}</td><td>${d.res_c_t}</td><td><span class="status-badge ${st_contato==='CONFORME'?'bg-ok':'bg-fail'}">${st_contato}</span></td></tr>
-                </table>
-
-                <span class="label-eng mt-3">Isolamento (MΩ)</span>
-                <table class="table-laudo">
-                    <tr class="bg-light"><th>Teste</th><th>L1</th><th>L2</th><th>L3</th><th>Status</th></tr>
-                    <tr><td><b>Fase-Terra</b></td><td>${d.iso_ft_r}</td><td>${d.iso_ft_s}</td><td>${d.iso_ft_t}</td><td><span class="status-badge ${st_iso_ft==='CONFORME'?'bg-ok':'bg-fail'}">${st_iso_ft}</span></td></tr>
-                    <tr><td><b>Fase-Fase</b></td><td>${d.iso_ff_rs}</td><td>${d.iso_ff_st}</td><td>${d.iso_ff_tr}</td><td><span class="status-badge ${st_iso_ff==='CONFORME'?'bg-ok':'bg-fail'}">${st_iso_ff}</span></td></tr>
-                    <tr><td><b>Contato Aberto</b></td><td>${d.iso_ab_r}</td><td>${d.iso_ab_s}</td><td>${d.iso_ab_t}</td><td><span class="status-badge ${st_iso_ab==='CONFORME'?'bg-ok':'bg-fail'}">${st_iso_ab}</span></td></tr>
-                </table>
-
-                <div class="text-center border-top pt-3 mt-3">
-                    <span class="d-block small text-muted text-uppercase fw-bold mb-1">Veredito do Equipamento</span>
-                    <span class="status-badge ${status_geral==='APROVADO'?'bg-ok':'bg-fail'} w-100 py-2 fs-6">${status_geral}</span>
-                </div>
+                <div class="header-laudo text-center"><div class="row mb-1"><div class="col-6"><b>Usina:</b> ${usina}</div><div class="col-6"><b>TAG:</b> ${tag}</div></div></div>
+                <span class="label-eng">Resistência de Contato (${uniContato})</span>
+                <table class="table-laudo mb-3"><tr class="bg-light"><th>Fase A</th><th>Fase B</th><th>Fase C</th></tr><tr><td>${calcContato(dados.c_a, minContato, limitContato)}</td><td>${calcContato(dados.c_b, minContato, limitContato)}</td><td>${calcContato(dados.c_c, minContato, limitContato)}</td></tr></table>
+                <span class="label-eng">Resistência de Isolamento (MΩ)</span>
+                <table class="table-laudo mb-1"><tr class="bg-light"><th colspan="3">DISJUNTOR FECHADO</th></tr><tr><td class="text-muted small border-0 pb-0 pt-2" colspan="3">Fase x Terra</td></tr><tr><td>A x T: <br>${calcIso(dados.i_at)}</td><td>B x T: <br>${calcIso(dados.i_bt)}</td><td>C x T: <br>${calcIso(dados.i_ct)}</td></tr><tr><td class="text-muted small border-0 pb-0 pt-2" colspan="3">Fase x Fase</td></tr><tr><td>A x B: <br>${calcIso(dados.i_ab)}</td><td>B x C: <br>${calcIso(dados.i_bc)}</td><td>C x A: <br>${calcIso(dados.i_ca)}</td></tr></table>
+                <table class="table-laudo mb-3"><tr class="bg-light"><th colspan="3">DISJUNTOR ABERTO</th></tr><tr><td class="text-muted small border-0 pb-0 pt-2" colspan="3">Entrada x Saída</td></tr><tr><td>Fase A: <br>${calcIso(dados.i_esa)}</td><td>Fase B: <br>${calcIso(dados.i_esb)}</td><td>Fase C: <br>${calcIso(dados.i_esc)}</td></tr></table>
             `;
-            
-            document.getElementById('box_laudo').classList.remove('d-none');
-            document.getElementById('box_laudo').scrollIntoView({ behavior: 'smooth' });
+            document.getElementById('box_laudo').classList.remove('d-none'); document.getElementById('box_laudo').scrollIntoView({ behavior: 'smooth' });
         };
 
         function gerarPDF() { 
-            const elemento = document.getElementById('box_laudo');
-            const tag = document.getElementById('tag').value || 'Equipamento';
-            const nomeArquivo = `Laudo_${tag}.pdf`;
-            
-            const opt = { 
-                margin: 10, 
-                filename: nomeArquivo, 
-                image: { type: 'jpeg', quality: 0.98 }, 
-                // A SOLUÇÃO DO PDF BRANCO ESTÁ AQUI: scrollY: 0
-                html2canvas: { scale: 2, scrollY: 0 }, 
-                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } 
-            };
-
-            // Muda o botão para mostrar que está pensando
-            const btn = document.querySelector('button[onclick="gerarPDF()"]');
-            const textoOriginal = btn.innerHTML;
-            btn.innerHTML = '⏳ GERANDO PDF...';
-
-            // Deteção inteligente: É um iPhone/iPad?
+            const elemento = document.getElementById('box_laudo'); const tag = document.getElementById('tag').value || 'Equip'; const nomeArquivo = `Laudo_Disj_MT_${tag}.pdf`;
+            const opt = { margin: 10, filename: nomeArquivo, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2, scrollY: 0 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } };
+            const btn = document.querySelector('button[onclick="gerarPDF()"]'); const textoOriginal = btn.innerHTML; btn.innerHTML = '⏳ GERANDO PDF...';
             const isApple = navigator.userAgent.match(/iphone|ipad|ipod/i);
-
-            if (isApple && navigator.canShare) {
-                // Modo iOS: Gera o arquivo e abre a tela nativa de Compartilhar (WhatsApp, Salvar, etc)
-                html2pdf().set(opt).from(elemento).output('blob').then(function(pdfBlob) {
-                    btn.innerHTML = textoOriginal;
-                    const file = new File([pdfBlob], nomeArquivo, { type: 'application/pdf' });
-                    navigator.share({
-                        title: 'Laudo Técnico',
-                        files: [file]
-                    }).catch(e => console.log('Partilha cancelada'));
-                });
-            } else {
-                // Modo Android / PC: Faz o Download direto normal e à prova de falhas
-                html2pdf().set(opt).from(elemento).save().then(() => {
-                    btn.innerHTML = textoOriginal; // Restaura o botão após baixar
-                });
-            }
+            if (isApple && navigator.canShare) { html2pdf().set(opt).from(elemento).output('blob').then(function(pdfBlob) { btn.innerHTML = textoOriginal; navigator.share({ title: 'Laudo MT', files: [new File([pdfBlob], nomeArquivo, { type: 'application/pdf' })] }).catch(e => console.log('Cancelado')); }); } 
+            else { html2pdf().set(opt).from(elemento).save().then(() => { btn.innerHTML = textoOriginal; }); }
         }
     </script>
 </body>
-
 </html>
