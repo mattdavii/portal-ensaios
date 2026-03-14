@@ -13,6 +13,7 @@
         .table-laudo th,.table-laudo td{border:1px solid #eee;padding:6px;text-align:center;vertical-align:middle}
         .header-laudo{background:#f8f9fa;font-weight:bold;color:#333;padding:10px;border-radius:5px;margin-bottom:15px;border:1px solid #ddd}
         .section-title{font-size:0.75rem;font-weight:bold;color:#6c757d;background:#f8f9fa;padding:5px;border-radius:4px;margin-top:10px;margin-bottom:10px}
+        .tag-estado{font-size:0.7rem; letter-spacing: 0.5px; text-transform: uppercase;}
         @media print{.no-print{display:none !important}}
     </style>
 </head>
@@ -31,8 +32,8 @@
             </div>
 
             <div class="group-box">
-                <span class="label-eng">Resistência de Contato</span>
-                <span class="norma">Critério: Conforme manual do fabricante</span>
+                <span class="label-eng">Resistência de Contato (10A)</span>
+                <span class="norma">Critério: Menor ou igual a 300µΩ</span>
                 
                 <div class="section-title d-flex justify-content-between align-items-center">
                     <span>Valores Medidos</span>
@@ -49,16 +50,25 @@
             </div>
 
             <div class="group-box">
-                <span class="label-eng">Resistência de Isolamento (MΩ)</span>
+                <span class="label-eng mb-3">Resistência de Isolamento (MΩ)</span>
+                
+                <div class="bg-dark text-white text-center fw-bold p-1 rounded mb-2 tag-estado">CHAVE FECHADA</div>
                 <div class="row g-2 mb-2">
                     <div class="col"><label class="small text-muted" style="font-size: 0.65rem;">Fase A x Terra</label><input type="number" id="iso_at" class="form-control form-control-sm"></div>
                     <div class="col"><label class="small text-muted" style="font-size: 0.65rem;">Fase B x Terra</label><input type="number" id="iso_bt" class="form-control form-control-sm"></div>
                     <div class="col"><label class="small text-muted" style="font-size: 0.65rem;">Fase C x Terra</label><input type="number" id="iso_ct" class="form-control form-control-sm"></div>
                 </div>
-                <div class="row g-2">
+                <div class="row g-2 mb-4">
                     <div class="col"><label class="small text-muted" style="font-size: 0.65rem;">Fase A x B</label><input type="number" id="iso_ab" class="form-control form-control-sm"></div>
                     <div class="col"><label class="small text-muted" style="font-size: 0.65rem;">Fase B x C</label><input type="number" id="iso_bc" class="form-control form-control-sm"></div>
                     <div class="col"><label class="small text-muted" style="font-size: 0.65rem;">Fase C x A</label><input type="number" id="iso_ca" class="form-control form-control-sm"></div>
+                </div>
+
+                <div class="bg-secondary text-white text-center fw-bold p-1 rounded mb-2 tag-estado border-top">CHAVE ABERTA</div>
+                <div class="row g-2">
+                    <div class="col"><label class="small text-muted" style="font-size: 0.65rem;">Fase A (Ent. x Saída)</label><input type="number" id="iso_esa" class="form-control form-control-sm"></div>
+                    <div class="col"><label class="small text-muted" style="font-size: 0.65rem;">Fase B (Ent. x Saída)</label><input type="number" id="iso_esb" class="form-control form-control-sm"></div>
+                    <div class="col"><label class="small text-muted" style="font-size: 0.65rem;">Fase C (Ent. x Saída)</label><input type="number" id="iso_esc" class="form-control form-control-sm"></div>
                 </div>
             </div>
 
@@ -97,9 +107,8 @@
             localStorage.setItem('sync_queue', JSON.stringify(fila));
         }
 
-        // AQUI ESTÁ A CORREÇÃO DO BUG (O ONSUBMIT COM O E.PREVENTDEFAULT)
         document.getElementById('formSecc').onsubmit = async (e) => {
-            e.preventDefault(); // <--- ISTO IMPEDE A PÁGINA DE RECARREGAR!
+            e.preventDefault(); 
 
             const usina = document.getElementById('usina').value;
             const tag = document.getElementById('tag').value;
@@ -109,7 +118,8 @@
                 usina: usina, tag: tag, tipo: "SECCIONADORA", uni_contato: uniContato,
                 c_a: pF('contato_a'), c_b: pF('contato_b'), c_c: pF('contato_c'),
                 i_at: pF('iso_at'), i_bt: pF('iso_bt'), i_ct: pF('iso_ct'),
-                i_ab: pF('iso_ab'), i_bc: pF('iso_bc'), i_ca: pF('iso_ca')
+                i_ab: pF('iso_ab'), i_bc: pF('iso_bc'), i_ca: pF('iso_ca'),
+                i_esa: pF('iso_esa'), i_esb: pF('iso_esb'), i_esc: pF('iso_esc')
             };
 
             await salvarSincronismo(dados);
@@ -126,11 +136,17 @@
                 </table>
                 
                 <span class="label-eng">Resistência de Isolamento (MΩ)</span>
-                <table class="table-laudo mb-3">
-                    <tr class="bg-light"><th colspan="3">Fase x Terra</th></tr>
+                <table class="table-laudo mb-1">
+                    <tr class="bg-light"><th colspan="3">CHAVE FECHADA</th></tr>
+                    <tr><td class="text-muted small border-0 pb-0 pt-2" colspan="3">Fase x Terra</td></tr>
                     <tr><td>A x T: <br>${calcIso(dados.i_at)}</td><td>B x T: <br>${calcIso(dados.i_bt)}</td><td>C x T: <br>${calcIso(dados.i_ct)}</td></tr>
-                    <tr class="bg-light"><th colspan="3">Fase x Fase</th></tr>
+                    <tr><td class="text-muted small border-0 pb-0 pt-2" colspan="3">Fase x Fase</td></tr>
                     <tr><td>A x B: <br>${calcIso(dados.i_ab)}</td><td>B x C: <br>${calcIso(dados.i_bc)}</td><td>C x A: <br>${calcIso(dados.i_ca)}</td></tr>
+                </table>
+                <table class="table-laudo mb-3">
+                    <tr class="bg-light"><th colspan="3">CHAVE ABERTA</th></tr>
+                    <tr><td class="text-muted small border-0 pb-0 pt-2" colspan="3">Entrada x Saída</td></tr>
+                    <tr><td>Fase A: <br>${calcIso(dados.i_esa)}</td><td>Fase B: <br>${calcIso(dados.i_esb)}</td><td>Fase C: <br>${calcIso(dados.i_esc)}</td></tr>
                 </table>
             `;
             
@@ -138,7 +154,6 @@
             document.getElementById('box_laudo').scrollIntoView({ behavior: 'smooth' });
         };
 
-        // PDF com a correção do Scroll e suporte à Apple
         function gerarPDF() { 
             const elemento = document.getElementById('box_laudo');
             const tag = document.getElementById('tag').value || 'Equip';
