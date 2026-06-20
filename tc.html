@@ -2,66 +2,62 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Transformador de Corrente (TC)</title>
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#1c2128">
+    <link rel="apple-touch-icon" href="/logo.png">
+
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/style.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-    <style>
-        body{background:#f0f2f5;font-size:0.85rem;padding:10px}
-        .group-box{background:white;border-radius:12px;padding:18px;margin-bottom:15px;border:1px solid #dee2e6;box-shadow:0 2px 4px rgba(0,0,0,0.02)}
-        .label-eng{font-weight:bold;color:#dc3545;font-size:0.75rem;display:block;margin-bottom:8px;text-transform:uppercase}
-        .norma{background:#f8d7da;color:#842029;padding:5px;border-radius:4px;font-size:0.7rem;font-style:italic;margin-bottom:10px;border-left:3px solid #dc3545;display:block}
-        .status-badge{padding:4px 10px;border-radius:4px;font-weight:bold;font-size:0.75rem;text-align:center}
-        .bg-ok{background:#d1e7dd;color:#0f5132} .bg-fail{background:#f8d7da;color:#842029}
-        .table-laudo{width:100%;border-collapse:collapse;margin-bottom:10px;font-size:0.75rem}
-        .table-laudo th,.table-laudo td{border:1px solid #eee;padding:6px;text-align:center;vertical-align:middle}
-        .header-laudo{background:#f8f9fa;font-weight:bold;color:#333;padding:10px;border-radius:5px;margin-bottom:15px;border:1px solid #ddd}
-        .section-title{font-size:0.75rem;font-weight:bold;color:#6c757d;background:#f8f9fa;padding:5px;border-radius:4px;margin-top:10px;margin-bottom:10px}
-        @media print{.no-print{display:none !important}}
-    </style>
+    <script src="/ui.js"></script>
 </head>
 <body>
-    <div class="container" style="max-width: 600px;">
-        <a href="/" class="btn btn-sm btn-outline-secondary mb-3 no-print">⬅️ Voltar ao Menu</a>
-        <h5 class="text-center text-danger fw-bold mb-3">⚡ Transformador de Corrente (TC)</h5>
-        
+    <div class="topbar no-print">
+        <a href="/" class="voltar">⬅ Menu</a>
+        <span class="titulo">⚡ Transformador de Corrente (TC)</span>
+        <span class="spacer"></span>
+    </div>
+
+    <div class="container" style="max-width: 600px; padding: 0;">
         <form id="formTC">
-            <div class="group-box">
-                <span class="label-eng">Identificação do Ativo</span>
+            <div class="card-instrumento">
+                <span class="label-tech">Identificação do Ativo</span>
                 <div class="row g-2 mb-2">
                     <div class="col"><input type="text" id="usina" class="form-control form-control-sm" placeholder="Usina" required></div>
-                    <div class="col"><input type="text" id="tag" class="form-control form-control-sm" placeholder="TAG do TC" required></div>
+                    <div class="col"><input type="text" id="tag" class="form-control form-control-sm dado" placeholder="TAG do TC" required></div>
                 </div>
             </div>
 
-            <div class="group-box">
-                <span class="label-eng">Relação de Corrente (RTC)</span>
-                <span class="norma">Critério: Erro Máximo ≤ 0.5% (NBR / IEEE)</span>
+            <div class="card-instrumento">
+                <span class="label-tech">Relação de Corrente (RTC)</span>
+                <span class="norma-tech">Critério: Erro Máximo ≤ 0.5% (NBR / IEEE)</span>
                 <div class="row g-2 align-items-center border-bottom pb-3 mb-3">
                     <div class="col-8 fw-bold text-muted small">Quantos Núcleos/Relações ensaiados?</div>
                     <div class="col-4">
-                        <input type="number" id="qtd_taps" class="form-control border-danger text-center" placeholder="Ex: 2" min="1" max="10" oninput="gerarTaps()">
+                        <input type="number" id="qtd_taps" class="form-control text-center dado" placeholder="Ex: 2" min="1" max="10" oninput="gerarTaps()">
                     </div>
                 </div>
                 <div id="dynamic_taps"></div>
             </div>
 
-            <div class="group-box">
-                <span class="label-eng">Resistência Ôhmica</span>
+            <div class="card-instrumento">
+                <span class="label-tech">Resistência Ôhmica</span>
                 
-                <div class="section-title d-flex justify-content-between align-items-center">
+                <div class="section-title-tech d-flex justify-content-between align-items-center">
                     <span>Primário (P1-P2)</span>
-                    <select id="uni_h" class="form-select form-select-sm w-auto border-danger text-danger fw-bold">
+                    <select id="uni_h" class="form-select form-select-sm w-auto fw-bold">
                         <option value="Ω">Ohms (Ω)</option>
                         <option value="mΩ" selected>miliOhms (mΩ)</option>
                         <option value="µΩ">microOhms (µΩ)</option>
                     </select>
                 </div>
                 <div class="row g-2 mb-2">
-                    <div class="col-12"><input type="number" step="0.001" id="h1" class="form-control form-control-sm" placeholder="Valor Medido"></div>
+                    <div class="col-12"><input type="number" step="0.001" id="h1" class="form-control form-control-sm dado" placeholder="Valor Medido"></div>
                 </div>
                 
-                <div class="section-title d-flex justify-content-between align-items-center mt-3 border-top pt-2">
+                <div class="section-title-tech d-flex justify-content-between align-items-center mt-3 border-top pt-2">
                     <span>Núcleos Secundários</span>
-                    <select id="uni_x" class="form-select form-select-sm w-auto border-danger text-danger fw-bold">
+                    <select id="uni_x" class="form-select form-select-sm w-auto fw-bold">
                         <option value="Ω">Ohms (Ω)</option>
                         <option value="mΩ" selected>miliOhms (mΩ)</option>
                         <option value="µΩ">microOhms (µΩ)</option>
@@ -70,38 +66,36 @@
                 <div class="row g-2 align-items-center mb-2">
                     <div class="col-8 fw-bold text-muted small">Quantos enrolamentos Secundários?</div>
                     <div class="col-4">
-                        <input type="number" id="qtd_sec" class="form-control form-control-sm border-danger text-center" placeholder="Máx 3" min="1" max="3" oninput="gerarSecundarios()">
+                        <input type="number" id="qtd_sec" class="form-control form-control-sm text-center dado" placeholder="Máx 3" min="1" max="3" oninput="gerarSecundarios()">
                     </div>
                 </div>
                 <div id="dynamic_secundarios" class="row g-2 mt-1"></div>
             </div>
 
-            <div class="group-box">
-                <span class="label-eng">Resistência de Isolamento (MΩ)</span>
+            <div class="card-instrumento">
+                <span class="label-tech">Resistência de Isolamento (MΩ)</span>
                 <div class="row g-2">
-                    <div class="col"><label class="small text-muted" style="font-size: 0.65rem;">AT x Terra</label><input type="number" id="at_t" class="form-control form-control-sm"></div>
-                    <div class="col"><label class="small text-muted" style="font-size: 0.65rem;">AT x BT</label><input type="number" id="at_bt" class="form-control form-control-sm"></div>
-                    <div class="col"><label class="small text-muted" style="font-size: 0.65rem;">BT x Terra</label><input type="number" id="bt_t" class="form-control form-control-sm"></div>
+                    <div class="col"><label class="small text-muted" style="font-size: 0.65rem;">AT x Terra</label><input type="number" id="at_t" class="form-control form-control-sm dado"></div>
+                    <div class="col"><label class="small text-muted" style="font-size: 0.65rem;">AT x BT</label><input type="number" id="at_bt" class="form-control form-control-sm dado"></div>
+                    <div class="col"><label class="small text-muted" style="font-size: 0.65rem;">BT x Terra</label><input type="number" id="bt_t" class="form-control form-control-sm dado"></div>
                 </div>
             </div>
 
-            <button type="submit" id="btn_salvar" class="btn btn-danger w-100 py-3 fw-bold shadow-sm no-print">GERAR LAUDO E SALVAR</button>
+            <button type="submit" id="btn_salvar" class="btn btn-instrumento no-print">GERAR LAUDO E SALVAR</button>
         </form>
 
-        <div id="box_laudo" class="mt-4 p-4 bg-white border rounded d-none shadow-sm">
+        <div id="box_laudo" class="mt-4 p-4 card-instrumento d-none">
             <h6 class="text-center fw-bold border-bottom pb-2 mb-3">LAUDO TÉCNICO - TC</h6>
             <div id="laudo_render"></div>
-            <button onclick="gerarPDF()" class="btn btn-danger w-100 mt-4 fw-bold no-print">📥 DESCARREGAR PDF</button>
+            <button onclick="gerarPDF()" class="btn btn-instrumento-outline mt-4 no-print">📥 DESCARREGAR PDF</button>
         </div>
     </div>
 
     <script>
-        // --- FUNÇÕES AUXILIARES DE INTELIGÊNCIA ---
         const pF = (id) => { let el = document.getElementById(id); return (el && el.value !== "") ? parseFloat(el.value) : null; };
-        const vDB = (val) => val === null ? 0 : val; // Previne erro no banco de dados
-        const vRender = (val) => val === null ? "-" : val; // Mostra traço no PDF
+        const vDB = (val) => val === null ? 0 : val;
+        const vRender = (val) => val === null ? "-" : val;
 
-        // Cálculo do RTC
         function calcRn(i) {
             let vpri = parseFloat(document.getElementById(`vpri_${i}`).value) || null;
             let vsec = parseFloat(document.getElementById(`vsec_${i}`).value) || null;
@@ -109,7 +103,6 @@
             rnInput.value = (vpri && vsec) ? (vpri / vsec).toFixed(3) : "";
         }
 
-        // Geração dos TAPs do RTC
         function gerarTaps() {
             let qtd = parseInt(document.getElementById('qtd_taps').value) || 0;
             let container = document.getElementById('dynamic_taps');
@@ -118,25 +111,24 @@
             if(qtd > 0 && qtd <= 10) {
                 for(let i = 1; i <= qtd; i++) {
                     container.innerHTML += `
-                    <div class="p-2 border rounded mb-2 bg-light shadow-sm">
+                    <div class="subcard">
                         <div class="d-flex justify-content-between mb-2 align-items-center">
-                            <span class="fw-bold text-danger small">Núcleo / Relação</span>
-                            <input type="text" id="nome_tap_${i}" class="form-control form-control-sm w-50 text-end" placeholder="Ex: Núc 1" value="Núcleo ${i}" required>
+                            <span class="fw-bold text-muted small">Núcleo / Relação</span>
+                            <input type="text" id="nome_tap_${i}" class="form-control form-control-sm w-50 text-end dado" placeholder="Ex: Núc 1" value="Núcleo ${i}" required>
                         </div>
                         <div class="row g-1 mb-2">
-                            <div class="col-4"><label class="small text-muted" style="font-size:0.65rem">Corrente Primária</label><input type="number" step="0.1" id="vpri_${i}" class="form-control form-control-sm" placeholder="(A)" oninput="calcRn(${i})"></div>
-                            <div class="col-4"><label class="small text-muted" style="font-size:0.65rem">Corrente Secundária</label><input type="number" step="0.1" id="vsec_${i}" class="form-control form-control-sm" placeholder="(A)" oninput="calcRn(${i})"></div>
-                            <div class="col-4"><label class="small text-muted" style="font-size:0.65rem">Relação Teórica</label><input type="text" id="rn_${i}" class="form-control form-control-sm text-primary fw-bold bg-white" placeholder="Rn" readonly></div>
+                            <div class="col-4"><label class="small text-muted" style="font-size:0.65rem">Corrente Primária</label><input type="number" step="0.1" id="vpri_${i}" class="form-control form-control-sm dado" placeholder="(A)" oninput="calcRn(${i})"></div>
+                            <div class="col-4"><label class="small text-muted" style="font-size:0.65rem">Corrente Secundária</label><input type="number" step="0.1" id="vsec_${i}" class="form-control form-control-sm dado" placeholder="(A)" oninput="calcRn(${i})"></div>
+                            <div class="col-4"><label class="small text-muted" style="font-size:0.65rem">Relação Teórica</label><input type="text" id="rn_${i}" class="form-control form-control-sm dado fw-bold bg-white" placeholder="Rn" readonly></div>
                         </div>
                         <div class="row g-1 justify-content-center">
-                            <div class="col-6"><label class="small text-muted fw-bold text-center w-100" style="font-size:0.65rem">Valor Medido (RTC)</label><input type="number" step="0.001" id="ttr_a_${i}" class="form-control form-control-sm text-center border-danger" placeholder="Relação Lida"></div>
+                            <div class="col-6"><label class="small text-muted fw-bold text-center w-100" style="font-size:0.65rem">Valor Medido (RTC)</label><input type="number" step="0.001" id="ttr_a_${i}" class="form-control form-control-sm dado text-center" placeholder="Relação Lida"></div>
                         </div>
                     </div>`;
                 }
             }
         }
 
-        // Geração Dinâmica da Resistência Secundária
         function gerarSecundarios() {
             let qtd = parseInt(document.getElementById('qtd_sec').value) || 0;
             let container = document.getElementById('dynamic_secundarios');
@@ -144,7 +136,7 @@
             let labels = ['Núc 1 (1S1-1S2)', 'Núc 2 (2S1-2S2)', 'Núc 3 (3S1-3S2)'];
             if(qtd > 0 && qtd <= 3) {
                 for(let i=1; i<=qtd; i++) {
-                    container.innerHTML += `<div class="col-4"><label class="small text-muted" style="font-size:0.65rem">${labels[i-1]}</label><input type="number" step="0.001" id="x${i}" class="form-control form-control-sm" placeholder="Valor"></div>`;
+                    container.innerHTML += `<div class="col-4"><label class="small text-muted" style="font-size:0.65rem">${labels[i-1]}</label><input type="number" step="0.001" id="x${i}" class="form-control form-control-sm dado" placeholder="Valor"></div>`;
                 }
             }
         }
@@ -155,22 +147,30 @@
                 for(let p of payloads) { try { let r = await fetch(url, {method: 'POST', body: JSON.stringify(p), headers: {'Content-Type': 'application/json'}}); if(r.ok) sOn++; else { fila.push({url: url, data: p}); sOff++; } } catch(e) { fila.push({url: url, data: p}); sOff++; } }
             } else { for(let p of payloads) { fila.push({url: url, data: p}); sOff++; } }
             if(sOff > 0) localStorage.setItem('sync_queue', JSON.stringify(fila));
-            if(sOn > 0 && sOff === 0) alert(`✅ TC salvo com sucesso na nuvem!`); else alert(`⚠️ Salvo no telemóvel. (${sOff} pendentes)`);
+            if(sOn > 0 && sOff === 0) mostrarToast('✅ TC salvo com sucesso na nuvem', 'ok'); else mostrarToast(`⚠️ Salvo offline (${sOff} pendentes)`, 'offline');
         }
 
+        function statusFase(val, rn) {
+            if(val === null || rn === null || rn === 0) return null;
+            let err = (Math.abs(val - rn) / rn) * 100;
+            return err <= 0.5;
+        }
         function formatFase(val, rn) {
             if(val === null || rn === null || rn === 0) return "-";
             let err = ((Math.abs(val - rn) / rn) * 100).toFixed(2);
-            let st = err <= 0.5 ? 'OK' : 'FALHA';
-            let cls = err <= 0.5 ? 'text-success' : 'text-danger';
-            return `${val} <br><span class="${cls} fw-bold" style="font-size:0.65rem;">(${err}% - ${st})</span>`;
+            const ok = statusFase(val, rn);
+            const led = ok ? 'led-ok' : 'led-falha';
+            const cls = ok ? 'text-success' : 'text-danger';
+            return `<span class="valor-mono">${val}</span> <span class="led ${led}"></span><br><span class="${cls} fw-bold" style="font-size:0.65rem;">(${err}% - ${ok ? 'OK' : 'FALHA'})</span>`;
         }
         
+        function statusIso(val) { if (val === null) return null; return val >= 1000; }
         function calcIso(val) {
             if (val === null) return '-';
-            let st = val >= 1000 ? 'OK' : 'FALHA';
-            let cls = val >= 1000 ? 'text-success' : 'text-danger';
-            return `${val} <span class="${cls} fw-bold">(${st})</span>`;
+            const ok = statusIso(val);
+            const led = ok ? 'led-ok' : 'led-falha';
+            const cls = ok ? 'text-success' : 'text-danger';
+            return `<span class="valor-mono">${val}</span> <span class="led ${led}"></span><span class="${cls} fw-bold">(${ok ? 'OK' : 'FALHA'})</span>`;
         }
 
         document.getElementById('formTC').onsubmit = async (e) => {
@@ -184,7 +184,7 @@
             const uniX = document.getElementById('uni_x').value;
 
             const dFixos = { h1: pF('h1'), x1: pF('x1'), x2: pF('x2'), x3: pF('x3'), at_t: pF('at_t'), at_bt: pF('at_bt'), bt_t: pF('bt_t') };
-            let payloads = []; let htmlTTR = "";
+            let payloads = []; let htmlTTR = ""; let todosStatusGeral = [];
 
             if (qtd_taps > 0) {
                 for(let i = 1; i <= qtd_taps; i++) {
@@ -204,8 +204,10 @@
                         x1: vDB(dFixos.x1), x2: vDB(dFixos.x2), x3: vDB(dFixos.x3), uni_x: uniX, 
                         at_t: vDB(dFixos.at_t), at_bt: vDB(dFixos.at_bt), bt_t: vDB(dFixos.bt_t) 
                     });
-                    
-                    htmlTTR += `<tr><td class="fw-bold bg-light align-middle">${tap}</td><td class="align-middle">${strTensao}</td><td class="text-primary fw-bold align-middle">${vRender(rn)}</td><td class="fw-bold">${vRender(ta)}</td><td>${formatFase(ta, rn)}</td></tr>`;
+
+                    todosStatusGeral.push(statusFase(ta, rn));
+
+                    htmlTTR += `<tr><td class="fw-bold bg-light align-middle">${tap}</td><td class="align-middle">${strTensao}</td><td class="valor-mono align-middle">${vRender(rn)}</td><td class="valor-mono fw-bold">${vRender(ta)}</td><td>${formatFase(ta, rn)}</td></tr>`;
                 }
             } else {
                 payloads.push({ 
@@ -224,23 +226,34 @@
             if (qtd_sec > 0) {
                 for(let i=1; i<=qtd_sec; i++) {
                     htmlSecHeaders += `<th>Núcleo ${i}</th>`;
-                    htmlSecValues += `<td>${vRender(dFixos['x'+i])}</td>`;
+                    htmlSecValues += `<td class="valor-mono">${vRender(dFixos['x'+i])}</td>`;
                 }
             } else {
                 htmlSecHeaders = `<th class="text-muted fw-normal">Sem Secundários declarados</th>`;
                 htmlSecValues = `<td>-</td>`;
             }
 
+            todosStatusGeral.push(statusIso(dFixos.at_t), statusIso(dFixos.at_bt), statusIso(dFixos.bt_t));
+            todosStatusGeral = todosStatusGeral.filter(s => s !== null && s !== undefined);
+
+            let seloClasse = 'selo-neutro', seloTexto = 'SEM DADOS SUFICIENTES';
+            if (todosStatusGeral.length > 0) {
+                const aprovado = todosStatusGeral.every(s => s === true);
+                seloClasse = aprovado ? 'selo-conforme' : 'selo-refazer';
+                seloTexto = aprovado ? '✓ CONFORME' : '✗ REFAZER';
+            }
+
             document.getElementById('laudo_render').innerHTML = `
-                <div class="header-laudo text-center"><div class="row mb-1"><div class="col-6"><b>Usina:</b> ${usina}</div><div class="col-6"><b>TAG:</b> ${tag}</div></div><div class="row"><div class="col-12 text-primary small">(${qtd_taps} Núcleos Analisados)</div></div></div>
+                <div class="selo-veredito ${seloClasse}">${seloTexto}</div>
+                <div class="header-laudo text-center"><div class="row mb-1"><div class="col-6"><b>Usina:</b> ${usina}</div><div class="col-6"><b>TAG:</b> ${tag}</div></div><div class="row"><div class="col-12 small text-muted">(${qtd_taps} Núcleos Analisados)</div></div></div>
                 
-                <span class="label-eng">Relação de Corrente (RTC)</span>
+                <span class="label-tech">Relação de Corrente (RTC)</span>
                 <table class="table-laudo mb-3"><tr class="bg-light"><th>Núcleo</th><th>I. Pri / I. Sec</th><th>Rn. Teórica</th><th>RTC Medida</th><th>Erro / Status</th></tr>${htmlTTR}</table>
                 
-                <span class="label-eng">Resistência Ôhmica</span>
-                <table class="table-laudo mb-3"><tr class="bg-light"><th>Primário P1-P2 (${uniH})</th>${htmlSecHeaders}</tr><tr><td class="fw-bold">${vRender(dFixos.h1)}</td>${htmlSecValues}</tr></table>
+                <span class="label-tech">Resistência Ôhmica</span>
+                <table class="table-laudo mb-3"><tr class="bg-light"><th>Primário P1-P2 (${uniH})</th>${htmlSecHeaders}</tr><tr><td class="valor-mono fw-bold">${vRender(dFixos.h1)}</td>${htmlSecValues}</tr></table>
                 
-                <span class="label-eng">Resistência de Isolamento (MΩ)</span>
+                <span class="label-tech">Resistência de Isolamento (MΩ)</span>
                 <table class="table-laudo mb-3"><tr class="bg-light"><th>AT x Terra</th><th>AT x BT</th><th>BT x Terra</th></tr><tr><td>${calcIso(dFixos.at_t)}</td><td>${calcIso(dFixos.at_bt)}</td><td>${calcIso(dFixos.bt_t)}</td></tr></table>
             `;
             document.getElementById('box_laudo').classList.remove('d-none'); document.getElementById('box_laudo').scrollIntoView({ behavior: 'smooth' });
@@ -254,21 +267,17 @@
                 margin: 10, 
                 filename: nomeArquivo, 
                 image: { type: 'jpeg', quality: 0.98 }, 
-                // A SOLUÇÃO DO PDF BRANCO ESTÁ AQUI: scrollY: 0
                 html2canvas: { scale: 2, scrollY: 0 }, 
                 jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } 
             };
 
-            // Muda o botão para mostrar que está pensando
             const btn = document.querySelector('button[onclick="gerarPDF()"]');
             const textoOriginal = btn.innerHTML;
             btn.innerHTML = '⏳ GERANDO PDF...';
 
-            // Deteção inteligente: É um iPhone/iPad?
             const isApple = navigator.userAgent.match(/iphone|ipad|ipod/i);
 
             if (isApple && navigator.canShare) {
-                // Modo iOS: Gera o arquivo e abre a tela nativa de Compartilhar (WhatsApp, Salvar, etc)
                 html2pdf().set(opt).from(elemento).output('blob').then(function(pdfBlob) {
                     btn.innerHTML = textoOriginal;
                     const file = new File([pdfBlob], nomeArquivo, { type: 'application/pdf' });
@@ -278,9 +287,8 @@
                     }).catch(e => console.log('Partilha cancelada'));
                 });
             } else {
-                // Modo Android / PC: Faz o Download direto normal e à prova de falhas
                 html2pdf().set(opt).from(elemento).save().then(() => {
-                    btn.innerHTML = textoOriginal; // Restaura o botão após baixar
+                    btn.innerHTML = textoOriginal;
                 });
             }
         }
