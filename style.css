@@ -1,0 +1,296 @@
+/* ============================================================
+   Portal de Ensaios — Sistema Visual "Bancada de Instrumento"
+   Paleta: grafite (chrome) + papel (cards) + âmbar (ação única)
+   Verde/vermelho ficam reservados para status de conformidade.
+   Folha única compartilhada por todas as páginas do app.
+   ============================================================ */
+
+:root {
+  --grafite: #1c2128;
+  --grafite-2: #2a313c;
+  --papel: #faf9f6;
+  --papel-card: #ffffff;
+  --ambar: #d97706;
+  --ambar-suave: #fef3e2;
+  --verde: #15803d;
+  --verde-suave: #e8f5ec;
+  --vermelho: #b91c1c;
+  --vermelho-suave: #fdeaea;
+  --texto: #1c2128;
+  --texto-muted: #6b7280;
+  --borda: #e7e3da;
+  --mono: 'SF Mono', 'Roboto Mono', ui-monospace, Menlo, Consolas, 'Courier New', monospace;
+  --sans: system-ui, -apple-system, sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  background: var(--papel);
+  font-family: var(--sans);
+  color: var(--texto);
+  font-size: 0.85rem;
+  padding: 0 10px 40px;
+  margin: 0;
+}
+
+/* ---------- Barra superior (chrome de instrumento) ---------- */
+.topbar {
+  background: var(--grafite);
+  color: #fff;
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  margin: 0 -10px 16px;
+}
+.topbar .voltar {
+  color: #fff;
+  text-decoration: none;
+  font-size: 0.78rem;
+  opacity: 0.85;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.topbar .voltar:active { opacity: 1; }
+.topbar .titulo {
+  font-weight: 700;
+  font-size: 0.92rem;
+  flex: 1;
+  text-align: center;
+  letter-spacing: 0.3px;
+}
+.topbar .spacer { width: 44px; flex-shrink: 0; }
+
+/* ---------- Cartões ---------- */
+.card-instrumento {
+  background: var(--papel-card);
+  border-radius: 10px;
+  padding: 18px;
+  margin-bottom: 14px;
+  border: 1px solid var(--borda);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+}
+
+.subcard {
+  background: var(--papel);
+  border: 1px solid var(--borda);
+  border-radius: 8px;
+  padding: 10px;
+  margin-bottom: 10px;
+}
+
+.label-tech {
+  font-weight: 700;
+  color: var(--texto-muted);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  display: block;
+  margin-bottom: 8px;
+}
+
+.norma-tech {
+  background: var(--ambar-suave);
+  color: #92400e;
+  padding: 6px 8px;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  font-style: italic;
+  border-left: 3px solid var(--ambar);
+  display: block;
+  margin-bottom: 10px;
+}
+
+.section-title-tech {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--texto-muted);
+  background: var(--papel);
+  padding: 5px 8px;
+  border-radius: 4px;
+  margin: 10px 0;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+/* ---------- Campos ---------- */
+.form-control, .form-select {
+  border-radius: 7px;
+  border-color: var(--borda);
+}
+.form-control:focus, .form-select:focus {
+  border-color: var(--ambar);
+  box-shadow: 0 0 0 3px var(--ambar-suave);
+}
+input[type="number"].dado, input[type="text"].dado {
+  font-family: var(--mono);
+  font-weight: 600;
+  text-align: center;
+}
+
+/* ---------- Botões ---------- */
+.btn-instrumento {
+  background: var(--ambar);
+  border: none;
+  color: #fff;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  border-radius: 9px;
+  padding: 14px;
+  width: 100%;
+  box-shadow: 0 2px 8px rgba(217,119,6,0.28);
+  transition: transform 0.08s ease, box-shadow 0.08s ease;
+}
+.btn-instrumento:active { transform: scale(0.98); box-shadow: 0 1px 4px rgba(217,119,6,0.28); }
+
+.btn-instrumento-outline {
+  background: var(--papel-card);
+  border: 1.5px solid var(--grafite);
+  color: var(--grafite);
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  border-radius: 9px;
+  padding: 12px;
+  width: 100%;
+  transition: transform 0.08s ease;
+}
+.btn-instrumento-outline:active { transform: scale(0.98); }
+
+/* ---------- Indicadores tipo LED ---------- */
+.led {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  margin-right: 4px;
+  vertical-align: middle;
+}
+.led-ok { background: var(--verde); box-shadow: 0 0 4px var(--verde); }
+.led-falha { background: var(--vermelho); box-shadow: 0 0 4px var(--vermelho); }
+
+.valor-mono { font-family: var(--mono); font-weight: 700; }
+
+/* ---------- Selo de veredito (carimbo) ---------- */
+.selo-veredito {
+  border: 3px solid currentColor;
+  border-radius: 8px;
+  padding: 8px 18px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  font-size: 0.85rem;
+  transform: rotate(-2deg);
+  display: table;
+  margin: 0 auto 16px;
+}
+.selo-conforme { color: var(--verde); background: var(--verde-suave); }
+.selo-refazer  { color: var(--vermelho); background: var(--vermelho-suave); }
+.selo-alerta   { color: #92400e; background: var(--ambar-suave); }
+.selo-neutro   { color: var(--texto-muted); background: var(--papel); }
+
+/* ---------- Status / badges (usado nos lotes: strings, malha, etc.) ---------- */
+.status-badge { padding: 4px 10px; border-radius: 4px; font-weight: bold; font-size: 0.7rem; text-align: center; display: inline-block; }
+.bg-ok    { background: var(--verde-suave); color: var(--verde); }
+.bg-fail  { background: var(--vermelho-suave); color: var(--vermelho); }
+.bg-alerta{ background: var(--ambar-suave); color: #92400e; border: 1px solid var(--ambar); }
+
+.alerta-fuga {
+  background: var(--ambar-suave);
+  border-left: 4px solid var(--ambar);
+  font-size: 0.75rem;
+  color: #92400e;
+  padding: 8px;
+  margin-top: 5px;
+  border-radius: 0 4px 4px 0;
+}
+
+.calculo-dist {
+  background: var(--papel);
+  border: 1px dashed var(--borda);
+  padding: 8px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  text-align: center;
+  font-weight: bold;
+  color: var(--texto-muted);
+}
+
+/* ---------- Tabelas de laudo ---------- */
+.table-laudo { width: 100%; border-collapse: collapse; margin-bottom: 10px; font-size: 0.75rem; }
+.table-laudo th, .table-laudo td { border: 1px solid #eee; padding: 6px; text-align: center; vertical-align: middle; }
+.header-laudo { background: var(--papel); font-weight: bold; color: var(--texto); padding: 10px; border-radius: 5px; margin-bottom: 15px; border: 1px solid var(--borda); }
+.tag-estado { font-size: 0.7rem; letter-spacing: 0.5px; text-transform: uppercase; }
+
+/* ---------- Notificação (substitui alert()) ---------- */
+.toast-instrumento {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%) translateY(16px);
+  background: var(--grafite);
+  color: #fff;
+  padding: 12px 20px;
+  border-radius: 10px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.28);
+  z-index: 9999;
+  opacity: 0;
+  transition: opacity 0.25s ease, transform 0.25s ease;
+  pointer-events: none;
+  max-width: 88%;
+  text-align: center;
+  border-left: 4px solid var(--ambar);
+}
+.toast-instrumento.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+.toast-instrumento.ok { border-left-color: var(--verde); }
+.toast-instrumento.offline { border-left-color: var(--ambar); }
+.toast-instrumento.erro { border-left-color: var(--vermelho); }
+
+/* ---------- Menu principal (index) ---------- */
+.menu-item {
+  background: var(--papel-card);
+  border-radius: 12px;
+  border: 1px solid var(--borda);
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+.menu-item:active { transform: scale(0.98); }
+.icon-box { width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; border-radius: 10px; font-size: 1.4rem; flex-shrink: 0; }
+
+/* ---------- Banners de instalação PWA ---------- */
+#installBanner {
+  position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+  width: 90%; max-width: 400px;
+  background: var(--grafite); color: #fff;
+  padding: 15px; border-radius: 12px; display: none; z-index: 9999;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.25);
+  animation: slideUp 0.5s ease-out;
+  border-left: 4px solid var(--ambar);
+}
+@keyframes slideUp { from { bottom: -100px; opacity: 0; } to { bottom: 20px; opacity: 1; } }
+.install-content { display: flex; align-items: center; justify-content: space-between; }
+
+#iosInstallBanner {
+  position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+  width: 90%; max-width: 400px;
+  background: rgba(255,255,255,0.97); color: var(--texto);
+  padding: 15px; border-radius: 12px; display: none; z-index: 9999;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+  border: 1px solid var(--borda);
+  text-align: center;
+  backdrop-filter: blur(10px);
+}
+.ios-icon-share {
+  display: inline-block; width: 20px; height: 20px;
+  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="%23d97706" d="M398.1 233.2c0-1.2.2-2.4.2-3.6 0-65-51.8-117.6-115.6-117.6-46.1 0-85.7 27.4-104.3 67-8.1-4.1-17.2-6.5-26.8-6.5-29.5 0-54.1 21.9-58.8 50.5C57.3 235.2 32 269.1 32 309c0 50.2 40.1 91 89.5 91H224v-135l-43 43-22.6-22.6 81.6-81.6 81.6 81.6-22.6 22.6-43-43V400h155.6c43.4 0 78.9-35.8 78.9-80 0-41.8-31.1-76.3-71.4-79.8z"/></svg>') no-repeat center center;
+  vertical-align: middle;
+}
+
+@media print {
+  .no-print { display: none !important; }
+  .topbar { position: static; }
+}
