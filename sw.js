@@ -1,10 +1,12 @@
-const CACHE_NAME = 'portal-v23';
+const CACHE_NAME = 'portal-v24';
 
 // LISTA DE TUDO O QUE DEVE FUNCIONAR OFFLINE
 const ASSETS = [
   '/',
   '/manifest.json',
   '/logo.png',
+  '/style.css',
+  '/ui.js',
   '/resistencia.js',
   '/cabos-cc',
   '/res-malha',

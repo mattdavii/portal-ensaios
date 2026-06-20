@@ -2,109 +2,123 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Disjuntor BT</title>
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#1c2128">
+    <link rel="apple-touch-icon" href="/logo.png">
+
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/style.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script src="/resistencia.js"></script>
-    <style>
-        body{background:#f0f2f5;font-size:0.85rem;padding:10px}
-        .group-box{background:white;border-radius:12px;padding:18px;margin-bottom:15px;border:1px solid #dee2e6;box-shadow:0 2px 4px rgba(0,0,0,0.02)}
-        .label-eng{font-weight:bold;color:#6c757d;font-size:0.75rem;display:block;margin-bottom:8px;text-transform:uppercase}
-        .norma{background:#e2e3e5;color:#383d41;padding:5px;border-radius:4px;font-size:0.7rem;font-style:italic;margin-bottom:10px;border-left:3px solid #6c757d;display:block}
-        .table-laudo{width:100%;border-collapse:collapse;margin-bottom:10px;font-size:0.75rem}
-        .table-laudo th,.table-laudo td{border:1px solid #eee;padding:6px;text-align:center;vertical-align:middle}
-        .header-laudo{background:#f8f9fa;font-weight:bold;color:#333;padding:10px;border-radius:5px;margin-bottom:15px;border:1px solid #ddd}
-        .section-title{font-size:0.75rem;font-weight:bold;color:#6c757d;background:#f8f9fa;padding:5px;border-radius:4px;margin-top:10px;margin-bottom:10px}
-        .tag-estado{font-size:0.7rem; letter-spacing: 0.5px; text-transform: uppercase;}
-        @media print{.no-print{display:none !important}}
-    </style>
+    <script src="/ui.js"></script>
 </head>
 <body>
-    <div class="container" style="max-width: 600px;">
-        <a href="/" class="btn btn-sm btn-outline-secondary mb-3 no-print">⬅️ Voltar ao Menu</a>
-        <h5 class="text-center text-secondary fw-bold mb-3">⚡ Disjuntor de Baixa Tensão</h5>
-        
+    <div class="topbar no-print">
+        <a href="/" class="voltar">⬅ Menu</a>
+        <span class="titulo">⚡ Disjuntor de Baixa Tensão</span>
+        <span class="spacer"></span>
+    </div>
+
+    <div class="container" style="max-width: 600px; padding: 0;">
         <form id="formBT">
-            <div class="group-box">
-                <span class="label-eng">Identificação do Ativo</span>
+            <div class="card-instrumento">
+                <span class="label-tech">Identificação do Ativo</span>
                 <div class="row g-2 mb-2">
                     <div class="col"><input type="text" id="usina" class="form-control form-control-sm" placeholder="Usina" required></div>
-                    <div class="col"><input type="text" id="tag" class="form-control form-control-sm" placeholder="TAG do Disjuntor" required></div>
+                    <div class="col"><input type="text" id="tag" class="form-control form-control-sm dado" placeholder="TAG do Disjuntor" required></div>
                 </div>
-                <div class="row g-2 mb-2">
+                <div class="row g-2">
                     <div class="col"><input type="text" id="fabricante" class="form-control form-control-sm" placeholder="Fabricante" required></div>
                 </div>
             </div>
 
-            <div class="group-box">
-                <span class="label-eng">Resistência de Contato (10A)</span>
-                <span class="norma">Critério: Limite 150µΩ | Desequilíbrio ≤ 10%</span>
-                
-                <div class="section-title d-flex justify-content-between align-items-center">
+            <div class="card-instrumento">
+                <span class="label-tech">Resistência de Contato (10A)</span>
+                <span class="norma-tech">Critério: Limite 150µΩ | Desequilíbrio ≤ 10%</span>
+
+                <div class="section-title-tech d-flex justify-content-between align-items-center">
                     <span>Valores Medidos</span>
-                    <select id="uni_contato" class="form-select form-select-sm w-auto border-secondary fw-bold">
+                    <select id="uni_contato" class="form-select form-select-sm w-auto fw-bold">
                         <option value="µΩ" selected>microOhms (µΩ)</option>
                         <option value="mΩ">miliOhms (mΩ)</option>
                     </select>
                 </div>
-                <div class="row g-2 mb-3">
-                    <div class="col"><label class="small text-muted fw-bold">Fase A</label><input type="number" step="0.001" id="contato_a" class="form-control form-control-sm" placeholder="Valor"></div>
-                    <div class="col"><label class="small text-muted fw-bold">Fase B</label><input type="number" step="0.001" id="contato_b" class="form-control form-control-sm" placeholder="Valor"></div>
-                    <div class="col"><label class="small text-muted fw-bold">Fase C</label><input type="number" step="0.001" id="contato_c" class="form-control form-control-sm" placeholder="Valor"></div>
+                <div class="row g-2 mb-1">
+                    <div class="col"><label class="small text-muted fw-bold">Fase A</label><input type="number" step="0.001" id="contato_a" class="form-control form-control-sm dado" placeholder="Valor"></div>
+                    <div class="col"><label class="small text-muted fw-bold">Fase B</label><input type="number" step="0.001" id="contato_b" class="form-control form-control-sm dado" placeholder="Valor"></div>
+                    <div class="col"><label class="small text-muted fw-bold">Fase C</label><input type="number" step="0.001" id="contato_c" class="form-control form-control-sm dado" placeholder="Valor"></div>
                 </div>
             </div>
 
-            <div class="group-box">
-                <span class="label-eng mb-3">Resistência de Isolamento (MΩ)</span>
-                
-                <div class="bg-secondary text-white text-center fw-bold p-1 rounded mb-2 tag-estado">DISJUNTOR FECHADO</div>
+            <div class="card-instrumento">
+                <span class="label-tech">Resistência de Isolamento (MΩ)</span>
+
+                <div class="bg-dark text-white text-center fw-bold p-1 rounded mb-2 tag-estado">DISJUNTOR FECHADO</div>
                 <div class="row g-2 mb-2">
-                    <div class="col"><label class="small text-muted" style="font-size: 0.65rem;">Fase A x Terra</label><input type="number" id="iso_at" class="form-control form-control-sm"></div>
-                    <div class="col"><label class="small text-muted" style="font-size: 0.65rem;">Fase B x Terra</label><input type="number" id="iso_bt" class="form-control form-control-sm"></div>
-                    <div class="col"><label class="small text-muted" style="font-size: 0.65rem;">Fase C x Terra</label><input type="number" id="iso_ct" class="form-control form-control-sm"></div>
+                    <div class="col"><label class="small text-muted" style="font-size: 0.65rem;">Fase A x Terra</label><input type="number" id="iso_at" class="form-control form-control-sm dado"></div>
+                    <div class="col"><label class="small text-muted" style="font-size: 0.65rem;">Fase B x Terra</label><input type="number" id="iso_bt" class="form-control form-control-sm dado"></div>
+                    <div class="col"><label class="small text-muted" style="font-size: 0.65rem;">Fase C x Terra</label><input type="number" id="iso_ct" class="form-control form-control-sm dado"></div>
                 </div>
-                <div class="row g-2 mb-4">
-                    <div class="col"><label class="small text-muted" style="font-size: 0.65rem;">Fase A x B</label><input type="number" id="iso_ab" class="form-control form-control-sm"></div>
-                    <div class="col"><label class="small text-muted" style="font-size: 0.65rem;">Fase B x C</label><input type="number" id="iso_bc" class="form-control form-control-sm"></div>
-                    <div class="col"><label class="small text-muted" style="font-size: 0.65rem;">Fase C x A</label><input type="number" id="iso_ca" class="form-control form-control-sm"></div>
+                <div class="row g-2 mb-3">
+                    <div class="col"><label class="small text-muted" style="font-size: 0.65rem;">Fase A x B</label><input type="number" id="iso_ab" class="form-control form-control-sm dado"></div>
+                    <div class="col"><label class="small text-muted" style="font-size: 0.65rem;">Fase B x C</label><input type="number" id="iso_bc" class="form-control form-control-sm dado"></div>
+                    <div class="col"><label class="small text-muted" style="font-size: 0.65rem;">Fase C x A</label><input type="number" id="iso_ca" class="form-control form-control-sm dado"></div>
                 </div>
 
-                <div class="bg-dark text-white text-center fw-bold p-1 rounded mb-2 tag-estado border-top">DISJUNTOR ABERTO</div>
+                <div class="bg-secondary text-white text-center fw-bold p-1 rounded mb-2 tag-estado border-top">DISJUNTOR ABERTO</div>
                 <div class="row g-2">
-                    <div class="col"><label class="small text-muted" style="font-size: 0.65rem;">Fase A (Ent. x Saída)</label><input type="number" id="iso_esa" class="form-control form-control-sm"></div>
-                    <div class="col"><label class="small text-muted" style="font-size: 0.65rem;">Fase B (Ent. x Saída)</label><input type="number" id="iso_esb" class="form-control form-control-sm"></div>
-                    <div class="col"><label class="small text-muted" style="font-size: 0.65rem;">Fase C (Ent. x Saída)</label><input type="number" id="iso_esc" class="form-control form-control-sm"></div>
+                    <div class="col"><label class="small text-muted" style="font-size: 0.65rem;">Fase A (Ent. x Saída)</label><input type="number" id="iso_esa" class="form-control form-control-sm dado"></div>
+                    <div class="col"><label class="small text-muted" style="font-size: 0.65rem;">Fase B (Ent. x Saída)</label><input type="number" id="iso_esb" class="form-control form-control-sm dado"></div>
+                    <div class="col"><label class="small text-muted" style="font-size: 0.65rem;">Fase C (Ent. x Saída)</label><input type="number" id="iso_esc" class="form-control form-control-sm dado"></div>
                 </div>
             </div>
 
-            <button type="submit" id="btn_salvar" class="btn btn-secondary text-white w-100 py-3 fw-bold shadow-sm no-print">GERAR LAUDO E SALVAR</button>
+            <button type="submit" id="btn_salvar" class="btn btn-instrumento no-print">GERAR LAUDO E SALVAR</button>
         </form>
 
-        <div id="box_laudo" class="mt-4 p-4 bg-white border rounded d-none shadow-sm">
+        <div id="box_laudo" class="mt-4 p-4 card-instrumento d-none">
             <h6 class="text-center fw-bold border-bottom pb-2 mb-3">LAUDO TÉCNICO - DISJUNTOR BT</h6>
             <div id="laudo_render"></div>
-            <button onclick="gerarPDF()" class="btn btn-danger w-100 mt-4 fw-bold no-print">📥 DESCARREGAR PDF</button>
+            <button onclick="gerarPDF()" class="btn btn-instrumento-outline mt-4 no-print">📥 DESCARREGAR PDF</button>
         </div>
     </div>
 
     <script>
         const pF = (id) => { let el = document.getElementById(id); return (el && el.value !== "") ? parseFloat(el.value) : null; };
         const vRender = (val) => val === null ? "-" : val;
-        
+
+        // Avalia o status (booleano) de cada leitura — usado tanto pra
+        // desenhar o LED/texto de cada célula quanto pro selo geral do laudo.
+        function statusContato(val, min_val, limit) {
+            if (val === null) return null;
+            if (val >= limit) return false;
+            if (min_val > 0) {
+                let desvio = ((val - min_val) / min_val) * 100;
+                if (desvio > 10) return false;
+            }
+            return true;
+        }
+        function statusIso(val) {
+            if (val === null) return null;
+            return val >= 1000;
+        }
+
         function calcIso(val) {
             if (val === null) return '-';
-            let st = val >= 1000 ? 'OK' : 'FALHA';
-            let cls = val >= 1000 ? 'text-success' : 'text-danger';
-            return `${val} <span class="${cls} fw-bold">(${st})</span>`;
+            const ok = statusIso(val);
+            const led = ok ? 'led-ok' : 'led-falha';
+            const cls = ok ? 'text-success' : 'text-danger';
+            return `<span class="valor-mono">${val}</span><br><span class="led ${led}"></span><span class="${cls} fw-bold">(${ok ? 'OK' : 'FALHA'})</span>`;
         }
 
         function calcContato(val, min_val, limit) {
             if (val === null) return '-';
-            if (val >= limit) return `${val} <br><span class="text-danger fw-bold" style="font-size:0.65rem;">(FALHA > Limite)</span>`;
-            if (min_val > 0) {
-                let desvio = ((val - min_val) / min_val) * 100;
-                if (desvio > 10) return `${val} <br><span class="text-danger fw-bold" style="font-size:0.65rem;">(DESBALANCEADA)</span>`;
-            }
-            return `${val} <br><span class="text-success fw-bold" style="font-size:0.65rem;">(OK)</span>`;
+            const ok = statusContato(val, min_val, limit);
+            const led = ok ? 'led-ok' : 'led-falha';
+            const cls = ok ? 'text-success' : 'text-danger';
+            let texto = 'OK';
+            if (!ok) texto = (val >= limit) ? 'FALHA &gt; Limite' : 'DESBALANCEADA';
+            return `<span class="valor-mono">${val}</span><br><span class="led ${led}"></span><span class="${cls} fw-bold" style="font-size:0.65rem;">(${texto})</span>`;
         }
 
         async function salvarSincronismo(payload) {
@@ -112,9 +126,9 @@
             if(navigator.onLine) {
                 try {
                     let r = await fetch('/api/sync/disjuntor-bt', {method: 'POST', body: JSON.stringify(payload), headers: {'Content-Type': 'application/json'}});
-                    if(r.ok) alert(`✅ Salvo na nuvem!`); else { fila.push({url: '/api/sync/disjuntor-bt', data: payload}); alert(`⚠️ Salvo offline.`); }
-                } catch(e) { fila.push({url: '/api/sync/disjuntor-bt', data: payload}); alert(`⚠️ Salvo offline.`); }
-            } else { fila.push({url: '/api/sync/disjuntor-bt', data: payload}); alert(`⚠️ Salvo offline.`); }
+                    if(r.ok) mostrarToast('✅ Salvo na nuvem', 'ok'); else { fila.push({url: '/api/sync/disjuntor-bt', data: payload}); mostrarToast('⚠️ Salvo offline — será sincronizado depois', 'offline'); }
+                } catch(e) { fila.push({url: '/api/sync/disjuntor-bt', data: payload}); mostrarToast('⚠️ Salvo offline — será sincronizado depois', 'offline'); }
+            } else { fila.push({url: '/api/sync/disjuntor-bt', data: payload}); mostrarToast('⚠️ Salvo offline — será sincronizado depois', 'offline'); }
             localStorage.setItem('sync_queue', JSON.stringify(fila));
         }
 
@@ -130,8 +144,7 @@
             };
 
             // Payload no formato exigido pela API (campos do modelo EnsaioManobra).
-            // Resistência de contato é sempre normalizada para µΩ antes de enviar,
-            // já que o banco guarda um único valor numérico sem unidade.
+            // Resistência de contato é sempre normalizada para µΩ antes de enviar.
             const payloadApi = {
                 usina: usina, tag: tag, fabricante: fabricante,
                 res_c_r: paraMicroOhms(dados.c_a, uniContato) ?? 0,
@@ -144,16 +157,31 @@
 
             await salvarSincronismo(payloadApi);
 
-            // LIMITE DE 150 MICROOHMS PARA O DISJUNTOR BT
             const limitContato = uniContato === 'mΩ' ? 0.15 : 150;
             const valsContato = [dados.c_a, dados.c_b, dados.c_c].filter(v => v !== null);
             const minContato = valsContato.length > 0 ? Math.min(...valsContato) : 0;
 
+            // Veredito geral pro selo no topo do laudo
+            const todosStatus = [
+                statusContato(dados.c_a, minContato, limitContato), statusContato(dados.c_b, minContato, limitContato), statusContato(dados.c_c, minContato, limitContato),
+                statusIso(dados.i_at), statusIso(dados.i_bt), statusIso(dados.i_ct),
+                statusIso(dados.i_ab), statusIso(dados.i_bc), statusIso(dados.i_ca),
+                statusIso(dados.i_esa), statusIso(dados.i_esb), statusIso(dados.i_esc)
+            ].filter(s => s !== null);
+
+            let seloClasse = 'selo-neutro', seloTexto = 'SEM DADOS SUFICIENTES';
+            if (todosStatus.length > 0) {
+                const aprovado = todosStatus.every(s => s === true);
+                seloClasse = aprovado ? 'selo-conforme' : 'selo-refazer';
+                seloTexto = aprovado ? '✓ CONFORME' : '✗ REFAZER';
+            }
+
             document.getElementById('laudo_render').innerHTML = `
-                <div class="header-laudo text-center"><div class="row mb-1"><div class="col-6"><b>Usina:</b> ${usina}</div><div class="col-6"><b>TAG:</b> ${tag}</div></div></div>
-                <span class="label-eng">Resistência de Contato (${uniContato})</span>
+                <div class="selo-veredito ${seloClasse}">${seloTexto}</div>
+                <div class="header-laudo text-center"><div class="row mb-1"><div class="col-6"><b>Usina:</b> ${usina}</div><div class="col-6"><b>TAG:</b> ${tag}</div></div><div class="row"><div class="col-12"><b>Fabricante:</b> ${fabricante}</div></div></div>
+                <span class="label-tech">Resistência de Contato (${uniContato})</span>
                 <table class="table-laudo mb-3"><tr class="bg-light"><th>Fase A</th><th>Fase B</th><th>Fase C</th></tr><tr><td>${calcContato(dados.c_a, minContato, limitContato)}</td><td>${calcContato(dados.c_b, minContato, limitContato)}</td><td>${calcContato(dados.c_c, minContato, limitContato)}</td></tr></table>
-                <span class="label-eng">Resistência de Isolamento (MΩ)</span>
+                <span class="label-tech">Resistência de Isolamento (MΩ)</span>
                 <table class="table-laudo mb-1"><tr class="bg-light"><th colspan="3">DISJUNTOR FECHADO</th></tr><tr><td class="text-muted small border-0 pb-0 pt-2" colspan="3">Fase x Terra</td></tr><tr><td>A x T: <br>${calcIso(dados.i_at)}</td><td>B x T: <br>${calcIso(dados.i_bt)}</td><td>C x T: <br>${calcIso(dados.i_ct)}</td></tr><tr><td class="text-muted small border-0 pb-0 pt-2" colspan="3">Fase x Fase</td></tr><tr><td>A x B: <br>${calcIso(dados.i_ab)}</td><td>B x C: <br>${calcIso(dados.i_bc)}</td><td>C x A: <br>${calcIso(dados.i_ca)}</td></tr></table>
                 <table class="table-laudo mb-3"><tr class="bg-light"><th colspan="3">DISJUNTOR ABERTO</th></tr><tr><td class="text-muted small border-0 pb-0 pt-2" colspan="3">Entrada x Saída</td></tr><tr><td>Fase A: <br>${calcIso(dados.i_esa)}</td><td>Fase B: <br>${calcIso(dados.i_esb)}</td><td>Fase C: <br>${calcIso(dados.i_esc)}</td></tr></table>
             `;
