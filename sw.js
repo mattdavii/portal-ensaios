@@ -1,10 +1,11 @@
-const CACHE_NAME = 'portal-v22';
+const CACHE_NAME = 'portal-v23';
 
 // LISTA DE TUDO O QUE DEVE FUNCIONAR OFFLINE
 const ASSETS = [
   '/',
   '/manifest.json',
   '/logo.png',
+  '/resistencia.js',
   '/cabos-cc',
   '/res-malha',
   '/cont-malha',
@@ -14,6 +15,7 @@ const ASSETS = [
   '/trafo',
   '/tp',
   '/tc',
+  '/conversor-resistencia',
   'https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css',
   'https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css',
   'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js'

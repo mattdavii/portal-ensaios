@@ -25,6 +25,10 @@ def manifest():
 def logo(): 
     return FileResponse("logo.png")
 
+@app.get("/resistencia.js")
+def resistencia_js():
+    return FileResponse("resistencia.js", media_type="application/javascript")
+
 # ==========================================
 # 2. ROTAS DO FRONTEND (Páginas HTML)
 # ==========================================
@@ -35,7 +39,7 @@ def home():
 @app.get("/{pagina}")
 def paginas(pagina: str):
     # Lista de páginas permitidas para segurança
-    paginas_validas = ["cabos-cc", "res-malha", "cont-malha", "disjuntor-mt", "disjuntor-bt", "seccionadora", "trafo", "tp", "tc"]
+    paginas_validas = ["cabos-cc", "res-malha", "cont-malha", "disjuntor-mt", "disjuntor-bt", "seccionadora", "trafo", "tp", "tc", "conversor-resistencia"]
     if pagina in paginas_validas:
         nome_arquivo = f"{pagina.replace('-', '_')}.html"
         return FileResponse(nome_arquivo)

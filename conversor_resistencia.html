@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Conversor de Resistência</title>
+
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#0d6efd">
+    <link rel="apple-touch-icon" href="/logo.png">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <script src="/resistencia.js"></script>
+    <style>
+        body{background:#f0f2f5;font-size:0.9rem;padding:10px;font-family: system-ui, -apple-system, sans-serif;}
+        .group-box{background:white;border-radius:12px;padding:18px;margin-bottom:15px;border:1px solid #dee2e6;box-shadow:0 2px 4px rgba(0,0,0,0.02)}
+        .label-eng{font-weight:bold;color:#6c757d;font-size:0.75rem;display:block;margin-bottom:8px;text-transform:uppercase}
+        .resultado-card{background:#f8f9fa;border-radius:10px;padding:12px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;border:1px solid #e9ecef}
+        .resultado-card.origem{background:#e7f1ff;border-color:#0d6efd}
+        .resultado-unidade{font-weight:bold;color:#495057;font-size:0.9rem}
+        .resultado-valor{font-family: 'Courier New', monospace;font-weight:bold;font-size:1rem;color:#0d6efd}
+        .resultado-card.origem .resultado-valor{color:#212529}
+        .dica{background:#fff3cd;color:#664d03;padding:10px;border-radius:8px;font-size:0.75rem;border-left:3px solid #ffc107;margin-top:15px}
+    </style>
+</head>
+<body>
+    <div class="container" style="max-width: 600px;">
+        <a href="/" class="btn btn-sm btn-outline-secondary mb-3">⬅️ Voltar ao Menu</a>
+        <h5 class="text-center text-primary fw-bold mb-3">🧮 Conversor de Resistência</h5>
+
+        <div class="group-box">
+            <span class="label-eng">Valor a converter</span>
+            <div class="row g-2">
+                <div class="col-7">
+                    <input type="number" step="any" id="valorEntrada" class="form-control" placeholder="Digite um valor" inputmode="decimal">
+                </div>
+                <div class="col-5">
+                    <select id="unidadeEntrada" class="form-select fw-bold">
+                        <option value="µΩ">µΩ (microOhm)</option>
+                        <option value="mΩ">mΩ (miliOhm)</option>
+                        <option value="Ω" selected>Ω (Ohm)</option>
+                        <option value="kΩ">kΩ (kiloOhm)</option>
+                        <option value="MΩ">MΩ (megaOhm)</option>
+                        <option value="GΩ">GΩ (gigaOhm)</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="group-box">
+            <span class="label-eng">Resultado em todas as unidades</span>
+            <div id="resultados"></div>
+        </div>
+
+        <div class="dica">
+            💡 Referência rápida usada nos ensaios deste portal: Resistência de Contato é medida em <b>µΩ/mΩ</b>, Resistência de Isolamento em <b>MΩ</b>, e Resistência de Malha/Aterramento em <b>Ω</b>.
+        </div>
+    </div>
+
+    <script>
+        const UNIDADES = ['µΩ', 'mΩ', 'Ω', 'kΩ', 'MΩ', 'GΩ'];
+
+        function renderizar() {
+            const valorStr = document.getElementById('valorEntrada').value;
+            const unidadeOrigem = document.getElementById('unidadeEntrada').value;
+            const container = document.getElementById('resultados');
+            container.innerHTML = '';
+
+            if (valorStr === '' || isNaN(valorStr)) {
+                container.innerHTML = '<p class="text-muted small text-center mb-0">Digite um valor para ver as conversões.</p>';
+                return;
+            }
+
+            UNIDADES.forEach(unidade => {
+                const valorConvertido = converterResistencia(valorStr, unidadeOrigem, unidade);
+                const ehOrigem = unidade === unidadeOrigem;
+                // Mostra com mais casas decimais para unidades muito pequenas (µΩ/mΩ)
+                const casasDecimais = (unidade === 'µΩ' || unidade === 'mΩ') ? 3 : 6;
+                const valorFormatado = parseFloat(valorConvertido.toFixed(casasDecimais)).toString();
+
+                container.innerHTML += `
+                    <div class="resultado-card ${ehOrigem ? 'origem' : ''}">
+                        <span class="resultado-unidade">${unidade}${ehOrigem ? ' <span class="badge bg-primary ms-1" style="font-size:0.6rem;">origem</span>' : ''}</span>
+                        <span class="resultado-valor">${valorFormatado}</span>
+                    </div>
+                `;
+            });
+        }
+
+        document.getElementById('valorEntrada').addEventListener('input', renderizar);
+        document.getElementById('unidadeEntrada').addEventListener('change', renderizar);
+        renderizar();
+    </script>
+</body>
+</html>
