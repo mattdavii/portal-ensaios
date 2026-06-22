@@ -12,7 +12,8 @@ const FATORES_RESISTENCIA = {
   'Ω':  1,
   'kΩ': 1e3,
   'MΩ': 1e6,
-  'GΩ': 1e9
+  'GΩ': 1e9,
+  'TΩ': 1e12
 };
 
 /**

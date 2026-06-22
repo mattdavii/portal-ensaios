@@ -83,6 +83,15 @@ body {
   margin-bottom: 10px;
 }
 
+.valor-copiavel {
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.valor-copiavel:active {
+  background: var(--ambar-suave) !important;
+}
+
 .label-tech {
   font-weight: 700;
   color: var(--texto-muted);
