@@ -15,7 +15,7 @@ database.criar_tabelas()
 # ==========================================
 @app.get("/sw.js")
 def service_worker(): 
-    return FileResponse("sw.js", media_type="application/javascript")
+    return FileResponse("sw.js", media_type="application/javascript", headers={"Cache-Control": "no-cache"})
 
 @app.get("/manifest.json")
 def manifest(): 
@@ -27,15 +27,15 @@ def logo():
 
 @app.get("/resistencia.js")
 def resistencia_js():
-    return FileResponse("resistencia.js", media_type="application/javascript")
+    return FileResponse("resistencia.js", media_type="application/javascript", headers={"Cache-Control": "no-cache"})
 
 @app.get("/style.css")
 def style_css():
-    return FileResponse("style.css", media_type="text/css")
+    return FileResponse("style.css", media_type="text/css", headers={"Cache-Control": "no-cache"})
 
 @app.get("/ui.js")
 def ui_js():
-    return FileResponse("ui.js", media_type="application/javascript")
+    return FileResponse("ui.js", media_type="application/javascript", headers={"Cache-Control": "no-cache"})
 
 # ==========================================
 # 2. ROTAS DO FRONTEND (Páginas HTML)
