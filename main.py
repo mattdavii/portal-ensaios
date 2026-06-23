@@ -50,7 +50,7 @@ def paginas(pagina: str):
     paginas_validas = ["cabos-cc", "res-malha", "cont-malha", "disjuntor-mt", "disjuntor-bt", "seccionadora", "trafo", "tp", "tc", "conversor-resistencia"]
     if pagina in paginas_validas:
         nome_arquivo = f"{pagina.replace('-', '_')}.html"
-        return FileResponse(nome_arquivo)
+        return FileResponse(nome_arquivo, headers={"Cache-Control": "no-cache"})
     return {"erro": "Página não encontrada"}
 
 # ==========================================
@@ -59,7 +59,10 @@ def paginas(pagina: str):
 @app.post("/api/sync/cabos-cc")
 async def s_cc(d: models.EnsaioCabosCC):
     res = d.validar()
-    database.get_db_connection().execute("INSERT INTO ensaio_cabos_cc (usina, skid, inversor, tag, origem, destino, voc, v_pos_terra, v_neg_terra, status_pos, status_neg, status_geral) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)", (d.usina, d.skid, d.inversor, d.tag, d.origem, d.destino, d.voc, d.v_pos_terra, d.v_neg_terra, res['status_pos'], res['status_neg'], res['status_geral'])).connection.commit()
+    database.get_db_connection().execute(
+        "INSERT INTO ensaio_cabos_cc (usina, skid, inversor, tag, origem, destino, voc, v_pos_terra, v_neg_terra, n_modulos, voc_stc, beta_voc, t_medida, voc_esperada, status_pos, status_neg, status_consistencia, status_voc, status_geral) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+        (d.usina, d.skid, d.inversor, d.tag, d.origem, d.destino, d.voc, d.v_pos_terra, d.v_neg_terra, d.n_modulos, d.voc_stc, d.beta_voc, d.t_medida, res['voc_esperada'], res['status_pos'], res['status_neg'], res['status_consistencia'], res['status_voc'], res['status_geral'])
+    ).connection.commit()
     return {"status": "ok"}
 
 @app.post("/api/sync/res-malha")
