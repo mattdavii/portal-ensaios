@@ -14,8 +14,8 @@ def criar_tabelas():
     for tab in ['ensaio_disjuntor_mt', 'ensaio_seccionadora', 'ensaio_disjuntor_bt']:
         cursor.execute(f'''CREATE TABLE IF NOT EXISTS {tab} (id INTEGER PRIMARY KEY AUTOINCREMENT, usina TEXT, tag TEXT, fabricante TEXT, res_c_r REAL, res_c_s REAL, res_c_t REAL, status_contato TEXT, iso_ft_r REAL, iso_ft_s REAL, iso_ft_t REAL, status_iso_ft TEXT, iso_ff_rs REAL, iso_ff_st REAL, iso_ff_tr REAL, status_iso_ff TEXT, iso_ab_r REAL, iso_ab_s REAL, iso_ab_t REAL, status_iso_ab TEXT, data TIMESTAMP DEFAULT CURRENT_TIMESTAMP)''')
     
-    # 5. Cabos CC (NOVO: Adicionado skid e inversor)
-    cursor.execute('''CREATE TABLE IF NOT EXISTS ensaio_cabos_cc (id INTEGER PRIMARY KEY AUTOINCREMENT, usina TEXT, skid TEXT, inversor TEXT, tag TEXT, origem TEXT, destino TEXT, voc REAL, v_pos_terra REAL, v_neg_terra REAL, status_pos TEXT, status_neg TEXT, status_geral TEXT, data TIMESTAMP DEFAULT CURRENT_TIMESTAMP)''')
+    # 5. Cabos CC (NOVO: Adicionado skid e inversor; + critérios de módulo/temperatura/consistência)
+    cursor.execute('''CREATE TABLE IF NOT EXISTS ensaio_cabos_cc (id INTEGER PRIMARY KEY AUTOINCREMENT, usina TEXT, skid TEXT, inversor TEXT, tag TEXT, origem TEXT, destino TEXT, voc REAL, v_pos_terra REAL, v_neg_terra REAL, n_modulos INTEGER, voc_stc REAL, beta_voc REAL, t_medida REAL, voc_esperada REAL, status_pos TEXT, status_neg TEXT, status_consistencia TEXT, status_voc TEXT, status_geral TEXT, data TIMESTAMP DEFAULT CURRENT_TIMESTAMP)''')
     
     # 6. Continuidade Malha
     cursor.execute('''CREATE TABLE IF NOT EXISTS ensaio_cont_malha (id INTEGER PRIMARY KEY AUTOINCREMENT, usina TEXT, tag TEXT, pt1_nome TEXT, pt1_res REAL, pt2_nome TEXT, pt2_res REAL, pt3_nome TEXT, pt3_res REAL, status_geral TEXT, data TIMESTAMP DEFAULT CURRENT_TIMESTAMP)''')
