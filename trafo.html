@@ -30,7 +30,7 @@
 
             <div class="card-instrumento">
                 <span class="label-tech">Relação de Espiras (TTR)</span>
-                <span class="norma-tech">Critério: Erro Máximo ≤ 0.5% (NBR 5356)</span>
+                <span class="norma-tech">Critério: Erro Máximo ≤ 0.5% (NBR 5356). Erro acima disso indica curto entre espiras ou TAP fora de posição.</span>
                 <div class="row g-2 align-items-center border-bottom pb-3 mb-3">
                     <div class="col-8 fw-bold text-muted small">Quantos TAPs serão ensaiados?</div>
                     <div class="col-4">
@@ -42,7 +42,7 @@
 
             <div class="card-instrumento">
                 <span class="label-tech">Resistência Ôhmica</span>
-                <span class="norma-tech">Critério: Desequilíbrio entre fases ≤ 10%</span>
+                <span class="norma-tech">Critério: cada bobina ≤ 5% de desvio em relação à média das 3. Acima disso, indica conexão deficiente ou dano no enrolamento daquela fase específica.</span>
                 
                 <div class="section-title-tech d-flex justify-content-between align-items-center">
                     <span>Alta Tensão (H1, H2, H3)</span>
@@ -75,6 +75,7 @@
 
             <div class="card-instrumento">
                 <span class="label-tech">Resistência de Isolamento (MΩ)</span>
+                <span class="norma-tech">Critério: ≥ 1000 MΩ em todas as medições. Abaixo disso, isolamento do enrolamento comprometido (umidade no óleo/celulose, contaminação) — risco de falha dielétrica em operação.</span>
                 <div class="row g-2">
                     <div class="col"><label class="small text-muted" style="font-size: 0.65rem;">AT x Terra</label><input type="number" id="at_t" class="form-control form-control-sm dado"></div>
                     <div class="col"><label class="small text-muted" style="font-size: 0.65rem;">AT x BT</label><input type="number" id="at_bt" class="form-control form-control-sm dado"></div>
@@ -151,14 +152,23 @@
         }
 
         function calcularEquilibrio(v1, v2, v3) {
-            if(v1 === null || v2 === null || v3 === null) return { val: '-', st: '-', cls: 'text-muted', ok: null };
-            let max = Math.max(v1, v2, v3);
-            let min = Math.min(v1, v2, v3);
-            if (min === 0) return { val: 'Erro', st: 'FALHA', cls: 'text-danger', ok: false };
-            
-            let desvio = ((max - min) / min) * 100;
-            let ok = desvio <= 10;
-            return { val: desvio.toFixed(2) + '%', st: ok ? 'OK' : 'FALHA', cls: ok ? 'text-success' : 'text-danger', ok: ok };
+            if(v1 === null || v2 === null || v3 === null) return { media: null, d: [null, null, null], st: '-', cls: 'text-muted', ok: null };
+            const media = (v1 + v2 + v3) / 3;
+            if (media === 0) return { media: 0, d: ['Erro', 'Erro', 'Erro'], st: 'FALHA', cls: 'text-danger', ok: false };
+
+            const d = [v1, v2, v3].map(v => ((v - media) / media) * 100);
+            const ok = d.every(x => Math.abs(x) <= 5);
+            return { media, d, st: ok ? 'OK' : 'FALHA', cls: ok ? 'text-success' : 'text-danger', ok };
+        }
+
+        function celulaOhmica(val, dev) {
+            if (val === null || dev === null || dev === undefined) return `<span class="valor-mono">${vRender(val)}</span>`;
+            if (dev === 'Erro') return `<span class="valor-mono">${val}</span><br><span class="text-danger fw-bold" style="font-size:0.65rem;">(Erro)</span>`;
+            let devR = Math.round(dev * 100) / 100;
+            devR = devR + 0; // normaliza -0 (ruído de float) para 0
+            const cls = Math.abs(devR) <= 5 ? 'text-success' : 'text-danger';
+            const sinal = devR > 0 ? '+' : '';
+            return `<span class="valor-mono">${val}</span><br><span class="${cls} fw-bold" style="font-size:0.65rem;">(${sinal}${devR.toFixed(2)}%)</span>`;
         }
 
         function statusErroTTR(medido, teorico) {
@@ -287,10 +297,17 @@
                 <table class="table-laudo mb-3">
                     <tr class="bg-light"><th colspan="3">Alta Tensão (${uniH})</th><th colspan="3">Baixa Tensão (${uniX})</th></tr>
                     <tr class="bg-light"><th>H1-H2</th><th>H2-H3</th><th>H3-H1</th><th>X1-X0</th><th>X2-X0</th><th>X3-X0</th></tr>
-                    <tr><td class="valor-mono">${vRender(dFixos.h1)}</td><td class="valor-mono">${vRender(dFixos.h2)}</td><td class="valor-mono">${vRender(dFixos.h3)}</td><td class="valor-mono">${vRender(dFixos.x1)}</td><td class="valor-mono">${vRender(dFixos.x2)}</td><td class="valor-mono">${vRender(dFixos.x3)}</td></tr>
+                    <tr>
+                        <td>${celulaOhmica(dFixos.h1, eqH.d[0])}</td>
+                        <td>${celulaOhmica(dFixos.h2, eqH.d[1])}</td>
+                        <td>${celulaOhmica(dFixos.h3, eqH.d[2])}</td>
+                        <td>${celulaOhmica(dFixos.x1, eqX.d[0])}</td>
+                        <td>${celulaOhmica(dFixos.x2, eqX.d[1])}</td>
+                        <td>${celulaOhmica(dFixos.x3, eqX.d[2])}</td>
+                    </tr>
                     <tr class="bg-light">
-                        <td colspan="3" class="small">Equilíbrio: <span class="fw-bold ${eqH.cls}">${eqH.val} ${eqH.st !== '-' ? '('+eqH.st+')' : ''}</span></td>
-                        <td colspan="3" class="small">Equilíbrio: <span class="fw-bold ${eqX.cls}">${eqX.val} ${eqX.st !== '-' ? '('+eqX.st+')' : ''}</span></td>
+                        <td colspan="3" class="small">Média: <span class="valor-mono">${eqH.media !== null ? eqH.media.toFixed(3) : '-'}</span> — <span class="fw-bold ${eqH.cls}">${eqH.st}</span></td>
+                        <td colspan="3" class="small">Média: <span class="valor-mono">${eqX.media !== null ? eqX.media.toFixed(3) : '-'}</span> — <span class="fw-bold ${eqX.cls}">${eqX.st}</span></td>
                     </tr>
                 </table>
 
