@@ -1,12 +1,43 @@
 from pydantic import BaseModel
 from typing import Dict, Optional
 
+# Limites de validação — Strings CC (ensaio_cabos_cc)
+LIMITE_TOQUE_CC = 120.0   # NBR 17193: tensão máx. dentro do arranjo FV. NÃO ALTERAR sem revisão normativa.
+TOL_VOC = 0.05            # 5% — tolerância de fabricação do módulo (~±3%) + incerteza de instrumento
+TOL_CONSISTENCIA = 0.08   # 8% — provisório, calibrado com amostra pequena (n=4). Recalibrar com mais dados.
+
 class EnsaioCabosCC(BaseModel):
     usina: str; skid: str; inversor: str; tag: str; origem: Optional[str] = "Campo"; destino: Optional[str] = "Campo"
     voc: float; v_pos_terra: float; v_neg_terra: float
+    n_modulos: int; voc_stc: float; beta_voc: float; t_medida: float
+
     def validar(self) -> Dict:
-        def aval(v): return "CONFORME" if v < 120 else "INVESTIGAR STRING"
-        return {"status_pos": aval(self.v_pos_terra), "status_neg": aval(self.v_neg_terra), "status_geral": "CONFORME" if max(self.v_pos_terra, self.v_neg_terra) < 120 else "NÃO CONFORME"}
+        voc_esperada = round(self.n_modulos * self.voc_stc * (1 + (self.beta_voc / 100) * (self.t_medida - 25)), 2)
+
+        # Critério B — tensão de toque (NBR 17193, limite fixo, não recebe margem)
+        def aval_toque(v): return "CONFORME" if v < LIMITE_TOQUE_CC else "INVESTIGAR STRING"
+        status_pos = aval_toque(self.v_pos_terra)
+        status_neg = aval_toque(self.v_neg_terra)
+        ok_toque = self.v_pos_terra < LIMITE_TOQUE_CC and self.v_neg_terra < LIMITE_TOQUE_CC
+
+        # Critério C — consistência do divisor flutuante: (Vpos+Vneg)/VOC deve ser pequeno
+        razao_consist = (self.v_pos_terra + self.v_neg_terra) / self.voc if self.voc > 0 else 0.0
+        ok_consist = razao_consist <= TOL_CONSISTENCIA
+        status_consistencia = "CONFORME" if ok_consist else "FUGA SIMÉTRICA"
+
+        # Critério A — VOC medida vs. esperada (datasheet do módulo corrigido por temperatura)
+        desvio_voc = abs(self.voc - voc_esperada) / voc_esperada if voc_esperada > 0 else 0.0
+        ok_voc = desvio_voc <= TOL_VOC
+        status_voc = "CONFORME" if ok_voc else "VOC FORA DO ESPERADO"
+
+        status_geral = "CONFORME" if (ok_toque and ok_consist and ok_voc) else "NÃO CONFORME"
+
+        return {
+            "voc_esperada": voc_esperada,
+            "status_pos": status_pos, "status_neg": status_neg,
+            "status_consistencia": status_consistencia, "status_voc": status_voc,
+            "status_geral": status_geral
+        }
 
 class EnsaioResMalha(BaseModel):
     usina: str; tag: str; metodo: str; d_total: float; r52: float; r62: float; r72: float
