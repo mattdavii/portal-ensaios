@@ -1,4 +1,4 @@
-const CACHE_NAME = 'portal-v27';
+const CACHE_NAME = 'portal-v28';
 
 // LISTA DE TUDO O QUE DEVE FUNCIONAR OFFLINE
 const ASSETS = [

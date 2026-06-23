@@ -42,6 +42,15 @@
                 <div class="text-muted" style="font-size:0.68rem;">Dados de placa do módulo — mesmos valores para todas as strings deste inversor.</div>
             </div>
 
+            <div class="card-instrumento">
+                <span class="label-tech">Critérios de Aprovação</span>
+                <div class="norma-tech">
+                    ⚡ <b>Toque</b> (NBR 17193): Pos/Terra e Neg/Terra &lt; 120V. Acima disso é tensão de toque perigosa dentro do arranjo.<br>
+                    🔀 <b>Consistência:</b> (Pos+Neg)/VOC ≤ 8%. Os dois polos sobem juntos numa fuga simétrica, mesmo que nenhum passe de 120V isolado.<br>
+                    📐 <b>VOC:</b> desvio ≤ 5% da esperada (módulos × placa, corrigida por temperatura). Fora disso, indica célula em curto/bypass ativado ou contagem de módulo errada.
+                </div>
+            </div>
+
             <div id="dynamic_strings" class="mb-3"></div>
 
             <button type="submit" id="btn_salvar" class="btn btn-instrumento no-print d-none">GERAR LAUDO E SALVAR LOTE</button>

@@ -30,7 +30,7 @@
 
             <div class="card-instrumento">
                 <span class="label-tech">Relação de Tensão (RTP)</span>
-                <span class="norma-tech">Critério: Erro Máximo ≤ 0.5% (NBR / IEEE)</span>
+                <span class="norma-tech">Critério: Erro Máximo ≤ 0.5% (NBR / IEEE). Erro acima disso distorce a leitura de tensão entregue à proteção e à medição comercial.</span>
                 <div class="row g-2 align-items-center border-bottom pb-3 mb-3">
                     <div class="col-8 fw-bold text-muted small">Quantos Núcleos/Relações ensaiados?</div>
                     <div class="col-4">
@@ -42,6 +42,7 @@
 
             <div class="card-instrumento">
                 <span class="label-tech">Resistência Ôhmica</span>
+                <span class="norma-tech">Sem limite automático — valor é registrado para comparação com ensaios futuros. Aumento ao longo do tempo indica degradação do enrolamento.</span>
                 
                 <div class="section-title-tech d-flex justify-content-between align-items-center">
                     <span>Primário (H1-H2)</span>
@@ -74,6 +75,7 @@
 
             <div class="card-instrumento">
                 <span class="label-tech">Resistência de Isolamento (MΩ)</span>
+                <span class="norma-tech">Critério: ≥ 1000 MΩ em todas as medições. Abaixo disso, isolamento comprometido — risco de falha dielétrica do equipamento.</span>
                 <div class="row g-2">
                     <div class="col"><label class="small text-muted" style="font-size: 0.65rem;">AT x Terra</label><input type="number" id="at_t" class="form-control form-control-sm dado"></div>
                     <div class="col"><label class="small text-muted" style="font-size: 0.65rem;">AT x BT</label><input type="number" id="at_bt" class="form-control form-control-sm dado"></div>
