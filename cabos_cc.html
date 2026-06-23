@@ -26,12 +26,20 @@
                     <div class="col"><input type="text" id="usina" class="form-control form-control-sm" placeholder="Usina" required></div>
                     <div class="col"><input type="text" id="skid" class="form-control form-control-sm dado" placeholder="SKID" required></div>
                 </div>
-                <div class="row g-2 align-items-center">
+                <div class="row g-2 align-items-center mb-2">
                     <div class="col-8"><input type="text" id="inversor" class="form-control form-control-sm dado" placeholder="Inversor" required></div>
                     <div class="col-4">
                         <input type="number" id="qtd_strings" class="form-control form-control-sm dado" placeholder="Qtd Strings (1-30)" min="1" max="30" required oninput="gerarCampos()">
                     </div>
                 </div>
+                <span class="label-tech">Módulo / Condição de Ensaio</span>
+                <div class="row g-2 mb-1">
+                    <div class="col-3"><input type="number" id="n_modulos" class="form-control form-control-sm dado text-center" placeholder="Nº Mód." min="1" required></div>
+                    <div class="col-3"><input type="number" step="0.01" id="voc_stc" class="form-control form-control-sm dado text-center" placeholder="VOC STC (V)" required></div>
+                    <div class="col-3"><input type="number" step="0.001" id="beta_voc" class="form-control form-control-sm dado text-center" placeholder="β VOC (%/°C)" required></div>
+                    <div class="col-3"><input type="number" step="0.1" id="t_medida" class="form-control form-control-sm dado text-center" placeholder="Temp (°C)" required></div>
+                </div>
+                <div class="text-muted" style="font-size:0.68rem;">Dados de placa do módulo — mesmos valores para todas as strings deste inversor.</div>
             </div>
 
             <div id="dynamic_strings" class="mb-3"></div>
@@ -47,6 +55,11 @@
     </div>
 
     <script>
+        // Mesmos limites do backend (models.py) — mantidos em espelho para a pré-visualização em tela
+        const LIMITE_TOQUE = 120;     // NBR 17193 — não alterar sem revisão normativa
+        const TOL_VOC = 0.05;         // 5%
+        const TOL_CONSISTENCIA = 0.08; // 8% — provisório, recalibrar com mais amostras
+
         function gerarCampos() {
             let qtd = parseInt(document.getElementById('qtd_strings').value);
             let container = document.getElementById('dynamic_strings');
@@ -103,6 +116,12 @@
             const inversor = document.getElementById('inversor').value;
             const qtd = parseInt(document.getElementById('qtd_strings').value);
 
+            const nModulos = parseInt(document.getElementById('n_modulos').value);
+            const vocStc = parseFloat(document.getElementById('voc_stc').value);
+            const betaVoc = parseFloat(document.getElementById('beta_voc').value);
+            const tMedida = parseFloat(document.getElementById('t_medida').value);
+            const vocEsperada = nModulos * vocStc * (1 + (betaVoc / 100) * (tMedida - 25));
+
             let payloads = [];
             let htmlTabela = "";
             let alertas = "";
@@ -114,22 +133,39 @@
                 let vp = parseFloat(document.getElementById(`v_pos_${i}`).value);
                 let vn = parseFloat(document.getElementById(`v_neg_${i}`).value);
 
-                payloads.push({ usina, skid, inversor, tag, origem: "Campo", destino: "Campo", voc, v_pos_terra: vp, v_neg_terra: vn });
+                payloads.push({
+                    usina, skid, inversor, tag, origem: "Campo", destino: "Campo",
+                    voc, v_pos_terra: vp, v_neg_terra: vn,
+                    n_modulos: nModulos, voc_stc: vocStc, beta_voc: betaVoc, t_medida: tMedida
+                });
 
-                let st_p = vp >= 120 ? 'FALHA' : 'OK';
-                let st_n = vn >= 120 ? 'FALHA' : 'OK';
-                if(st_p === 'FALHA' || st_n === 'FALHA') erroGeral = true;
+                // Critério B — tensão de toque (NBR 17193)
+                let st_p = vp >= LIMITE_TOQUE ? 'FALHA' : 'OK';
+                let st_n = vn >= LIMITE_TOQUE ? 'FALHA' : 'OK';
 
-                if(st_p === 'FALHA') alertas += `<div class="alerta-fuga"><b>${tag}:</b> Falha Pos/Terra. Verificar cabo <b>NEGATIVO</b>.</div>`;
-                if(st_n === 'FALHA') alertas += `<div class="alerta-fuga"><b>${tag}:</b> Falha Neg/Terra. Verificar cabo <b>POSITIVO</b>.</div>`;
+                // Critério C — consistência do divisor flutuante: (Vpos+Vneg)/VOC deve ser pequeno
+                const razaoConsist = voc > 0 ? (vp + vn) / voc : 0;
+                let st_consist = razaoConsist > TOL_CONSISTENCIA ? 'FALHA' : 'OK';
+
+                // Critério A — VOC medida vs. esperada (datasheet + temperatura)
+                const desvioVoc = vocEsperada > 0 ? Math.abs(voc - vocEsperada) / vocEsperada : 0;
+                let st_voc = desvioVoc > TOL_VOC ? 'FALHA' : 'OK';
+
+                const falhouString = st_p === 'FALHA' || st_n === 'FALHA' || st_consist === 'FALHA' || st_voc === 'FALHA';
+                if(falhouString) erroGeral = true;
+
+                if(st_p === 'FALHA') alertas += `<div class="alerta-fuga"><b>${tag}:</b> Falha Pos/Terra (${vp.toFixed(1)}V ≥ ${LIMITE_TOQUE}V). Verificar cabo <b>NEGATIVO</b>.</div>`;
+                if(st_n === 'FALHA') alertas += `<div class="alerta-fuga"><b>${tag}:</b> Falha Neg/Terra (${vn.toFixed(1)}V ≥ ${LIMITE_TOQUE}V). Verificar cabo <b>POSITIVO</b>.</div>`;
+                if(st_consist === 'FALHA') alertas += `<div class="alerta-fuga"><b>${tag}:</b> Fuga simétrica — (Vpos+Vneg)/VOC = ${(razaoConsist*100).toFixed(1)}% (limite ${(TOL_CONSISTENCIA*100).toFixed(0)}%). Isolamento degradado nos dois polos.</div>`;
+                if(st_voc === 'FALHA') alertas += `<div class="alerta-fuga"><b>${tag}:</b> VOC fora do esperado — medida ${voc.toFixed(1)}V, esperada ${vocEsperada.toFixed(1)}V (desvio ${(desvioVoc*100).toFixed(1)}%). Verificar módulo em curto/bypass ou contagem de módulos.</div>`;
 
                 htmlTabela += `
                     <tr>
                         <td class="fw-bold">${tag}</td>
-                        <td class="valor-mono">${voc}</td>
+                        <td class="valor-mono ${st_voc==='FALHA'?'text-danger fw-bold':''}">${voc}</td>
                         <td class="valor-mono ${st_p==='FALHA'?'text-danger fw-bold':'text-success'}">${vp}</td>
                         <td class="valor-mono ${st_n==='FALHA'?'text-danger fw-bold':'text-success'}">${vn}</td>
-                        <td><span class="status-badge ${st_p==='OK'&&st_n==='OK'?'bg-ok':'bg-fail'}">${st_p==='OK'&&st_n==='OK'?'OK':'FALHA'}</span></td>
+                        <td><span class="status-badge ${falhouString?'bg-fail':'bg-ok'}">${falhouString?'FALHA':'OK'}</span></td>
                     </tr>
                 `;
             }
@@ -144,6 +180,7 @@
                 <div class="header-laudo text-center">
                     <div class="row mb-1"><div class="col-6"><b>Usina:</b> ${usina}</div><div class="col-6"><b>SKID:</b> ${skid}</div></div>
                     <div class="row"><div class="col-12"><b>Inversor:</b> ${inversor} <br><span class="text-muted small">(${qtd} Strings Analisadas)</span></div></div>
+                    <div class="row mt-1"><div class="col-12 text-muted" style="font-size:0.7rem;">VOC esperada (ref.): ${vocEsperada.toFixed(1)} V — ${nModulos} módulos, ${tMedida}°C, β=${betaVoc}%/°C</div></div>
                 </div>
                 
                 <table class="table-laudo mb-2">
