@@ -34,10 +34,22 @@
                 </div>
                 <span class="label-tech">Módulo / Condição de Ensaio</span>
                 <div class="row g-2 mb-1">
-                    <div class="col-3"><input type="number" id="n_modulos" class="form-control form-control-sm dado text-center" placeholder="Nº Mód." min="1" required></div>
-                    <div class="col-3"><input type="number" step="0.01" id="voc_stc" class="form-control form-control-sm dado text-center" placeholder="VOC STC (V)" required></div>
-                    <div class="col-3"><input type="number" step="0.001" id="beta_voc" class="form-control form-control-sm dado text-center" placeholder="β VOC (%/°C)" required></div>
-                    <div class="col-3"><input type="number" step="0.1" id="t_medida" class="form-control form-control-sm dado text-center" placeholder="Temp (°C)" required></div>
+                    <div class="col-3">
+                        <input type="number" id="n_modulos" class="form-control form-control-sm dado text-center" placeholder="Nº Mód." min="1" required>
+                        <div class="text-muted text-center" style="font-size:0.6rem; margin-top:2px; line-height:1.2;">Qtd. de módulos em série na string</div>
+                    </div>
+                    <div class="col-3">
+                        <input type="number" step="0.01" id="voc_stc" class="form-control form-control-sm dado text-center" placeholder="VOC STC (V)" required>
+                        <div class="text-muted text-center" style="font-size:0.6rem; margin-top:2px; line-height:1.2;">Tensão de circuito aberto (placa do módulo, condição STC)</div>
+                    </div>
+                    <div class="col-3">
+                        <input type="number" step="0.001" id="beta_voc" class="form-control form-control-sm dado text-center" placeholder="β VOC (%/°C)" required>
+                        <div class="text-muted text-center" style="font-size:0.6rem; margin-top:2px; line-height:1.2;">Coef. temperatura da VOC (datasheet, valor negativo)</div>
+                    </div>
+                    <div class="col-3">
+                        <input type="number" step="0.1" id="t_medida" class="form-control form-control-sm dado text-center" placeholder="Temp (°C)" required>
+                        <div class="text-muted text-center" style="font-size:0.6rem; margin-top:2px; line-height:1.2;">Temperatura ambiente no momento do ensaio</div>
+                    </div>
                 </div>
                 <div class="text-muted" style="font-size:0.68rem;">Dados de placa do módulo — mesmos valores para todas as strings deste inversor.</div>
             </div>
