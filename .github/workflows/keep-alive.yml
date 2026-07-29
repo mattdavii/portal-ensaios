@@ -2,7 +2,7 @@ name: Keep Render Alive
 
 on:
   schedule:
-    - cron: '*/8 * * * *'    # a cada 8 min — mais margem antes do timeout de 15 min do Render
+    - cron: '*/4 * * * *'    # a cada 8 min — mais margem antes do timeout de 15 min do Render
   workflow_dispatch:          # permite rodar manualmente pelo GitHub, pra testar na hora
 
 jobs:
