@@ -10,4 +10,5 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Ping Portal de Ensaios
-        run: curl -s -o /dev/null -w "Status: %{http_code} | Tempo: %{time_total}s\n" https://portal-ensaios.onrender.com/
+        run: |
+          curl -s -o /dev/null -w "Status: %{http_code} | Tempo: %{time_total}s\n" https://portal-ensaios.onrender.com/
