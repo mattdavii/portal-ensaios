@@ -13,42 +13,42 @@ database.criar_tabelas()
 # ==========================================
 # 1. ROTAS DO PWA (Offline)
 # ==========================================
-@app.get("/sw.js")
+@app.api_route("/sw.js", methods=["GET", "HEAD"])
 def service_worker(): 
     return FileResponse("sw.js", media_type="application/javascript", headers={"Cache-Control": "no-cache"})
 
-@app.get("/manifest.json")
+@app.api_route("/manifest.json", methods=["GET", "HEAD"])
 def manifest(): 
     return FileResponse("manifest.json")
 
-@app.get("/logo.png")
+@app.api_route("/logo.png", methods=["GET", "HEAD"])
 def logo(): 
     return FileResponse("logo.png")
 
-@app.get("/resistencia.js")
+@app.api_route("/resistencia.js", methods=["GET", "HEAD"])
 def resistencia_js():
     return FileResponse("resistencia.js", media_type="application/javascript", headers={"Cache-Control": "no-cache"})
 
-@app.get("/style.css")
+@app.api_route("/style.css", methods=["GET", "HEAD"])
 def style_css():
     return FileResponse("style.css", media_type="text/css", headers={"Cache-Control": "no-cache"})
 
-@app.get("/ui.js")
+@app.api_route("/ui.js", methods=["GET", "HEAD"])
 def ui_js():
     return FileResponse("ui.js", media_type="application/javascript", headers={"Cache-Control": "no-cache"})
 
-@app.get("/rascunho.js")
+@app.api_route("/rascunho.js", methods=["GET", "HEAD"])
 def rascunho_js():
     return FileResponse("rascunho.js", media_type="application/javascript", headers={"Cache-Control": "no-cache"})
 
 # ==========================================
 # 2. ROTAS DO FRONTEND (Páginas HTML)
 # ==========================================
-@app.get("/")
+@app.api_route("/", methods=["GET", "HEAD"])
 def home(): 
     return FileResponse("index.html")
 
-@app.get("/{pagina}")
+@app.api_route("/{pagina}", methods=["GET", "HEAD"])
 def paginas(pagina: str):
     # Lista de páginas permitidas para segurança
     paginas_validas = ["cabos-cc", "res-malha", "cont-malha", "disjuntor-mt", "disjuntor-bt", "seccionadora", "trafo", "tp", "tc", "conversor-resistencia"]
