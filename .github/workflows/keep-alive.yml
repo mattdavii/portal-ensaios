@@ -1,0 +1,13 @@
+name: Keep Render Alive
+
+on:
+  schedule:
+    - cron: '*/8 * * * *'    # a cada 8 min — mais margem antes do timeout de 15 min do Render
+  workflow_dispatch:          # permite rodar manualmente pelo GitHub, pra testar na hora
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Portal de Ensaios
+        run: curl -s -o /dev/null -w "Status: %{http_code} | Tempo: %{time_total}s\n" https://portal-ensaios.onrender.com/
