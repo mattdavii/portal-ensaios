@@ -1,5 +1,5 @@
 import os
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 import database, models, uvicorn
@@ -37,6 +37,10 @@ def style_css():
 def ui_js():
     return FileResponse("ui.js", media_type="application/javascript", headers={"Cache-Control": "no-cache"})
 
+@app.get("/rascunho.js")
+def rascunho_js():
+    return FileResponse("rascunho.js", media_type="application/javascript", headers={"Cache-Control": "no-cache"})
+
 # ==========================================
 # 2. ROTAS DO FRONTEND (Páginas HTML)
 # ==========================================
@@ -51,7 +55,7 @@ def paginas(pagina: str):
     if pagina in paginas_validas:
         nome_arquivo = f"{pagina.replace('-', '_')}.html"
         return FileResponse(nome_arquivo, headers={"Cache-Control": "no-cache"})
-    return {"erro": "Página não encontrada"}
+    raise HTTPException(status_code=404, detail="Página não encontrada")
 
 # ==========================================
 # 3. ROTAS DE SINCRONIZAÇÃO (Backend)

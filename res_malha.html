@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="/style.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script src="/ui.js"></script>
+    <script src="/rascunho.js"></script>
 </head>
 <body>
     <div class="topbar no-print">
@@ -91,6 +92,7 @@
             const d = { usina: document.getElementById('usina').value, tag: document.getElementById('tag').value, metodo: "Queda de Potencial (62%)", d_total: parseFloat(document.getElementById('d_total').value), r52: parseFloat(document.getElementById('r52').value), r62: parseFloat(document.getElementById('r62').value), r72: parseFloat(document.getElementById('r72').value) };
             
             await salvarHibrido('/api/sync/res-malha', d);
+            limparRascunho('res_malha');
 
             const media = ((d.r52 + d.r62 + d.r72) / 3).toFixed(2);
             const desvio = d.r62 > 0 ? Math.max(Math.abs(d.r52-d.r62)/d.r62, Math.abs(d.r72-d.r62)/d.r62) * 100 : 0;
@@ -159,6 +161,7 @@
                 });
             }
         }
+        iniciarRascunho('res_malha');
     </script>
 </body>
 

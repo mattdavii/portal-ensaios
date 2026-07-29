@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="/style.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script src="/ui.js"></script>
+    <script src="/rascunho.js"></script>
 </head>
 <body>
     <div class="topbar no-print">
@@ -264,6 +265,7 @@
             }
 
             await salvarLoteHibrido(payloads, '/api/sync/trafo');
+            limparRascunho('trafo');
 
             todosStatusGeral.push(eqH.ok, eqX.ok, statusIso(dFixos.at_t), statusIso(dFixos.at_bt), statusIso(dFixos.bt_t));
             todosStatusGeral = todosStatusGeral.filter(s => s !== null && s !== undefined);
@@ -358,6 +360,7 @@
                 });
             }
         }
+        iniciarRascunho('trafo');
     </script>
 </body>
 </html>

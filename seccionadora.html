@@ -11,6 +11,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script src="/resistencia.js"></script>
     <script src="/ui.js"></script>
+    <script src="/rascunho.js"></script>
 </head>
 <body>
     <div class="topbar no-print">
@@ -158,6 +159,7 @@
             };
 
             await salvarSincronismo(payloadApi);
+            limparRascunho('seccionadora');
 
             const limitContato = uniContato === 'mΩ' ? 0.3 : 300;
             const valsContato = [dados.c_a, dados.c_b, dados.c_c].filter(v => v !== null);
@@ -237,6 +239,7 @@
                 html2pdf().set(opt).from(elemento).save().then(() => { btn.innerHTML = textoOriginal; });
             }
         }
+        iniciarRascunho('seccionadora');
     </script>
 </body>
 </html>

@@ -11,6 +11,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script src="/resistencia.js"></script>
     <script src="/ui.js"></script>
+    <script src="/rascunho.js"></script>
 </head>
 <body>
     <div class="topbar no-print">
@@ -157,6 +158,7 @@
             };
 
             await salvarSincronismo(payloadApi);
+            limparRascunho('disjuntor_bt');
 
             const limitContato = uniContato === 'mΩ' ? 0.15 : 150;
             const valsContato = [dados.c_a, dados.c_b, dados.c_c].filter(v => v !== null);
@@ -197,6 +199,7 @@
             if (isApple && navigator.canShare) { html2pdf().set(opt).from(elemento).output('blob').then(function(pdfBlob) { btn.innerHTML = textoOriginal; navigator.share({ title: 'Laudo BT', files: [new File([pdfBlob], nomeArquivo, { type: 'application/pdf' })] }).catch(e => console.log('Cancelado')); }); } 
             else { html2pdf().set(opt).from(elemento).save().then(() => { btn.innerHTML = textoOriginal; }); }
         }
+        iniciarRascunho('disjuntor_bt');
     </script>
 </body>
 </html>

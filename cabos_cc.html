@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="/style.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script src="/ui.js"></script>
+    <script src="/rascunho.js"></script>
 </head>
 <body>
     <div class="topbar no-print">
@@ -192,6 +193,7 @@
             }
 
             await salvarLoteHibrido(payloads);
+            limparRascunho('cabos_cc');
 
             const seloClasse = erroGeral ? 'selo-refazer' : 'selo-conforme';
             const seloTexto = erroGeral ? '✗ VERIFICAR STRINGS' : '✓ CONFORME';
@@ -248,6 +250,7 @@
                 });
             }
         }
+        iniciarRascunho('cabos_cc');
     </script>
 </body>
 
