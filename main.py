@@ -6,7 +6,7 @@ import database, models
 
 app=FastAPI(title='Portal de Ensaios',docs_url=None,redoc_url=None,openapi_url=None)
 database.criar_tabelas()
-PAGINAS={'tempo-curvas-protecao':'tempo_curvas_protecao.html','queda-tensao':'queda_tensao.html','relacao-tc-tp':'relacao_tc_tp.html','voc-string':'voc_string.html','desequilibrio-fases':'desequilibrio_fases.html','riso-cabos-ca-mt':'riso_cabos_ca_mt.html','comparador-strings':'comparador_strings.html','riso-strings':'riso_strings.html','cabos-cc':'cabos_cc.html','res-malha':'res_malha.html','cont-malha':'cont_malha.html','disjuntor-mt':'disjuntor_mt.html','disjuntor-bt':'disjuntor_bt.html','seccionadora':'seccionadora.html','trafo':'trafo.html','tp':'tp.html','tc':'tc.html','conversor-resistencia':'conversor_resistencia.html'}
+PAGINAS={'queda-tensao':'queda_tensao.html','relacao-tc-tp':'relacao_tc_tp.html','voc-string':'voc_string.html','desequilibrio-fases':'desequilibrio_fases.html','riso-cabos-ca-mt':'riso_cabos_ca_mt.html','comparador-strings':'comparador_strings.html','riso-strings':'riso_strings.html','cabos-cc':'cabos_cc.html','res-malha':'res_malha.html','cont-malha':'cont_malha.html','disjuntor-mt':'disjuntor_mt.html','disjuntor-bt':'disjuntor_bt.html','seccionadora':'seccionadora.html','trafo':'trafo.html','tp':'tp.html','tc':'tc.html','conversor-resistencia':'conversor_resistencia.html'}
 
 def _file(path,media=None,cache='no-cache'):
     kw={'headers':{'Cache-Control':cache}}
