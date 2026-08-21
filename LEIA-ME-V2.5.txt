@@ -1,0 +1,30 @@
+PORTAL DE ENSAIOS — V2.5
+
+Novas ferramentas:
+
+FERRAMENTAS DE DIAGNÓSTICO
+1. Comparador de Strings
+2. Desequilíbrio entre Fases
+3. Calculadora de Voc de String
+4. Relação TC/TP rápida
+5. Queda de Tensão
+6. Tempo de Atuação — Curvas Inversas IEC
+
+NOVO ENSAIO
+7. RISO de Cabos CA/MT
+   - Fase-terra: R, S, T
+   - Fase-fase: R-S, S-T, T-R
+   - tensão de ensaio
+   - critério interno:
+       >= 1000 MΩ: CONFORME
+       < 1000 MΩ: APROVADO COM RESSALVA
+   - geração e compartilhamento de PDF
+   - API e tabela próprias
+
+Curvas de proteção implementadas:
+- IEC Normal Inverse
+- IEC Very Inverse
+- IEC Extremely Inverse
+- IEC Long-Time Inverse
+
+A ferramenta de curvas é auxiliar. Manual do relé e estudo de proteção prevalecem.

@@ -6,7 +6,7 @@ import database, models
 
 app=FastAPI(title='Portal de Ensaios',docs_url=None,redoc_url=None,openapi_url=None)
 database.criar_tabelas()
-PAGINAS={'riso-strings':'riso_strings.html','cabos-cc':'cabos_cc.html','res-malha':'res_malha.html','cont-malha':'cont_malha.html','disjuntor-mt':'disjuntor_mt.html','disjuntor-bt':'disjuntor_bt.html','seccionadora':'seccionadora.html','trafo':'trafo.html','tp':'tp.html','tc':'tc.html','conversor-resistencia':'conversor_resistencia.html'}
+PAGINAS={'tempo-curvas-protecao':'tempo_curvas_protecao.html','queda-tensao':'queda_tensao.html','relacao-tc-tp':'relacao_tc_tp.html','voc-string':'voc_string.html','desequilibrio-fases':'desequilibrio_fases.html','riso-cabos-ca-mt':'riso_cabos_ca_mt.html','comparador-strings':'comparador_strings.html','riso-strings':'riso_strings.html','cabos-cc':'cabos_cc.html','res-malha':'res_malha.html','cont-malha':'cont_malha.html','disjuntor-mt':'disjuntor_mt.html','disjuntor-bt':'disjuntor_bt.html','seccionadora':'seccionadora.html','trafo':'trafo.html','tp':'tp.html','tc':'tc.html','conversor-resistencia':'conversor_resistencia.html'}
 
 def _file(path,media=None,cache='no-cache'):
     kw={'headers':{'Cache-Control':cache}}
@@ -94,6 +94,21 @@ def s_sec(d:models.EnsaioManobra):return _manobra('ensaio_seccionadora',d,models
 def s_trafo(d:models.EnsaioTrafo):
     r=d.validar();sa=models.status_isolamento(d.at_t);sab=models.status_isolamento(d.at_bt);sbt=models.status_isolamento(d.bt_t)
     _exec('''INSERT INTO ensaio_final (usina,tag,tipo,tap,nom_pri,nom_sec,rn_teorico,ttr_a,ttr_b,ttr_c,status_ttr,h1,h2,h3,uni_h,status_h,x1,x2,x3,uni_x,status_x,at_t,at_bt,bt_t,status_at_t,status_at_bt,status_bt_t,classe,finalidade,temperatura_c,tensao_ensaio_isolamento_v,limite_ttr_pct,tecnico,os,observacoes,status_geral_v2) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)''',(d.usina,d.tag,d.tipo,d.tap,d.nom_pri,d.nom_sec,d.rn_teorico,d.ttr_a,d.ttr_b,d.ttr_c,r['status_ttr'],d.h1,d.h2,d.h3,d.uni_h,r['status_h'],d.x1,d.x2,d.x3,d.uni_x,r['status_x'],d.at_t,d.at_bt,d.bt_t,sa,sab,sbt,d.classe,d.finalidade,d.temperatura_c,d.tensao_ensaio_isolamento_v,r['limite_ttr_pct'],d.tecnico,d.os,d.observacoes,r['status_geral']))
+    return {'status':'ok','resultado':r}
+
+
+@app.post('/api/sync/riso-cabos-ca-mt')
+def s_riso_cabos_ca_mt(d:models.EnsaioRisoCabosCaMt):
+    r=d.validar()
+    _exec("""INSERT INTO ensaio_riso_cabos_ca_mt (
+        usina,tag,classe_circuito,tensao_ensaio_v,r_terra,s_terra,t_terra,rs,st,tr,
+        status_r_terra,status_s_terra,status_t_terra,status_rs,status_st,status_tr,status_geral,
+        tecnico,os,observacoes
+    ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",(
+        d.usina,d.tag,d.classe_circuito,d.tensao_ensaio_v,d.r_terra,d.s_terra,d.t_terra,d.rs,d.st,d.tr,
+        r['status_r_terra'],r['status_s_terra'],r['status_t_terra'],r['status_rs'],r['status_st'],r['status_tr'],r['status_geral'],
+        d.tecnico,d.os,d.observacoes
+    ))
     return {'status':'ok','resultado':r}
 
 if __name__=='__main__':uvicorn.run(app,host='0.0.0.0',port=int(os.environ.get('PORT',8000)))

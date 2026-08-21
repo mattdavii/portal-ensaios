@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Queda de Tensão</title>
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#1c2128">
+<link rel="apple-touch-icon" href="/logo.png">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="/style.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script src="/ui.js"></script>
+<script src="/rascunho.js"></script>
+<script src="/resistencia.js"></script>
+</head>
+<body>
+
+<div class="page-shell">
+<section class="page-hero no-print">
+  <div class="page-hero-row">
+    <a href="/" class="page-back">Menu</a>
+    <div class="page-hero-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 6h18M3 18h18"/><path d="M6 6v12M18 6v12"/><path d="M10 9l4 6M14 9l-4 6"/></svg></div>
+    <div class="page-hero-text">
+      <h1 class="page-title">Queda de Tensão</h1>
+      <div class="page-subtitle">Estimativa rápida para circuitos elétricos.</div>
+    </div>
+  </div>
+  <div class="page-chip-row"><span class="page-chip">CA/CC</span><span class="page-chip">Cobre/Alumínio</span><span class="page-chip">ΔV %</span></div>
+</section>
+<div class="container" style="max-width:620px;padding:0;">
+
+<div class="card-instrumento">
+<div class="label-row"><span class="label-tech">Dados do Circuito</span><button type="button" class="btn-info-ensaio" onclick="abrirInfo('Premissas do cálculo', `<p>Ferramenta de estimativa rápida para campo. Para CA, usa componente resistiva simplificada e fator de potência informado.</p><p>Para projeto definitivo, verifique método de instalação, temperatura, reatância, agrupamento e critérios normativos aplicáveis.</p><p>Resistividades de referência: cobre 0,0175 Ω·mm²/m e alumínio 0,0282 Ω·mm²/m.</p>` )">i</button></div>
+<div class="row g-2 mb-2"><div class="col-6"><label class="field-label">Sistema</label><select id="sistema" class="form-select" onchange="calc()"><option value="dc">CC / monofásico 2 fios</option><option value="tri">CA trifásico</option></select></div><div class="col-6"><label class="field-label">Material</label><select id="material" class="form-select" onchange="calc()"><option value="0.0175">Cobre</option><option value="0.0282">Alumínio</option></select></div></div>
+<div class="row g-2 mb-2"><div class="col-6"><label class="field-label">Comprimento ida</label><div class="input-group"><input id="L" type="number" min="0" step="0.1" class="form-control dado" oninput="calc()"><span class="input-group-text">m</span></div></div><div class="col-6"><label class="field-label">Seção</label><div class="input-group"><input id="S" type="number" min="0" step="0.1" class="form-control dado" oninput="calc()"><span class="input-group-text">mm²</span></div></div></div>
+<div class="row g-2 mb-2"><div class="col-6"><label class="field-label">Corrente</label><div class="input-group"><input id="I" type="number" min="0" step="0.1" class="form-control dado" oninput="calc()"><span class="input-group-text">A</span></div></div><div class="col-6"><label class="field-label">Tensão</label><div class="input-group"><input id="V" type="number" min="0" step="0.1" class="form-control dado" oninput="calc()"><span class="input-group-text">V</span></div></div></div>
+<div class="row g-2"><div class="col-6"><label class="field-label">Fator de potência</label><input id="fp" type="number" min="0.1" max="1" step="0.01" value="1" class="form-control dado" oninput="calc()"></div><div class="col-6"><label class="field-label">Limite de referência</label><div class="input-group"><input id="lim" type="number" min="0.1" step="0.1" value="4" class="form-control dado" oninput="calc()"><span class="input-group-text">%</span></div></div></div>
+</div>
+<div id="resultado" class="card-instrumento d-none"><div id="out"></div></div>
+<script>
+function calc(){const L=numeroCampo('L'),S=numeroCampo('S'),I=numeroCampo('I'),V=numeroCampo('V'),rho=Number(document.getElementById('material').value),fp=numeroCampo('fp')||1,lim=numeroCampo('lim')||4,sys=document.getElementById('sistema').value;if([L,S,I,V].some(x=>x===null)||S<=0||V<=0){document.getElementById('resultado').classList.add('d-none');return}const k=sys==='tri'?Math.sqrt(3):2;const dv=k*L*I*rho*fp/S,pct=dv/V*100,st=pct<=lim?STATUS.CONFORME:STATUS.ATENCAO;document.getElementById('out').innerHTML=`${seloStatus(st)}<div class="row g-2"><div class="col-4"><div class="subcard text-center"><div class="field-label">Queda</div><div class="valor-mono fs-5">${dv.toFixed(2)} V</div></div></div><div class="col-4"><div class="subcard text-center"><div class="field-label">Percentual</div><div class="valor-mono fs-5">${pct.toFixed(2)}%</div></div></div><div class="col-4"><div class="subcard text-center"><div class="field-label">Tensão final</div><div class="valor-mono fs-5">${(V-dv).toFixed(2)} V</div></div></div></div><div class="info-strip mt-3">Estimativa simplificada para apoio de campo; não substitui cálculo completo de projeto.</div>`;document.getElementById('resultado').classList.remove('d-none')}
+</script></div></div></body></html>

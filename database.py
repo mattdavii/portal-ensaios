@@ -42,4 +42,32 @@ def criar_tabelas():
         )
     """)
 
+
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS ensaio_riso_cabos_ca_mt (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            usina TEXT,
+            tag TEXT,
+            classe_circuito TEXT,
+            tensao_ensaio_v REAL,
+            r_terra REAL,
+            s_terra REAL,
+            t_terra REAL,
+            rs REAL,
+            st REAL,
+            tr REAL,
+            status_r_terra TEXT,
+            status_s_terra TEXT,
+            status_t_terra TEXT,
+            status_rs TEXT,
+            status_st TEXT,
+            status_tr TEXT,
+            status_geral TEXT,
+            tecnico TEXT,
+            os TEXT,
+            observacoes TEXT,
+            data TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+
     conn.commit();conn.close()

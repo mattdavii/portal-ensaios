@@ -1,5 +1,12 @@
-const CACHE_VERSION = 'portal-v2-4-20260821';
+const CACHE_VERSION = 'portal-v2-5-20260821';
 const CORE = ['/', '/style.css', '/ui.js', '/rascunho.js', '/resistencia.js', '/manifest.json', '/logo.png', '/trafo', '/tp', '/tc', '/disjuntor-mt', '/disjuntor-bt', '/seccionadora', '/res-malha', '/cont-malha', '/cabos-cc', '/conversor-resistencia',
+  '/tempo-curvas-protecao',
+  '/queda-tensao',
+  '/relacao-tc-tp',
+  '/voc-string',
+  '/desequilibrio-fases',
+  '/riso-cabos-ca-mt',
+  '/comparador-strings',
   '/riso-strings'];
 
 self.addEventListener('install', event => {

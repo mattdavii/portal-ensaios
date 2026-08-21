@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Tempo de Atuação</title>
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#1c2128">
+<link rel="apple-touch-icon" href="/logo.png">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="/style.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script src="/ui.js"></script>
+<script src="/rascunho.js"></script>
+<script src="/resistencia.js"></script>
+</head>
+<body>
+
+<div class="page-shell">
+<section class="page-hero no-print">
+  <div class="page-hero-row">
+    <a href="/" class="page-back">Menu</a>
+    <div class="page-hero-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 20h18M4 19V4"/><path d="M6 17c2-7 5-10 14-11"/></svg></div>
+    <div class="page-hero-text">
+      <h1 class="page-title">Tempo de Atuação — Curvas Inversas</h1>
+      <div class="page-subtitle">Calcule o tempo teórico de atuação para curvas IEC.</div>
+    </div>
+  </div>
+  <div class="page-chip-row"><span class="page-chip">Proteção</span><span class="page-chip">IEC</span><span class="page-chip">Curvas inversas</span></div>
+</section>
+<div class="container" style="max-width:620px;padding:0;">
+
+<div class="card-instrumento">
+<div class="label-row"><span class="label-tech">Parâmetros</span><button type="button" class="btn-info-ensaio" onclick="abrirInfo('Curvas inversas IEC', `<h6>Uso</h6><p>Ferramenta de apoio para estimar o tempo teórico de atuação de uma função de sobrecorrente temporizada.</p><h6>Múltiplo de pickup</h6><p>M = I / Is. O cálculo só é válido para M &gt; 1.</p><h6>Curvas disponíveis</h6><p>IEC Normal Inverse, Very Inverse, Extremely Inverse e Long-Time Inverse.</p><h6>Atenção</h6><p>Use como ferramenta auxiliar. A parametrização real deve ser conferida no manual do relé, estudo de proteção e configuração aplicada.</p>` )">i</button></div>
+<div class="row g-2 mb-2"><div class="col-6"><label class="field-label">Curva</label><select id="curva" class="form-select" onchange="calc()"><option value="NI">IEC Normal Inverse</option><option value="VI">IEC Very Inverse</option><option value="EI">IEC Extremely Inverse</option><option value="LTI">IEC Long-Time Inverse</option></select></div><div class="col-6"><label class="field-label">TMS</label><input id="tms" type="number" min="0.01" step="0.01" value="0.1" class="form-control dado" oninput="calc()"></div></div>
+<div class="row g-2"><div class="col-6"><label class="field-label">Pickup Is</label><div class="input-group"><input id="is" type="number" min="0.001" step="any" class="form-control dado" oninput="calc()"><span class="input-group-text">A</span></div></div><div class="col-6"><label class="field-label">Corrente I</label><div class="input-group"><input id="i" type="number" min="0" step="any" class="form-control dado" oninput="calc()"><span class="input-group-text">A</span></div></div></div>
+</div>
+<div id="resultado" class="card-instrumento d-none"><div id="out"></div></div>
+<script>
+const CURVAS={NI:{k:0.14,a:0.02,n:'Normal Inverse'},VI:{k:13.5,a:1,n:'Very Inverse'},EI:{k:80,a:2,n:'Extremely Inverse'},LTI:{k:120,a:1,n:'Long-Time Inverse'}};
+function calc(){const Is=numeroCampo('is'),I=numeroCampo('i'),tms=numeroCampo('tms'),c=CURVAS[document.getElementById('curva').value];if([Is,I,tms].some(x=>x===null)||Is<=0){document.getElementById('resultado').classList.add('d-none');return}const M=I/Is;if(M<=1){document.getElementById('out').innerHTML=`${seloStatus(STATUS.NAO_AVALIADO)}<div class="info-strip">Corrente abaixo ou igual ao pickup. Para esta curva temporizada, o cálculo de atuação inversa requer M &gt; 1.</div>`;document.getElementById('resultado').classList.remove('d-none');return}const t=tms*c.k/(Math.pow(M,c.a)-1);document.getElementById('out').innerHTML=`<div class="row g-2"><div class="col-6"><div class="subcard text-center"><div class="field-label">Múltiplo de pickup</div><div class="valor-mono fs-4">${M.toFixed(3)} × Is</div></div></div><div class="col-6"><div class="subcard text-center"><div class="field-label">Tempo teórico</div><div class="valor-mono fs-4">${t.toFixed(3)} s</div></div></div></div><div class="info-strip mt-3"><b>${c.n}</b> • TMS ${tms} • cálculo teórico conforme equação IEC de curva inversa selecionada.</div>`;document.getElementById('resultado').classList.remove('d-none')}
+</script></div></div></body></html>

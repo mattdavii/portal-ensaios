@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Calculadora de Voc de String</title>
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#1c2128">
+<link rel="apple-touch-icon" href="/logo.png">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="/style.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script src="/ui.js"></script>
+<script src="/rascunho.js"></script>
+<script src="/resistencia.js"></script>
+</head>
+<body>
+
+<div class="page-shell">
+<section class="page-hero no-print">
+  <div class="page-hero-row">
+    <a href="/" class="page-back">Menu</a>
+    <div class="page-hero-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="5" width="14" height="10" rx="1"/><path d="M7 5v10M12 5v10M3 10h14"/><path d="M18 8h3M19.5 6.5v3"/><path d="M18 14h3"/></svg></div>
+    <div class="page-hero-text">
+      <h1 class="page-title">Voc de String</h1>
+      <div class="page-subtitle">Estime a Voc da string corrigida pela temperatura.</div>
+    </div>
+  </div>
+  <div class="page-chip-row"><span class="page-chip">Solar</span><span class="page-chip">Voc</span><span class="page-chip">Temperatura</span></div>
+</section>
+<div class="container" style="max-width:620px;padding:0;">
+
+<div class="card-instrumento">
+<div class="label-row"><span class="label-tech">Dados</span><button type="button" class="btn-info-ensaio" onclick="abrirInfo('Cálculo', `<p>O Portal usa a Voc STC do módulo, a quantidade de módulos, o coeficiente βVoc em %/°C e a temperatura do módulo.</p><p>Temperaturas mais baixas tendem a elevar a Voc quando βVoc é negativo.</p><p>Use sempre o valor do datasheet do módulo.</p>` )">i</button></div>
+<div class="row g-2 mb-2"><div class="col-6"><label class="field-label">Módulos em série</label><input id="n" type="number" min="1" class="form-control dado" oninput="calc()"></div><div class="col-6"><label class="field-label">Voc STC do módulo</label><div class="input-group"><input id="voc" type="number" step="0.01" class="form-control dado" oninput="calc()"><span class="input-group-text">V</span></div></div></div>
+<div class="row g-2"><div class="col-6"><label class="field-label">βVoc</label><div class="input-group"><input id="beta" type="number" step="0.001" placeholder="-0.25" class="form-control dado" oninput="calc()"><span class="input-group-text">%/°C</span></div></div><div class="col-6"><label class="field-label">Temperatura do módulo</label><div class="input-group"><input id="temp" type="number" step="0.1" class="form-control dado" oninput="calc()"><span class="input-group-text">°C</span></div></div></div>
+</div>
+<div id="resultado" class="card-instrumento d-none text-center"><div class="field-label">Voc estimada da string</div><div id="out" class="valor-mono" style="font-size:2rem"></div><div id="detalhe" class="form-hint mt-2"></div></div>
+<script>
+function calc(){const n=numeroCampo('n'),v=numeroCampo('voc'),b=numeroCampo('beta'),t=numeroCampo('temp');if([n,v,b,t].some(x=>x===null)){document.getElementById('resultado').classList.add('d-none');return}const base=n*v,corr=base*(1+(b/100)*(t-25));document.getElementById('out').textContent=corr.toFixed(2)+' V';document.getElementById('detalhe').textContent=`STC da string: ${base.toFixed(2)} V • Correção: ${(corr-base).toFixed(2)} V`;document.getElementById('resultado').classList.remove('d-none')}
+</script></div></div></body></html>

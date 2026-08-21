@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Relação TC/TP</title>
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#1c2128">
+<link rel="apple-touch-icon" href="/logo.png">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="/style.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script src="/ui.js"></script>
+<script src="/rascunho.js"></script>
+<script src="/resistencia.js"></script>
+</head>
+<body>
+
+<div class="page-shell">
+<section class="page-hero no-print">
+  <div class="page-hero-row">
+    <a href="/" class="page-back">Menu</a>
+    <div class="page-hero-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="7" cy="12" r="4"/><circle cx="17" cy="12" r="4"/><path d="M11 12h2"/></svg></div>
+    <div class="page-hero-text">
+      <h1 class="page-title">Relação TC/TP Rápida</h1>
+      <div class="page-subtitle">Converta valores primários e secundários instantaneamente.</div>
+    </div>
+  </div>
+  <div class="page-chip-row"><span class="page-chip">TC</span><span class="page-chip">TP</span><span class="page-chip">Relação</span></div>
+</section>
+<div class="container" style="max-width:620px;padding:0;">
+
+<div class="card-instrumento">
+<div class="label-row"><span class="label-tech">Configuração</span><button type="button" class="btn-info-ensaio" onclick="abrirInfo('Como usar', `<p>Informe a relação nominal do TC ou TP, por exemplo <b>600/5 A</b> ou <b>13800/115 V</b>.</p><p>Depois informe um valor no primário ou secundário; o Portal calcula o correspondente no outro lado.</p>` )">i</button></div>
+<div class="row g-2 mb-2"><div class="col-5"><label class="field-label">Tipo</label><select id="tipo" class="form-select" onchange="calc()"><option>TC</option><option>TP</option></select></div><div class="col-7"><label class="field-label">Unidade</label><input id="unidade" class="form-control" value="A" oninput="calc()"></div></div>
+<div class="row g-2"><div class="col-6"><label class="field-label">Nominal primário</label><input id="pri_nom" type="number" step="any" class="form-control dado" oninput="calc()"></div><div class="col-6"><label class="field-label">Nominal secundário</label><input id="sec_nom" type="number" step="any" class="form-control dado" oninput="calc()"></div></div>
+</div>
+<div class="card-instrumento">
+<div class="section-title-tech">Conversão</div>
+<div class="row g-2 mb-3"><div class="col-6"><label class="field-label">Valor primário</label><input id="pri" type="number" step="any" class="form-control dado" oninput="fromPri()"></div><div class="col-6"><label class="field-label">Secundário esperado</label><input id="sec" class="form-control dado bg-light" readonly></div></div>
+<div class="row g-2"><div class="col-6"><label class="field-label">Valor secundário</label><input id="sec_in" type="number" step="any" class="form-control dado" oninput="fromSec()"></div><div class="col-6"><label class="field-label">Primário correspondente</label><input id="pri_out" class="form-control dado bg-light" readonly></div></div>
+</div>
+<div id="relacaoBox" class="card-instrumento d-none text-center"><div class="field-label">Relação nominal</div><div id="relacao" class="valor-mono fs-4"></div></div>
+<script>
+function fator(){const p=numeroCampo('pri_nom'),s=numeroCampo('sec_nom');return p&&s?p/s:null}
+function calc(){const f=fator();if(!f){document.getElementById('relacaoBox').classList.add('d-none');return}document.getElementById('relacao').textContent=f.toFixed(4)+':1';document.getElementById('relacaoBox').classList.remove('d-none');fromPri();fromSec()}
+function fromPri(){const f=fator(),v=numeroCampo('pri'),u=textoCampo('unidade');document.getElementById('sec').value=(f&&v!==null)?(v/f).toFixed(4)+' '+u:''}
+function fromSec(){const f=fator(),v=numeroCampo('sec_in'),u=textoCampo('unidade');document.getElementById('pri_out').value=(f&&v!==null)?(v*f).toFixed(4)+' '+u:''}
+</script></div></div></body></html>

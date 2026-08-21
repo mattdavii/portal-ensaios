@@ -256,3 +256,27 @@ class EnsaioTrafo(MetadadosCampo):
         eqx=equilibrio([self.x1,self.x2,self.x3]) if tipo=="TRAFO" else {"status":STATUS_NAO_AVALIADO,"desvio":None}
         status_iso=status_geral([status_isolamento(self.at_t),status_isolamento(self.at_bt),status_isolamento(self.bt_t)])
         return {"limite_ttr_pct":limite_pct,"erro_ttr_a_pct":None if erros[0] is None else round(erros[0],3),"erro_ttr_b_pct":None if erros[1] is None else round(erros[1],3),"erro_ttr_c_pct":None if erros[2] is None else round(erros[2],3),"status_ttr":status_ttr,"status_h":eqh["status"],"desvio_h_pct":None if eqh["desvio"] is None else round(eqh["desvio"],2),"status_x":eqx["status"],"desvio_x_pct":None if eqx["desvio"] is None else round(eqx["desvio"],2),"status_isolamento":status_iso,"status_geral":status_geral([status_ttr,eqh["status"],eqx["status"],status_iso])}
+
+
+class EnsaioRisoCabosCaMt(MetadadosCampo):
+    classe_circuito: str
+    tensao_ensaio_v: float
+    r_terra: Optional[float] = None
+    s_terra: Optional[float] = None
+    t_terra: Optional[float] = None
+    rs: Optional[float] = None
+    st: Optional[float] = None
+    tr: Optional[float] = None
+
+    def validar(self) -> Dict:
+        valores = [self.r_terra, self.s_terra, self.t_terra, self.rs, self.st, self.tr]
+        statuses = [status_isolamento(v) for v in valores]
+        return {
+            "status_r_terra": statuses[0],
+            "status_s_terra": statuses[1],
+            "status_t_terra": statuses[2],
+            "status_rs": statuses[3],
+            "status_st": statuses[4],
+            "status_tr": statuses[5],
+            "status_geral": status_geral(statuses),
+        }
