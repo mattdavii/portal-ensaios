@@ -6,7 +6,7 @@ import database, models
 
 app=FastAPI(title='Portal de Ensaios',docs_url=None,redoc_url=None,openapi_url=None)
 database.criar_tabelas()
-PAGINAS={'cabos-cc':'cabos_cc.html','res-malha':'res_malha.html','cont-malha':'cont_malha.html','disjuntor-mt':'disjuntor_mt.html','disjuntor-bt':'disjuntor_bt.html','seccionadora':'seccionadora.html','trafo':'trafo.html','tp':'tp.html','tc':'tc.html','conversor-resistencia':'conversor_resistencia.html'}
+PAGINAS={'cabos-cc':'cabos_cc.html','riso-strings': 'riso_strings.html','res-malha':'res_malha.html','cont-malha':'cont_malha.html','disjuntor-mt':'disjuntor_mt.html','disjuntor-bt':'disjuntor_bt.html','seccionadora':'seccionadora.html','trafo':'trafo.html','tp':'tp.html','tc':'tc.html','conversor-resistencia':'conversor_resistencia.html'}
 
 def _file(path,media=None,cache='no-cache'):
     kw={'headers':{'Cache-Control':cache}}
