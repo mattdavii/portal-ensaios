@@ -1,5 +1,6 @@
-const CACHE_VERSION = 'portal-v2-20260821';
-const CORE = ['/', '/style.css', '/ui.js', '/rascunho.js', '/resistencia.js', '/manifest.json', '/logo.png', '/trafo', '/tp', '/tc', '/disjuntor-mt', '/disjuntor-bt', '/seccionadora', '/res-malha', '/cont-malha', '/cabos-cc', '/conversor-resistencia'];
+const CACHE_VERSION = 'portal-v2-2-20260821';
+const CORE = ['/', '/style.css', '/ui.js', '/rascunho.js', '/resistencia.js', '/manifest.json', '/logo.png', '/trafo', '/tp', '/tc', '/disjuntor-mt', '/disjuntor-bt', '/seccionadora', '/res-malha', '/cont-malha', '/cabos-cc', '/conversor-resistencia',
+  '/riso-strings'];
 
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(CACHE_VERSION).then(cache => cache.addAll(CORE)).then(() => self.skipWaiting()));

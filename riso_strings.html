@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>RISO de Strings</title>
+<link rel="manifest" href="/manifest.json"><meta name="theme-color" content="#1c2128">
+<link rel="apple-touch-icon" href="/logo.png">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="/style.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script src="/ui.js"></script><script src="/rascunho.js"></script>
+</head>
+<body>
+<div class="page-shell">
+<section class="page-hero no-print">
+<div class="page-hero-row">
+<a href="/cabos-cc" class="page-back">← Strings</a>
+<div class="page-hero-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 12h5l2-6 4 12 2-6h3"/><path d="M5 19h14"/><path d="M8 3h8"/></svg></div>
+<div class="page-hero-text"><h1 class="page-title">RISO de Strings</h1><div class="page-subtitle">Teste individual dos cabos positivo e negativo com o circuito aberto.</div></div>
+</div>
+<div class="page-chip-row"><span class="page-chip">+ Positivo</span><span class="page-chip">− Negativo</span><span class="page-chip">Circuito aberto</span></div>
+</section>
+<div class="container" style="max-width:620px;padding:0;">
+<form id="formRisoStrings">
+<div class="card-instrumento">
+<div class="label-row"><span class="label-tech">Identificação</span>
+<button type="button" class="btn-info-ensaio" onclick="abrirInfo('Preparação do RISO', `<h6>Condição do circuito</h6><p>Realize o ensaio com a string <b>aberta e eletricamente isolada</b>. O cabo positivo e o cabo negativo do circuito devem estar <b>soltos/desconectados dos módulos</b> e também desconectados do inversor ou equipamento de destino.</p><h6>Por que?</h6><p>O objetivo é ensaiar o isolamento dos <b>cabos CC separadamente</b>, evitando que módulos, DPS, inversores ou outros componentes interfiram na leitura.</p><h6>Sequência</h6><ol><li>Identifique a string.</li><li>Abra e isole o circuito.</li><li>Confirme ausência de tensão.</li><li>Desconecte os cabos dos módulos.</li><li>Meça cabo positivo para terra.</li><li>Meça cabo negativo para terra.</li><li>Descarregue o circuito conforme o instrumento.</li><li>Reconecte somente após concluir o ensaio.</li></ol>` )">i</button></div>
+<div class="row g-2 mb-2"><div class="col-7"><label class="field-label">Usina</label><input id="usina" class="form-control" required></div><div class="col-5"><label class="field-label">OS</label><input id="os" class="form-control"></div></div>
+<div class="row g-2"><div class="col-7"><label class="field-label">Técnico</label><input id="tecnico" class="form-control" required></div><div class="col-5"><label class="field-label">Inversor / caixa</label><input id="inversor" class="form-control"></div></div>
+</div>
+
+<div class="card-instrumento">
+<div class="label-row"><span class="label-tech">Configuração do Ensaio</span>
+<button type="button" class="btn-info-ensaio" onclick="abrirInfo('Interpretação do RISO', `<h6>Critério interno</h6><p><b>≥ 1000 MΩ (1 GΩ): CONFORME</b>.</p><p><b>&lt; 1000 MΩ: APROVADO COM RESSALVA</b>.</p><h6>Observação</h6><p>Valor abaixo de 1 GΩ não significa reprovação automática. A tensão de ensaio, comprimento do cabo, condições ambientais e procedimento aplicável devem ser considerados.</p>` )">i</button></div>
+<div class="row g-2 mb-2">
+<div class="col-6"><label class="field-label">Tensão de ensaio</label><select id="tensao_riso" class="form-select" required><option value="">Selecione</option><option>250</option><option>500</option><option>1000</option><option>1500</option><option>2500</option></select></div>
+<div class="col-6"><label class="field-label">Quantidade de strings</label><input type="number" id="qtd_strings" min="1" max="100" class="form-control dado" oninput="gerarStringsRiso()" required></div>
+</div>
+<div class="info-strip">Para cada string, registrar separadamente <b>RISO do cabo positivo → terra</b> e <b>RISO do cabo negativo → terra</b>, com os cabos soltos dos módulos e o circuito aberto.</div>
+<div id="lista_strings"></div>
+</div>
+
+<div class="card-instrumento"><span class="label-tech">Observações</span><textarea id="observacoes" class="form-control" rows="3"></textarea></div>
+<button type="submit" class="btn btn-instrumento no-print">GERAR REGISTRO</button>
+</form>
+
+<div id="box_laudo" class="card-instrumento d-none mt-3">
+<h6 class="text-center fw-bold border-bottom pb-2 mb-3">REGISTRO DE CAMPO — RISO DE STRINGS</h6>
+<div id="laudo_render"></div>
+<div class="page-actions two no-print">
+<button class="btn btn-instrumento-outline" onclick="baixarPDF('box_laudo','RISO_Strings',textoCampo('inversor')||'Strings')">Baixar PDF</button>
+<button class="btn btn-instrumento" onclick="compartilharPDF('box_laudo','RISO_Strings',textoCampo('inversor')||'Strings')">Compartilhar PDF</button>
+</div></div>
+</div></div>
+
+<script>
+function gerarStringsRiso(){
+ const qtd=parseInt(document.getElementById('qtd_strings').value||'0',10);
+ const box=document.getElementById('lista_strings');box.innerHTML='';
+ for(let i=1;i<=qtd;i++){
+   box.insertAdjacentHTML('beforeend',`<div class="subcard">
+   <div class="d-flex justify-content-between align-items-center mb-2"><strong>String ${i}</strong><input id="tag_${i}" class="form-control form-control-sm" style="max-width:180px" value="String ${i}"></div>
+   <div class="row g-2">
+   <div class="col-6"><label class="field-label">Positivo → Terra</label><div class="input-group"><input type="number" min="0" step="0.001" id="riso_pos_${i}" class="form-control dado" required><span class="input-group-text">MΩ</span></div></div>
+   <div class="col-6"><label class="field-label">Negativo → Terra</label><div class="input-group"><input type="number" min="0" step="0.001" id="riso_neg_${i}" class="form-control dado" required><span class="input-group-text">MΩ</span></div></div>
+   </div></div>`);
+ }
+}
+function statusRiso(v){if(v===null)return STATUS.NAO_AVALIADO;return v>=1000?STATUS.CONFORME:STATUS.RESSALVA}
+document.getElementById('formRisoStrings').addEventListener('submit',e=>{
+ e.preventDefault();salvarContextoCampo();
+ const qtd=parseInt(document.getElementById('qtd_strings').value||'0',10),tensao=numeroCampo('tensao_riso');
+ const usina=textoCampo('usina'),tecnico=textoCampo('tecnico'),os=textoCampo('os'),inversor=textoCampo('inversor'),obs=textoCampo('observacoes');
+ let linhas='',statuses=[];
+ for(let i=1;i<=qtd;i++){
+  const tag=textoCampo(`tag_${i}`)||`String ${i}`,pos=numeroCampo(`riso_pos_${i}`),neg=numeroCampo(`riso_neg_${i}`);
+  const sp=statusRiso(pos),sn=statusRiso(neg),sg=statusGeral([sp,sn]);statuses.push(sg);
+  linhas+=`<tr><td>${escaparHtml(tag)}</td><td><span class="valor-mono">${pos??'-'}</span><br>${badgeStatus(sp)}</td><td><span class="valor-mono">${neg??'-'}</span><br>${badgeStatus(sn)}</td><td>${badgeStatus(sg)}</td></tr>`;
+ }
+ const geral=statusGeral(statuses);
+ document.getElementById('laudo_render').innerHTML=`${seloStatus(geral)}<div class="header-laudo"><div class="row g-2"><div class="col-6"><b>Usina:</b> ${escaparHtml(usina)}</div><div class="col-6"><b>OS:</b> ${escaparHtml(os||'-')}</div><div class="col-6"><b>Técnico:</b> ${escaparHtml(tecnico)}</div><div class="col-6"><b>Data/hora:</b> ${dataHoraLocalTexto()}</div><div class="col-6"><b>Inversor/caixa:</b> ${escaparHtml(inversor||'-')}</div><div class="col-6"><b>Tensão de ensaio:</b> ${tensao??'-'} V</div></div></div><div class="info-strip">Circuito aberto, cabos desconectados dos módulos e medição individual de cada condutor para terra.</div><table class="table-laudo"><thead><tr><th>String</th><th>Positivo → Terra</th><th>Negativo → Terra</th><th>Status</th></tr></thead><tbody>${linhas}</tbody></table><div class="mt-3"><b>Observações</b><div class="observacao-laudo mt-1">${escaparHtml(obs||'-')}</div></div>`;
+ limparRascunho('riso_strings');document.getElementById('box_laudo').classList.remove('d-none');document.getElementById('box_laudo').scrollIntoView({behavior:'smooth'});
+});
+iniciarRascunho('riso_strings');
+</script></body></html>

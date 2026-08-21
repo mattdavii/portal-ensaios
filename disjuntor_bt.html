@@ -8,8 +8,16 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <script src="/resistencia.js"></script><script src="/ui.js"></script><script src="/rascunho.js"></script>
 </head><body>
-<div class="topbar no-print"><a href="/" class="voltar">⬅ Menu</a><span class="titulo">⚡ Disjuntor de Baixa Tensão</span><span class="spacer"></span></div>
-<div class="container" style="max-width:620px;padding:0">
+<div class="page-shell">
+<section class="page-hero no-print">
+  <div class="page-hero-row">
+    <a href="/" class="page-back">← Menu</a>
+    <div class="page-hero-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6M9 12h6M9 16h4"/></svg></div>
+    <div class="page-hero-text"><h1 class="page-title">Disjuntor de Baixa Tensão</h1><div class="page-subtitle">Resistência de contato e isolamento.</div></div>
+  </div>
+  <div class="page-chip-row"><span class="page-chip">⚡ Campo</span><span class="page-chip">✓ Validação</span><span class="page-chip">▣ PDF para OS</span></div>
+</section>
+<div class="container" style="max-width:620px;padding:0;">
 <form id="formEnsaio">
 <div class="card-instrumento">
 <div class="label-row"><span class="label-tech">Identificação</span><button type="button" class="btn-info-ensaio" onclick="abrirInfo('Identificação do ensaio', INFO_IDENTIFICACAO)">i</button></div>
@@ -47,4 +55,5 @@ function fmtIso(v){return v===null?'-':`${v} MΩ<br>${badgeStatus(statusIsolamen
 function fmtCont(v){return v===null?'-':`${v.toFixed(3)} µΩ`}
 document.getElementById('formEnsaio').addEventListener('submit',async e=>{e.preventDefault();salvarContextoCampo();const uni=textoCampo('uni_contato');const ca=paraMicroOhms(numeroCampo('contato_a'),uni),cb=paraMicroOhms(numeroCampo('contato_b'),uni),cc=paraMicroOhms(numeroCampo('contato_c'),uni);const contato=contatoStatus([ca,cb,cc]);const isos=['iso_at','iso_bt','iso_ct','iso_ab','iso_bc','iso_ca','iso_esa','iso_esb','iso_esc'].map(numeroCampo);const stIso=statusGeral(isos.map(statusIsolamento));const geral=statusGeral([contato.status,stIso]);const payload={usina:textoCampo('usina'),tag:textoCampo('tag'),tecnico:textoCampo('tecnico')||null,os:textoCampo('os')||null,observacoes:textoCampo('observacoes')||null,fabricante:textoCampo('fabricante')||null,corrente_ensaio_a:numeroCampo('corrente'),res_c_r:ca,res_c_s:cb,res_c_t:cc,iso_ft_r:isos[0],iso_ft_s:isos[1],iso_ft_t:isos[2],iso_ff_rs:isos[3],iso_ff_st:isos[4],iso_ff_tr:isos[5],iso_ab_r:isos[6],iso_ab_s:isos[7],iso_ab_t:isos[8],tensao_ensaio_isolamento_v:numeroCampo('tensao_iso')};await salvarComFila(ENDPOINT,payload,'Registro salvo');limparRascunho(PAGINA);const obs=escaparHtml(textoCampo('observacoes')||'Sem observações.');document.getElementById('laudo_render').innerHTML=`${seloStatus(geral)}<div class="header-laudo"><b>Usina:</b> ${escaparHtml(textoCampo('usina'))}<br><b>TAG:</b> ${escaparHtml(textoCampo('tag'))} &nbsp; <b>OS:</b> ${escaparHtml(textoCampo('os')||'-')}<br><b>Técnico:</b> ${escaparHtml(textoCampo('tecnico')||'-')}<br><b>Data/Hora:</b> ${dataHoraLocalTexto()}<br><b>Fabricante:</b> ${escaparHtml(textoCampo('fabricante')||'-')}</div><span class="label-tech">Resistência de contato</span><table class="table-laudo"><tr><th>Corrente</th><th>A</th><th>B</th><th>C</th><th>Desequilíbrio</th><th>Status</th></tr><tr><td>${numeroCampo('corrente')??'-'} A</td><td>${fmtCont(ca)}</td><td>${fmtCont(cb)}</td><td>${fmtCont(cc)}</td><td>${contato.deseq===null?'-':contato.deseq.toFixed(2)+'%'}</td><td>${badgeStatus(contato.status)}</td></tr></table><span class="label-tech">Resistência de isolamento</span><div class="small mb-2">Tensão de ensaio: <b>${numeroCampo('tensao_iso')??'-'} V</b></div><table class="table-laudo"><tr><th>A-T</th><th>B-T</th><th>C-T</th></tr><tr><td>${fmtIso(isos[0])}</td><td>${fmtIso(isos[1])}</td><td>${fmtIso(isos[2])}</td></tr><tr><th>A-B</th><th>B-C</th><th>C-A</th></tr><tr><td>${fmtIso(isos[3])}</td><td>${fmtIso(isos[4])}</td><td>${fmtIso(isos[5])}</td></tr><tr><th>Ent-Saída A</th><th>Ent-Saída B</th><th>Ent-Saída C</th></tr><tr><td>${fmtIso(isos[6])}</td><td>${fmtIso(isos[7])}</td><td>${fmtIso(isos[8])}</td></tr></table><span class="label-tech">Observações</span><div class="observacao-laudo">${obs}</div>`;document.getElementById('box_laudo').classList.remove('d-none');document.getElementById('box_laudo').scrollIntoView({behavior:'smooth'});});
 iniciarRascunho(PAGINA);
-</script></body></html>
+</script></div>
+</body></html>
