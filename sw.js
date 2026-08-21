@@ -1,6 +1,5 @@
-const CACHE_VERSION = 'portal-v2-5-2-20260821';
+const CACHE_VERSION = 'portal-v2-5-3-20260821';
 const CORE = ['/', '/style.css', '/ui.js', '/rascunho.js', '/resistencia.js', '/manifest.json', '/logo.png', '/trafo', '/tp', '/tc', '/disjuntor-mt', '/disjuntor-bt', '/seccionadora', '/res-malha', '/cont-malha', '/cabos-cc', '/conversor-resistencia',
-  '/tempo-curvas-protecao',
   '/queda-tensao',
   '/relacao-tc-tp',
   '/voc-string',
