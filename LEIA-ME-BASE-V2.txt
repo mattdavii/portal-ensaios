@@ -1,0 +1,36 @@
+PORTAL DE ENSAIOS — BASE V2
+
+Arquivos desta primeira etapa:
+- ui.js
+- rascunho.js
+- resistencia.js
+- style.css
+- manifest.json
+- sw.js
+- models.py
+- database.py
+- main.py
+- requirements.txt
+
+Critérios implementados:
+- TTR Transformador: 0,5%
+- Resistência ôhmica do transformador: 5%
+- Disjuntor MT: 300 µΩ; acima = ATENÇÃO
+- Disjuntor BT: 150 µΩ; acima = ATENÇÃO
+- Seccionadora: 300 µΩ; acima = ATENÇÃO
+- Desequilíbrio de contato: 10%; acima = ATENÇÃO
+- Isolamento >=1000 MΩ = CONFORME
+- Isolamento <1000 MΩ = APROVADO COM RESSALVA
+- Aterramento: 10 Ω e patamar 10%
+- REFAZER ENSAIO somente para patamar inválido no ensaio de aterramento
+- Continuidade: mantém 1000 mΩ, acima = ATENÇÃO
+
+Mudanças estruturais:
+- campos não medidos continuam NULL; não viram zero
+- status calculado também no backend
+- popup informativo e contexto Usina/Técnico centralizados no ui.js
+- PDF com baixar/compartilhar centralizado no ui.js
+- banco existente é migrado adicionando colunas, sem apagar registros
+- docs públicos do FastAPI desativados
+
+As páginas HTML V2 devem ser usadas com estes arquivos-base. Evite misturar HTML V2 com ui.js antigo.

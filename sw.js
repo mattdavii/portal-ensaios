@@ -1,45 +1,28 @@
-const CACHE_NAME = 'portal-v29';
+const CACHE_VERSION = 'portal-v2-20260821';
+const CORE = ['/', '/style.css', '/ui.js', '/rascunho.js', '/resistencia.js', '/manifest.json', '/logo.png', '/trafo', '/tp', '/tc', '/disjuntor-mt', '/disjuntor-bt', '/seccionadora', '/res-malha', '/cont-malha', '/cabos-cc', '/conversor-resistencia'];
 
-// LISTA DE TUDO O QUE DEVE FUNCIONAR OFFLINE
-const ASSETS = [
-  '/',
-  '/manifest.json',
-  '/logo.png',
-  '/style.css',
-  '/ui.js',
-  '/resistencia.js',
-  '/rascunho.js',
-  '/cabos-cc',
-  '/res-malha',
-  '/cont-malha',
-  '/disjuntor-mt',
-  '/disjuntor-bt',
-  '/seccionadora',
-  '/trafo',
-  '/tp',
-  '/tc',
-  '/conversor-resistencia',
-  'https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css',
-  'https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css',
-  'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js'
-];
-
-// Instalação e Cache inicial
-self.addEventListener('install', e => {
-  self.skipWaiting();
-  e.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(ASSETS)));
+self.addEventListener('install', event => {
+  event.waitUntil(caches.open(CACHE_VERSION).then(cache => cache.addAll(CORE)).then(() => self.skipWaiting()));
 });
-
-// Ativação e limpeza de cofres antigos
-self.addEventListener('activate', e => {
-  e.waitUntil(caches.keys().then(keys => Promise.all(
-    keys.filter(key => key !== CACHE_NAME).map(key => caches.delete(key))
-  )));
+self.addEventListener('activate', event => {
+  event.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(k => k !== CACHE_VERSION).map(k => caches.delete(k)))).then(() => self.clients.claim()));
 });
-
-// OBRIGATÓRIO PARA OFFLINE: Se não tiver internet, puxa do cofre
-self.addEventListener('fetch', e => {
-  e.respondWith(
-    fetch(e.request).catch(() => caches.match(e.request))
-  );
+self.addEventListener('fetch', event => {
+  const req = event.request;
+  if (req.method !== 'GET') return;
+  const url = new URL(req.url);
+  if (url.origin === self.location.origin) {
+    event.respondWith(caches.match(req).then(cached => {
+      const rede = fetch(req).then(res => {
+        if (res && res.ok) caches.open(CACHE_VERSION).then(cache => cache.put(req, res.clone()));
+        return res;
+      }).catch(() => cached);
+      return cached || rede;
+    }));
+  } else {
+    event.respondWith(fetch(req).then(res => {
+      if (res && res.ok) caches.open(CACHE_VERSION).then(cache => cache.put(req, res.clone()));
+      return res;
+    }).catch(() => caches.match(req)));
+  }
 });

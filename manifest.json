@@ -1,25 +1,15 @@
 {
   "name": "Portal de Ensaios",
-  "short_name": "Portal de Ensaios",
-  "description": "Plataforma de Engenharia",
+  "short_name": "Ensaios",
+  "description": "Ferramenta de apoio de campo para execução, validação e registro de ensaios elétricos.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
-  "orientation": "portrait",
+  "orientation": "portrait-primary",
   "background_color": "#faf9f6",
   "theme_color": "#1c2128",
   "icons": [
-    {
-      "src": "/logo.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "/logo.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any"
-    }
+    {"src":"/logo.png","sizes":"192x192","type":"image/png","purpose":"any maskable"},
+    {"src":"/logo.png","sizes":"512x512","type":"image/png","purpose":"any maskable"}
   ]
 }
