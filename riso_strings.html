@@ -71,14 +71,26 @@ document.getElementById('formRisoStrings').addEventListener('submit',e=>{
  e.preventDefault();salvarContextoCampo();
  const qtd=parseInt(document.getElementById('qtd_strings').value||'0',10),tensao=numeroCampo('tensao_riso');
  const usina=textoCampo('usina'),tecnico=textoCampo('tecnico'),os=textoCampo('os'),inversor=textoCampo('inversor'),obs=textoCampo('observacoes');
- let linhas='',statuses=[];
+ let linhas='',statuses=[];const payloads=[];
  for(let i=1;i<=qtd;i++){
   const tag=textoCampo(`tag_${i}`)||`String ${i}`,pos=numeroCampo(`riso_pos_${i}`),neg=numeroCampo(`riso_neg_${i}`);
   const sp=statusRiso(pos),sn=statusRiso(neg),sg=statusGeral([sp,sn]);statuses.push(sg);
+  payloads.push({
+    usina: usina,
+    tag: tag,
+    tecnico: tecnico || null,
+    os: os || null,
+    observacoes: obs || null,
+    inversor: inversor || null,
+    riso_pos_mohm: pos,
+    riso_neg_mohm: neg,
+    tensao_ensaio_v: tensao
+  });
   linhas+=`<tr><td>${escaparHtml(tag)}</td><td><span class="valor-mono">${pos??'-'}</span><br>${badgeStatus(sp)}</td><td><span class="valor-mono">${neg??'-'}</span><br>${badgeStatus(sn)}</td><td>${badgeStatus(sg)}</td></tr>`;
  }
  const geral=statusGeral(statuses);
  document.getElementById('laudo_render').innerHTML=`${seloStatus(geral)}<div class="header-laudo"><div class="row g-2"><div class="col-6"><b>Usina:</b> ${escaparHtml(usina)}</div><div class="col-6"><b>OS:</b> ${escaparHtml(os||'-')}</div><div class="col-6"><b>Técnico:</b> ${escaparHtml(tecnico)}</div><div class="col-6"><b>Data/hora:</b> ${dataHoraLocalTexto()}</div><div class="col-6"><b>Inversor/caixa:</b> ${escaparHtml(inversor||'-')}</div><div class="col-6"><b>Tensão de ensaio:</b> ${tensao??'-'} V</div></div></div><div class="info-strip">Circuito aberto, cabos desconectados dos módulos e medição individual de cada condutor para terra.</div><table class="table-laudo"><thead><tr><th>String</th><th>Positivo → Terra</th><th>Negativo → Terra</th><th>Status</th></tr></thead><tbody>${linhas}</tbody></table><div class="mt-3"><b>Observações</b><div class="observacao-laudo mt-1">${escaparHtml(obs||'-')}</div></div>`;
+ await salvarLoteComFila('/api/sync/riso-strings', payloads, 'RISO das strings salvo');
  limparRascunho('riso_strings');document.getElementById('box_laudo').classList.remove('d-none');document.getElementById('box_laudo').scrollIntoView({behavior:'smooth'});
 });
 iniciarRascunho('riso_strings');

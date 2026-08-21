@@ -1,0 +1,21 @@
+PORTAL DE ENSAIOS — V2.3
+
+Strings CC:
+- Sem campos, cálculos ou status de RISO.
+- Mantém Voc, V+/Terra, V-/Terra, temperatura do módulo e diagnóstico.
+
+RISO de Strings:
+- Página independente: /riso-strings
+- API independente: /api/sync/riso-strings
+- Tabela independente: ensaio_riso_strings
+- Quantidade de strings configurável.
+- Cada string recebe medição de:
+  * cabo positivo → terra
+  * cabo negativo → terra
+- Condição do ensaio: circuito aberto, cabos soltos/desconectados dos módulos e do equipamento de destino.
+- >= 1000 MΩ: CONFORME
+- < 1000 MΩ: APROVADO COM RESSALVA
+
+Observação:
+Se o banco antigo já tiver colunas RISO dentro de ensaio_cabos_cc, elas não são apagadas automaticamente.
+O código V2.3 simplesmente deixa de utilizá-las para evitar migração destrutiva.

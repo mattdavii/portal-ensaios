@@ -83,35 +83,61 @@ class EnsaioCabosCC(MetadadosCampo):
     beta_voc: float
     temperatura_modulo: float
     tolerancia_voc: float = 0.05
-    riso_mohm: Optional[float] = None
-    tensao_riso_v: Optional[float] = None
 
     def validar(self) -> Dict:
-        voc_esperada = self.n_modulos * self.voc_stc * (1 + (self.beta_voc / 100.0) * (self.temperatura_modulo - 25.0))
+        voc_esperada = self.n_modulos * self.voc_stc * (
+            1 + (self.beta_voc / 100.0) * (self.temperatura_modulo - 25.0)
+        )
         desvio_voc = abs(self.voc - voc_esperada) / abs(voc_esperada) if voc_esperada else None
         status_voc = STATUS_CONFORME if desvio_voc is not None and desvio_voc <= self.tolerancia_voc else STATUS_ATENCAO
-        vp, vn, voc_abs = abs(self.v_pos_terra), abs(self.v_neg_terra), abs(self.voc)
+
+        vp = abs(self.v_pos_terra)
+        vn = abs(self.v_neg_terra)
+        voc_abs = abs(self.voc)
         erro_fechamento = abs((vp + vn) - voc_abs) / voc_abs if voc_abs > 0 else None
+
         if erro_fechamento is None:
-            status_diag = STATUS_NAO_AVALIADO
+            status_diagnostico = STATUS_NAO_AVALIADO
             diagnostico = "Dados insuficientes para avaliação."
         elif erro_fechamento <= TOL_DIAGNOSTICO_STRING:
-            status_diag = STATUS_CONFORME
-            diagnostico = "Sem indício claro de anomalia pelo padrão de tensões para terra. Esta análise é apenas diagnóstica e não substitui ensaio de isolamento."
+            status_diagnostico = STATUS_CONFORME
+            diagnostico = (
+                "As tensões medidas para terra apresentam coerência com a tensão total "
+                "da string. Não foi identificado desvio significativo por este método de diagnóstico."
+            )
         else:
-            status_diag = STATUS_ATENCAO
-            diagnostico = "Padrão de tensões para terra fora da coerência esperada. Avaliar possível fuga à terra e confirmar por resistência de isolamento."
-        status_riso = status_isolamento(self.riso_mohm)
-        geral = status_geral([status_voc, status_diag, status_riso])
+            status_diagnostico = STATUS_ATENCAO
+            diagnostico = (
+                "As tensões medidas para terra não apresentam a coerência esperada com a tensão "
+                "total da string. Avaliar a condição do circuito e, quando aplicável, utilizar "
+                "o ensaio específico de RISO de Strings."
+            )
+
+        geral = status_geral([status_voc, status_diagnostico])
         return {
             "voc_esperada": round(voc_esperada, 2),
             "desvio_voc_pct": round((desvio_voc or 0) * 100, 2),
             "erro_fechamento_pct": round((erro_fechamento or 0) * 100, 2),
             "status_voc": status_voc,
-            "status_diagnostico": status_diag,
+            "status_diagnostico": status_diagnostico,
             "diagnostico": diagnostico,
-            "status_riso": status_riso,
             "status_geral": geral,
+        }
+
+
+class EnsaioRisoString(MetadadosCampo):
+    inversor: Optional[str] = None
+    riso_pos_mohm: float
+    riso_neg_mohm: float
+    tensao_ensaio_v: float
+
+    def validar(self) -> Dict:
+        status_pos = status_isolamento(self.riso_pos_mohm)
+        status_neg = status_isolamento(self.riso_neg_mohm)
+        return {
+            "status_pos": status_pos,
+            "status_neg": status_neg,
+            "status_geral": status_geral([status_pos, status_neg]),
         }
 
 

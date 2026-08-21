@@ -22,4 +22,24 @@ def criar_tabelas():
         _add(conn,t,'corrente_ensaio_a','REAL');_add(conn,t,'tensao_ensaio_isolamento_v','REAL');_add(conn,t,'desequilibrio_pct','REAL')
     for n,tp in {'temperatura_modulo':'REAL','tolerancia_voc':'REAL','riso_mohm':'REAL','tensao_riso_v':'REAL','erro_fechamento_pct':'REAL','diagnostico':'TEXT','status_riso':'TEXT'}.items():_add(conn,'ensaio_cabos_cc',n,tp)
     _add(conn,'ensaio_res_malha','status_valor','TEXT')
+
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS ensaio_riso_strings (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            usina TEXT,
+            tag TEXT,
+            inversor TEXT,
+            riso_pos_mohm REAL,
+            riso_neg_mohm REAL,
+            tensao_ensaio_v REAL,
+            status_pos TEXT,
+            status_neg TEXT,
+            status_geral TEXT,
+            tecnico TEXT,
+            os TEXT,
+            observacoes TEXT,
+            data TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+
     conn.commit();conn.close()

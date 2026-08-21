@@ -6,7 +6,7 @@ import database, models
 
 app=FastAPI(title='Portal de Ensaios',docs_url=None,redoc_url=None,openapi_url=None)
 database.criar_tabelas()
-PAGINAS={'cabos-cc':'cabos_cc.html','riso-strings': 'riso_strings.html','res-malha':'res_malha.html','cont-malha':'cont_malha.html','disjuntor-mt':'disjuntor_mt.html','disjuntor-bt':'disjuntor_bt.html','seccionadora':'seccionadora.html','trafo':'trafo.html','tp':'tp.html','tc':'tc.html','conversor-resistencia':'conversor_resistencia.html'}
+PAGINAS={'riso-strings':'riso_strings.html','cabos-cc':'cabos_cc.html','res-malha':'res_malha.html','cont-malha':'cont_malha.html','disjuntor-mt':'disjuntor_mt.html','disjuntor-bt':'disjuntor_bt.html','seccionadora':'seccionadora.html','trafo':'trafo.html','tp':'tp.html','tc':'tc.html','conversor-resistencia':'conversor_resistencia.html'}
 
 def _file(path,media=None,cache='no-cache'):
     kw={'headers':{'Cache-Control':cache}}
@@ -44,7 +44,29 @@ def pagina(pagina:str):
 @app.post('/api/sync/cabos-cc')
 def s_cc(d:models.EnsaioCabosCC):
     r=d.validar()
-    _exec('''INSERT INTO ensaio_cabos_cc (usina,skid,inversor,tag,origem,destino,voc,v_pos_terra,v_neg_terra,n_modulos,voc_stc,beta_voc,t_medida,temperatura_modulo,tolerancia_voc,voc_esperada,erro_fechamento_pct,status_consistencia,status_voc,riso_mohm,tensao_riso_v,status_riso,diagnostico,status_geral,tecnico,os,observacoes,status_geral_v2) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)''',(d.usina,d.skid,d.inversor,d.tag,d.origem,d.destino,d.voc,d.v_pos_terra,d.v_neg_terra,d.n_modulos,d.voc_stc,d.beta_voc,d.temperatura_modulo,d.temperatura_modulo,d.tolerancia_voc,r['voc_esperada'],r['erro_fechamento_pct'],r['status_diagnostico'],r['status_voc'],d.riso_mohm,d.tensao_riso_v,r['status_riso'],r['diagnostico'],r['status_geral'],d.tecnico,d.os,d.observacoes,r['status_geral']))
+    _exec("""INSERT INTO ensaio_cabos_cc (
+        usina,skid,inversor,tag,origem,destino,voc,v_pos_terra,v_neg_terra,
+        n_modulos,voc_stc,beta_voc,t_medida,temperatura_modulo,tolerancia_voc,
+        voc_esperada,erro_fechamento_pct,status_consistencia,status_voc,status_geral,
+        tecnico,os,observacoes,status_geral_v2
+    ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",(
+        d.usina,d.skid,d.inversor,d.tag,d.origem,d.destino,d.voc,d.v_pos_terra,d.v_neg_terra,
+        d.n_modulos,d.voc_stc,d.beta_voc,d.temperatura_modulo,d.temperatura_modulo,d.tolerancia_voc,
+        r['voc_esperada'],r['erro_fechamento_pct'],r['status_diagnostico'],r['status_voc'],r['status_geral'],
+        d.tecnico,d.os,d.observacoes,r['status_geral']
+    ))
+    return {'status':'ok','resultado':r}
+
+@app.post('/api/sync/riso-strings')
+def s_riso_strings(d:models.EnsaioRisoString):
+    r=d.validar()
+    _exec("""INSERT INTO ensaio_riso_strings (
+        usina,tag,inversor,riso_pos_mohm,riso_neg_mohm,tensao_ensaio_v,
+        status_pos,status_neg,status_geral,tecnico,os,observacoes
+    ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)""",(
+        d.usina,d.tag,d.inversor,d.riso_pos_mohm,d.riso_neg_mohm,d.tensao_ensaio_v,
+        r['status_pos'],r['status_neg'],r['status_geral'],d.tecnico,d.os,d.observacoes
+    ))
     return {'status':'ok','resultado':r}
 
 @app.post('/api/sync/res-malha')
