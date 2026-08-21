@@ -60,14 +60,41 @@ def s_cc(d:models.EnsaioCabosCC):
 @app.post('/api/sync/riso-strings')
 def s_riso_strings(d:models.EnsaioRisoString):
     r=d.validar()
+
     _exec("""INSERT INTO ensaio_riso_strings (
-        usina,tag,inversor,riso_pos_mohm,riso_neg_mohm,tensao_ensaio_v,
-        status_pos,status_neg,status_geral,tecnico,os,observacoes
-    ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)""",(
-        d.usina,d.tag,d.inversor,d.riso_pos_mohm,d.riso_neg_mohm,d.tensao_ensaio_v,
-        r['status_pos'],r['status_neg'],r['status_geral'],d.tecnico,d.os,d.observacoes
+        usina,
+        tag,
+        inversor,
+        riso_pn_mohm,
+        riso_pos_mohm,
+        riso_neg_mohm,
+        tensao_ensaio_v,
+        status_pn,
+        status_pos,
+        status_neg,
+        status_geral,
+        tecnico,
+        os,
+        observacoes
+    ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",(
+        d.usina,
+        d.tag,
+        d.inversor,
+        d.riso_pn_mohm,
+        d.riso_pos_mohm,
+        d.riso_neg_mohm,
+        d.tensao_ensaio_v,
+        r['status_pn'],
+        r['status_pos'],
+        r['status_neg'],
+        r['status_geral'],
+        d.tecnico,
+        d.os,
+        d.observacoes
     ))
+
     return {'status':'ok','resultado':r}
+
 
 @app.post('/api/sync/res-malha')
 def s_rm(d:models.EnsaioResMalha):

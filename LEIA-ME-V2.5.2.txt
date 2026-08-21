@@ -1,0 +1,29 @@
+PORTAL DE ENSAIOS — V2.5.2
+
+CORREÇÃO — RISO DE STRINGS
+
+Problema corrigido:
+- O script da página continha 'await' dentro de uma função não assíncrona.
+- Isso causava erro de sintaxe no navegador.
+- Como consequência, ao informar a quantidade de strings os campos não eram criados.
+
+Nova estrutura por string:
+1. Positivo ↔ Negativo
+2. Positivo ↔ Terra
+3. Negativo ↔ Terra
+
+Critério interno:
+- >= 1000 MΩ: CONFORME
+- < 1000 MΩ: APROVADO COM RESSALVA
+
+Também foram atualizados:
+- riso_strings.html
+- models.py
+- main.py
+- database.py
+- PDF do ensaio
+- versão do cache do PWA
+
+O banco existente é migrado de forma segura:
+- adiciona riso_pn_mohm
+- adiciona status_pn

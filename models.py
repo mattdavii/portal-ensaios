@@ -127,17 +127,27 @@ class EnsaioCabosCC(MetadadosCampo):
 
 class EnsaioRisoString(MetadadosCampo):
     inversor: Optional[str] = None
+
+    riso_pn_mohm: float
     riso_pos_mohm: float
     riso_neg_mohm: float
+
     tensao_ensaio_v: float
 
     def validar(self) -> Dict:
+        status_pn = status_isolamento(self.riso_pn_mohm)
         status_pos = status_isolamento(self.riso_pos_mohm)
         status_neg = status_isolamento(self.riso_neg_mohm)
+
         return {
+            "status_pn": status_pn,
             "status_pos": status_pos,
             "status_neg": status_neg,
-            "status_geral": status_geral([status_pos, status_neg]),
+            "status_geral": status_geral([
+                status_pn,
+                status_pos,
+                status_neg
+            ]),
         }
 
 

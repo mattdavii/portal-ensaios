@@ -29,9 +29,11 @@ def criar_tabelas():
             usina TEXT,
             tag TEXT,
             inversor TEXT,
+            riso_pn_mohm REAL,
             riso_pos_mohm REAL,
             riso_neg_mohm REAL,
             tensao_ensaio_v REAL,
+            status_pn TEXT,
             status_pos TEXT,
             status_neg TEXT,
             status_geral TEXT,
@@ -42,6 +44,9 @@ def criar_tabelas():
         )
     """)
 
+
+    _add(conn, 'ensaio_riso_strings', 'riso_pn_mohm', 'REAL')
+    _add(conn, 'ensaio_riso_strings', 'status_pn', 'TEXT')
 
     conn.execute("""
         CREATE TABLE IF NOT EXISTS ensaio_riso_cabos_ca_mt (
