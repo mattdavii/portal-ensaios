@@ -1,22 +1,338 @@
-<!DOCTYPE html><html lang="pt-br"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Portal de Ensaios</title><link rel="manifest" href="/manifest.json"><meta name="theme-color" content="#1c2128"><link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"><link rel="stylesheet" href="/style.css"><script src="/ui.js"></script></head><body>
-<div class="topbar"><span class="spacer"></span><span class="titulo">⚡ Portal de Ensaios</span><span class="spacer"></span></div><div class="container" style="max-width:620px;padding:0">
-<div id="syncBox" class="card-instrumento d-none"><div class="d-flex justify-content-between align-items-center"><div><b>Registros pendentes</b><div class="small text-muted"><span id="syncCount">0</span> item(ns) aguardando sincronização.</div></div><button class="btn btn-sm btn-instrumento" style="width:auto;padding:9px 12px" onclick="sincronizarFila().then(atualizarSync)">Sincronizar</button></div></div>
-<div class="section-title-tech">Ativos de Potência</div>
-<a href="/trafo" class="text-decoration-none"><div class="menu-item p-3 mb-2 d-flex align-items-center"><div class="icon-box me-3">⚡</div><div><b class="text-dark">Transformador de Potência</b><div class="text-muted small">TTR, resistência ôhmica e isolamento</div></div></div></a>
-<a href="/tp" class="text-decoration-none"><div class="menu-item p-3 mb-2 d-flex align-items-center"><div class="icon-box me-3">V</div><div><b class="text-dark">Transformador de Potencial (TP)</b><div class="text-muted small">RTP, classe, resistência e isolamento</div></div></div></a>
-<a href="/tc" class="text-decoration-none"><div class="menu-item p-3 mb-3 d-flex align-items-center"><div class="icon-box me-3">A</div><div><b class="text-dark">Transformador de Corrente (TC)</b><div class="text-muted small">RTC, classe, resistência e isolamento</div></div></div></a>
-<div class="section-title-tech">Manobra e Proteção</div>
-<a href="/disjuntor-mt" class="text-decoration-none"><div class="menu-item p-3 mb-2"><b class="text-dark">Disjuntor MT</b><div class="text-muted small">Contato e isolamento</div></div></a>
-<a href="/disjuntor-bt" class="text-decoration-none"><div class="menu-item p-3 mb-2"><b class="text-dark">Disjuntor BT</b><div class="text-muted small">Contato e isolamento</div></div></a>
-<a href="/seccionadora" class="text-decoration-none"><div class="menu-item p-3 mb-3"><b class="text-dark">Chave Seccionadora</b><div class="text-muted small">Contato e isolamento</div></div></a>
-<div class="section-title-tech">Malha de Aterramento</div>
-<a href="/res-malha" class="text-decoration-none"><div class="menu-item p-3 mb-2"><b class="text-dark">Resistência de Aterramento</b><div class="text-muted small">Método 52 / 62 / 72%</div></div></a>
-<a href="/cont-malha" class="text-decoration-none"><div class="menu-item p-3 mb-3"><b class="text-dark">Continuidade da Malha</b><div class="text-muted small">Registro multipontos</div></div></a>
-<div class="section-title-tech">Usina Solar</div><a href="/cabos-cc" class="text-decoration-none"><div class="menu-item p-3 mb-3"><b class="text-dark">Strings CC</b><div class="text-muted small">Voc, tensões para terra e RISO</div></div></a>
-<div class="section-title-tech">Ferramentas</div><a href="/conversor-resistencia" class="text-decoration-none"><div class="menu-item p-3 mb-3"><b class="text-dark">Conversor de Resistência</b><div class="text-muted small">µΩ, mΩ, Ω, kΩ, MΩ, GΩ e TΩ</div></div></a>
-<div id="installBox" class="card-instrumento d-none no-print"><b>Instalar Portal de Ensaios</b><div class="small text-muted mb-2">Use como aplicativo no celular para acesso mais rápido em campo.</div><button id="btnInstall" class="btn btn-instrumento">Instalar</button></div>
-<div class="text-center text-muted small mt-4">Desenvolvido por<br><b>MD Soluções Tecnológicas</b></div></div>
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Portal de Ensaios</title>
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#1c2128">
+  <link rel="apple-touch-icon" href="/logo.png">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/style.css">
+  <script src="/ui.js" defer></script>
+
+  <style>
+    .home-shell{max-width:620px;margin:0 auto;padding-bottom:30px}
+    .home-hero{
+      position:relative;overflow:hidden;
+      background:radial-gradient(circle at 85% 15%,rgba(217,119,6,.22),transparent 34%),
+                 linear-gradient(145deg,#1c2128 0%,#252c36 62%,#12161b 100%);
+      border-radius:0 0 22px 22px;margin:0 -10px 18px;padding:26px 20px 22px;
+      color:#fff;box-shadow:0 12px 30px rgba(28,33,40,.18)
+    }
+    .home-brand{display:flex;align-items:center;gap:14px}
+    .home-logo-wrap{
+      width:76px;height:76px;border-radius:16px;background:rgba(255,255,255,.97);
+      display:flex;align-items:center;justify-content:center;padding:8px;
+      box-shadow:0 8px 24px rgba(0,0,0,.2);flex:0 0 76px
+    }
+    .home-logo{max-width:100%;max-height:100%;object-fit:contain;display:block}
+    .home-title{font-size:1.32rem;font-weight:850;letter-spacing:.2px;margin:0}
+    .home-subtitle{margin:4px 0 0;color:rgba(255,255,255,.72);font-size:.78rem;line-height:1.4}
+    .home-chip-row{display:flex;flex-wrap:wrap;gap:7px;margin-top:18px}
+    .home-chip{
+      font-size:.66rem;font-weight:750;letter-spacing:.25px;
+      border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.08);
+      color:rgba(255,255,255,.88);border-radius:999px;padding:6px 9px
+    }
+
+    .home-section{margin-top:18px}
+    .home-section-title{
+      display:flex;align-items:center;gap:8px;margin:0 2px 10px;color:var(--texto-muted);
+      text-transform:uppercase;letter-spacing:.65px;font-weight:850;font-size:.7rem
+    }
+    .home-section-title::after{content:"";height:1px;background:var(--borda);flex:1}
+    .home-grid{display:grid;grid-template-columns:1fr;gap:10px}
+    .home-card{
+      text-decoration:none;color:inherit;display:block;background:#fff;border:1px solid var(--borda);
+      border-radius:14px;padding:14px;box-shadow:0 2px 7px rgba(28,33,40,.045);
+      transition:transform .12s ease,box-shadow .12s ease
+    }
+    .home-card:active{transform:scale(.985)}
+    .home-card-inner{display:flex;align-items:center;gap:12px}
+    .home-icon{
+      width:48px;height:48px;border-radius:12px;display:flex;align-items:center;
+      justify-content:center;flex:0 0 48px;background:var(--ambar-suave);color:var(--ambar)
+    }
+    .home-icon svg{width:25px;height:25px;stroke-width:1.8}
+    .home-card-title{font-weight:820;font-size:.9rem;color:var(--texto);margin:0}
+    .home-card-sub{color:var(--texto-muted);font-size:.72rem;line-height:1.35;margin-top:2px}
+    .home-card-arrow{margin-left:auto;color:#b6b0a6;font-size:1.1rem;font-weight:700}
+
+    .home-sync{
+      display:none;width:100%;border:0;border-radius:11px;background:var(--ambar);
+      color:#fff;font-weight:800;font-size:.8rem;padding:12px 14px;margin-bottom:14px;
+      box-shadow:0 4px 12px rgba(217,119,6,.2)
+    }
+    .install-card{
+      display:none;background:#fff;border:1px solid var(--borda);border-left:4px solid var(--ambar);
+      border-radius:12px;padding:12px 13px;margin-bottom:12px;box-shadow:0 2px 7px rgba(28,33,40,.05)
+    }
+    .install-card .install-title{font-weight:800;font-size:.8rem}
+    .install-card .install-text{color:var(--texto-muted);font-size:.7rem;margin-top:2px}
+    .install-card button{
+      border:0;background:var(--grafite);color:#fff;border-radius:8px;font-size:.7rem;
+      font-weight:800;padding:8px 10px;white-space:nowrap
+    }
+    .home-footer{text-align:center;color:var(--texto-muted);font-size:.7rem;margin:28px 0 6px}
+    .home-footer b{color:var(--texto)}
+    @media(min-width:520px){.home-grid.two-cols{grid-template-columns:1fr 1fr}}
+  </style>
+</head>
+
+<body>
+<div class="home-shell">
+
+  <section class="home-hero">
+    <div class="home-brand">
+      <div class="home-logo-wrap">
+        <img src="/logo.png" alt="Logo Portal de Ensaios" class="home-logo">
+      </div>
+      <div>
+        <h1 class="home-title">Portal de Ensaios</h1>
+        <p class="home-subtitle">Apoio de campo para execução, validação e registro de ensaios elétricos.</p>
+      </div>
+    </div>
+
+    <div class="home-chip-row">
+      <span class="home-chip">⚡ Campo</span>
+      <span class="home-chip">✓ Validação técnica</span>
+      <span class="home-chip">▣ PDF para OS</span>
+      <span class="home-chip">☁ Offline</span>
+    </div>
+  </section>
+
+  <div id="installBanner" class="install-card no-print">
+    <div class="d-flex align-items-center gap-3">
+      <div class="flex-grow-1">
+        <div class="install-title">Instalar Portal de Ensaios</div>
+        <div class="install-text">Adicione o portal à tela inicial para usar como aplicativo.</div>
+      </div>
+      <button id="btnInstall" type="button">INSTALAR</button>
+    </div>
+  </div>
+
+  <div id="iosInstallBanner" class="install-card no-print">
+    <div class="install-title">Adicionar à Tela de Início</div>
+    <div class="install-text">No Safari, toque em <b>Compartilhar</b> e depois em <b>Adicionar à Tela de Início</b>.</div>
+  </div>
+
+  <button id="btnSync" type="button" class="home-sync no-print" onclick="sincronizarAgoraHome()">
+    ☁ SINCRONIZAR <span id="countSync"></span> PENDÊNCIA(S)
+  </button>
+
+  <section class="home-section">
+    <div class="home-section-title">Ativos de Potência</div>
+    <div class="home-grid">
+      <a href="/trafo" class="home-card">
+        <div class="home-card-inner">
+          <div class="home-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <rect x="3" y="5" width="7" height="14" rx="2"/><rect x="14" y="5" width="7" height="14" rx="2"/>
+              <path d="M10 9h4M10 12h4M10 15h4"/>
+            </svg>
+          </div>
+          <div><div class="home-card-title">Transformador de Potência</div><div class="home-card-sub">TTR, resistência ôhmica e isolamento.</div></div>
+          <div class="home-card-arrow">›</div>
+        </div>
+      </a>
+
+      <div class="home-grid two-cols">
+        <a href="/tp" class="home-card">
+          <div class="home-card-inner">
+            <div class="home-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <circle cx="8" cy="12" r="4"/><circle cx="16" cy="12" r="4"/><path d="M2 12h2M20 12h2"/>
+              </svg>
+            </div>
+            <div><div class="home-card-title">TP</div><div class="home-card-sub">Relação, classe e isolamento.</div></div>
+            <div class="home-card-arrow">›</div>
+          </div>
+        </a>
+
+        <a href="/tc" class="home-card">
+          <div class="home-card-inner">
+            <div class="home-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <circle cx="12" cy="12" r="6"/><path d="M2 12h4M18 12h4"/><path d="M12 6v12"/>
+              </svg>
+            </div>
+            <div><div class="home-card-title">TC</div><div class="home-card-sub">RTC, classe e isolamento.</div></div>
+            <div class="home-card-arrow">›</div>
+          </div>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="home-section">
+    <div class="home-section-title">Manobra e Proteção</div>
+    <div class="home-grid">
+      <a href="/disjuntor-mt" class="home-card">
+        <div class="home-card-inner">
+          <div class="home-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 6h6l4 12h6"/><path d="M7 18h3M14 6h3"/></svg>
+          </div>
+          <div><div class="home-card-title">Disjuntor MT</div><div class="home-card-sub">Resistência de contato e isolamento em média tensão.</div></div>
+          <div class="home-card-arrow">›</div>
+        </div>
+      </a>
+
+      <div class="home-grid two-cols">
+        <a href="/disjuntor-bt" class="home-card">
+          <div class="home-card-inner">
+            <div class="home-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6M9 12h6M9 16h4"/></svg>
+            </div>
+            <div><div class="home-card-title">Disjuntor BT</div><div class="home-card-sub">Contato e isolamento.</div></div>
+            <div class="home-card-arrow">›</div>
+          </div>
+        </a>
+
+        <a href="/seccionadora" class="home-card">
+          <div class="home-card-inner">
+            <div class="home-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 17h5l8-10h5"/><circle cx="7" cy="17" r="1.5"/><circle cx="17" cy="7" r="1.5"/></svg>
+            </div>
+            <div><div class="home-card-title">Seccionadora</div><div class="home-card-sub">Contato e isolamento.</div></div>
+            <div class="home-card-arrow">›</div>
+          </div>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="home-section">
+    <div class="home-section-title">Malha de Aterramento</div>
+    <div class="home-grid two-cols">
+      <a href="/res-malha" class="home-card">
+        <div class="home-card-inner">
+          <div class="home-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 3v11"/><path d="M6 14h12M8 18h8M10 21h4"/></svg>
+          </div>
+          <div><div class="home-card-title">Resistência</div><div class="home-card-sub">Método 52/62/72%.</div></div>
+          <div class="home-card-arrow">›</div>
+        </div>
+      </a>
+
+      <a href="/cont-malha" class="home-card">
+        <div class="home-card-inner">
+          <div class="home-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 12h4l2-5 4 10 2-5h4"/></svg>
+          </div>
+          <div><div class="home-card-title">Continuidade</div><div class="home-card-sub">Integridade das ligações.</div></div>
+          <div class="home-card-arrow">›</div>
+        </div>
+      </a>
+    </div>
+  </section>
+
+  <section class="home-section">
+    <div class="home-section-title">Usina Solar</div>
+    <div class="home-grid">
+      <a href="/cabos-cc" class="home-card">
+        <div class="home-card-inner">
+          <div class="home-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <rect x="3" y="5" width="14" height="10" rx="1"/><path d="M7 5v10M12 5v10M3 10h14"/><path d="M18 9h3M19.5 7.5v3"/><path d="M18 14h3"/>
+            </svg>
+          </div>
+          <div><div class="home-card-title">Strings CC</div><div class="home-card-sub">Voc, tensões para terra, diagnóstico e RISO.</div></div>
+          <div class="home-card-arrow">›</div>
+        </div>
+      </a>
+    </div>
+  </section>
+
+  <section class="home-section">
+    <div class="home-section-title">Ferramentas</div>
+    <div class="home-grid">
+      <a href="/conversor-resistencia" class="home-card">
+        <div class="home-card-inner">
+          <div class="home-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <line x1="1" y1="12" x2="5" y2="12"/><polyline points="5,12 7,7 9,17 11,7 13,17 15,7 17,17 19,12"/><line x1="19" y1="12" x2="23" y2="12"/>
+            </svg>
+          </div>
+          <div><div class="home-card-title">Conversor de Resistência</div><div class="home-card-sub">µΩ, mΩ, Ω, kΩ, MΩ, GΩ e TΩ.</div></div>
+          <div class="home-card-arrow">›</div>
+        </div>
+      </a>
+    </div>
+  </section>
+
+  <footer class="home-footer">
+    Ferramenta de apoio de campo<br>
+    Desenvolvido por <b>MD Soluções Tecnológicas</b>
+  </footer>
+</div>
+
 <script>
-function atualizarSync(){const n=lerFilaSync().length;document.getElementById('syncCount').textContent=n;document.getElementById('syncBox').classList.toggle('d-none',n===0);}document.addEventListener('portal:sync-atualizado',atualizarSync);window.addEventListener('online',atualizarSync);atualizarSync();
-let deferredPrompt=null;window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredPrompt=e;document.getElementById('installBox').classList.remove('d-none');});document.getElementById('btnInstall').addEventListener('click',async()=>{if(!deferredPrompt)return;deferredPrompt.prompt();await deferredPrompt.userChoice;deferredPrompt=null;document.getElementById('installBox').classList.add('d-none');});if('serviceWorker'in navigator)navigator.serviceWorker.register('/sw.js');
-</script></body></html>
+  function atualizarSyncHome() {
+    const fila = typeof lerFilaSync === 'function'
+      ? lerFilaSync()
+      : JSON.parse(localStorage.getItem('sync_queue') || '[]');
+
+    const btn = document.getElementById('btnSync');
+    const count = document.getElementById('countSync');
+
+    if (fila.length > 0) {
+      btn.style.display = 'block';
+      count.textContent = fila.length;
+    } else {
+      btn.style.display = 'none';
+    }
+  }
+
+  async function sincronizarAgoraHome() {
+    const btn = document.getElementById('btnSync');
+    btn.disabled = true;
+    btn.textContent = '☁ SINCRONIZANDO...';
+    try {
+      if (typeof sincronizarFila === 'function') await sincronizarFila();
+    } finally {
+      btn.disabled = false;
+      atualizarSyncHome();
+    }
+  }
+
+  window.addEventListener('online', atualizarSyncHome);
+  document.addEventListener('portal:sync-atualizado', atualizarSyncHome);
+
+  let deferredPrompt = null;
+  const installBanner = document.getElementById('installBanner');
+  const btnInstall = document.getElementById('btnInstall');
+
+  window.addEventListener('beforeinstallprompt', e => {
+    e.preventDefault();
+    deferredPrompt = e;
+    installBanner.style.display = 'block';
+  });
+
+  btnInstall.addEventListener('click', async () => {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    await deferredPrompt.userChoice;
+    deferredPrompt = null;
+    installBanner.style.display = 'none';
+  });
+
+  window.addEventListener('appinstalled', () => {
+    installBanner.style.display = 'none';
+  });
+
+  const ehIOS = () => /iphone|ipad|ipod/i.test(navigator.userAgent);
+  const standaloneIOS = () => ('standalone' in navigator) && navigator.standalone;
+
+  if (ehIOS() && !standaloneIOS()) {
+    document.getElementById('iosInstallBanner').style.display = 'block';
+  }
+
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/sw.js');
+  }
+
+  document.addEventListener('DOMContentLoaded', atualizarSyncHome);
+</script>
+</body>
+</html>
