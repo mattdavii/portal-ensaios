@@ -43,3 +43,28 @@
 .internal-card-title{font-weight:820;font-size:.88rem;color:var(--texto)}
 .internal-card-sub{color:var(--texto-muted);font-size:.7rem;line-height:1.35;margin-top:2px}
 .internal-card-arrow{margin-left:auto;color:#b6b0a6;font-size:1.1rem;font-weight:700}
+
+/* ---------- Navegação destacada V2.4 ---------- */
+.page-back{
+  display:inline-flex !important;
+  align-items:center;
+  gap:6px;
+  padding:8px 10px;
+  border-radius:9px;
+  background:rgba(255,255,255,.12);
+  border:1px solid rgba(255,255,255,.20);
+  color:#fff !important;
+  text-decoration:none !important;
+  font-size:.72rem !important;
+  font-weight:800 !important;
+  opacity:1 !important;
+  transition:background .15s ease, transform .1s ease;
+  white-space:nowrap;
+}
+.page-back:hover{background:rgba(255,255,255,.18)}
+.page-back:active{transform:scale(.97)}
+.page-back::before{
+  content:"←";
+  font-size:.9rem;
+  line-height:1;
+}

@@ -1,30 +1,468 @@
-<!DOCTYPE html><html lang="pt-br"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Strings CC</title><link rel="manifest" href="/manifest.json"><meta name="theme-color" content="#1c2128"><link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"><link rel="stylesheet" href="/style.css"><script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script><script src="/ui.js"></script><script src="/rascunho.js"></script></head><body>
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Strings CC</title>
+
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#1c2128">
+  <link rel="apple-touch-icon" href="/logo.png">
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/style.css">
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <script src="/ui.js"></script>
+  <script src="/rascunho.js"></script>
+</head>
+
+<body>
 <div class="page-shell">
-<section class="page-hero no-print">
-  <div class="page-hero-row">
-    <a href="/" class="page-back">← Menu</a>
-    <div class="page-hero-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="5" width="14" height="10" rx="1"/><path d="M7 5v10M12 5v10M3 10h14"/><path d="M18 9h3M19.5 7.5v3"/><path d="M18 14h3"/></svg></div>
-    <div class="page-hero-text"><h1 class="page-title">Strings CC</h1><div class="page-subtitle">Voc e diagnóstico por tensões para terra.</div></div>
+
+  <section class="page-hero no-print">
+    <div class="page-hero-row">
+      <a href="/" class="page-back">Menu</a>
+
+      <div class="page-hero-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <rect x="3" y="5" width="14" height="10" rx="1"/>
+          <path d="M7 5v10M12 5v10M3 10h14"/>
+          <path d="M18 9h3M19.5 7.5v3"/>
+          <path d="M18 14h3"/>
+        </svg>
+      </div>
+
+      <div class="page-hero-text">
+        <h1 class="page-title">Strings CC</h1>
+        <div class="page-subtitle">Voc e diagnóstico por tensões para terra.</div>
+      </div>
+    </div>
+
+    <div class="page-chip-row">
+      <span class="page-chip">⚡ Campo</span>
+      <span class="page-chip">✓ Validação</span>
+      <span class="page-chip">▣ PDF para OS</span>
+    </div>
+  </section>
+
+  <div class="container" style="max-width:620px;padding:0;">
+    <form id="formStrings">
+
+      <div class="card-instrumento">
+        <div class="label-row">
+          <span class="label-tech">Identificação</span>
+        </div>
+
+        <div class="row g-2 mb-2">
+          <div class="col-7">
+            <label class="field-label">Usina</label>
+            <input id="usina" class="form-control" required>
+          </div>
+          <div class="col-5">
+            <label class="field-label">OS</label>
+            <input id="os" class="form-control">
+          </div>
+        </div>
+
+        <div class="row g-2 mb-2">
+          <div class="col-7">
+            <label class="field-label">Técnico</label>
+            <input id="tecnico" class="form-control" required>
+          </div>
+          <div class="col-5">
+            <label class="field-label">Skid</label>
+            <input id="skid" class="form-control">
+          </div>
+        </div>
+
+        <div class="row g-2">
+          <div class="col-6">
+            <label class="field-label">Inversor</label>
+            <input id="inversor" class="form-control">
+          </div>
+          <div class="col-6">
+            <label class="field-label">Quantidade de strings</label>
+            <input type="number" id="qtd_strings" min="1" max="100"
+                   class="form-control dado" oninput="gerarStrings()" required>
+          </div>
+        </div>
+      </div>
+
+      <div class="card-instrumento">
+        <div class="label-row">
+          <span class="label-tech">Dados do Módulo</span>
+          <button type="button" class="btn-info-ensaio"
+            onclick="abrirInfo('Como funciona a correção de Voc', `
+              <h6>Voc STC</h6>
+              <p>Informe a tensão de circuito aberto do módulo nas condições STC, conforme o datasheet.</p>
+              <h6>Coeficiente βVoc</h6>
+              <p>Informe o coeficiente de temperatura da tensão em <b>%/°C</b>. Normalmente ele é negativo.</p>
+              <h6>Temperatura do módulo</h6>
+              <p>Use a temperatura do módulo no momento da medição, não apenas a temperatura ambiente.</p>
+              <h6>Por que corrigir?</h6>
+              <p>A Voc varia com a temperatura. O Portal corrige a Voc esperada da string antes de comparar com a medição de campo.</p>
+            `)">i</button>
+        </div>
+
+        <div class="row g-2 mb-2">
+          <div class="col-6">
+            <label class="field-label">Módulos por string</label>
+            <input type="number" id="n_modulos" min="1" class="form-control dado" required>
+          </div>
+          <div class="col-6">
+            <label class="field-label">Voc STC do módulo</label>
+            <div class="input-group">
+              <input type="number" step="0.01" id="voc_stc" class="form-control dado" required>
+              <span class="input-group-text">V</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="row g-2 mb-2">
+          <div class="col-6">
+            <label class="field-label">βVoc</label>
+            <div class="input-group">
+              <input type="number" step="0.001" id="beta_voc" class="form-control dado"
+                     placeholder="-0.25" required>
+              <span class="input-group-text">%/°C</span>
+            </div>
+          </div>
+
+          <div class="col-6">
+            <label class="field-label">Temperatura do módulo</label>
+            <div class="input-group">
+              <input type="number" step="0.1" id="temperatura_modulo"
+                     class="form-control dado" required>
+              <span class="input-group-text">°C</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="row g-2">
+          <div class="col-7">
+            <label class="field-label">Tolerância da Voc</label>
+            <select id="tol_voc" class="form-select" onchange="atualizarToleranciaCustom()">
+              <option value="0.03">3%</option>
+              <option value="0.05" selected>5%</option>
+              <option value="custom">Personalizada</option>
+            </select>
+          </div>
+          <div class="col-5 d-none" id="box_tol_custom">
+            <label class="field-label">Personalizada</label>
+            <div class="input-group">
+              <input type="number" min="0.1" step="0.1" id="tol_custom"
+                     class="form-control dado" value="5">
+              <span class="input-group-text">%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card-instrumento">
+        <div class="label-row">
+          <span class="label-tech">Medições das Strings</span>
+          <button type="button" class="btn-info-ensaio"
+            onclick="abrirInfo('Diagnóstico pelas tensões para terra', `
+              <h6>O que medir?</h6>
+              <p>Para cada string, registre <b>Voc</b>, <b>V+ para terra</b> e <b>V− para terra</b>.</p>
+
+              <h6>Como o Portal interpreta?</h6>
+              <p>O Portal utiliza o módulo das tensões para terra e verifica se a soma <b>|V+/PE| + |V−/PE|</b> é coerente com a Voc medida da string.</p>
+
+              <h6>Por que isso é útil?</h6>
+              <p>Em um circuito CC flutuante, uma alteração significativa nessa relação pode indicar uma condição anormal de isolamento ou referência para terra.</p>
+
+              <h6>Importante</h6>
+              <p>Essa análise é um <b>diagnóstico auxiliar</b>. Ela não substitui o ensaio de resistência de isolamento. Quando houver necessidade de RISO, utilize a página específica <b>RISO de Strings</b>.</p>
+            `)">i</button>
+        </div>
+
+        <div class="info-strip">
+          Registre as três tensões de cada string. O diagnóstico para terra é apenas auxiliar e é tratado separadamente do ensaio de RISO.
+        </div>
+
+        <div id="lista_strings"></div>
+      </div>
+
+      <div class="card-instrumento no-print">
+        <div class="label-row">
+          <span class="label-tech">Ensaio complementar</span>
+        </div>
+
+        <a href="/riso-strings" class="internal-card-link">
+          <div class="internal-card-inner">
+            <div class="page-hero-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path d="M4 12h5l2-6 4 12 2-6h3"/>
+                <path d="M5 19h14"/>
+                <path d="M8 3h8"/>
+              </svg>
+            </div>
+
+            <div>
+              <div class="internal-card-title">RISO de Strings</div>
+              <div class="internal-card-sub">
+                Ensaio independente dos cabos positivo e negativo com o circuito aberto.
+              </div>
+            </div>
+
+            <div class="internal-card-arrow">›</div>
+          </div>
+        </a>
+      </div>
+
+      <div class="card-instrumento">
+        <span class="label-tech">Observações</span>
+        <textarea id="observacoes" class="form-control" rows="3"
+                  placeholder="Registre condições de campo, anormalidades ou observações."></textarea>
+      </div>
+
+      <button type="submit" class="btn btn-instrumento no-print">
+        GERAR REGISTRO E SALVAR
+      </button>
+    </form>
+
+    <div id="box_laudo" class="card-instrumento d-none mt-3">
+      <h6 class="text-center fw-bold border-bottom pb-2 mb-3">
+        REGISTRO DE CAMPO — STRINGS CC
+      </h6>
+
+      <div id="laudo_render"></div>
+
+      <div class="page-actions two no-print">
+        <button type="button" class="btn btn-instrumento-outline"
+                onclick="baixarPDF('box_laudo','Strings_CC',textoCampo('inversor') || 'Strings')">
+          Baixar PDF
+        </button>
+
+        <button type="button" class="btn btn-instrumento"
+                onclick="compartilharPDF('box_laudo','Strings_CC',textoCampo('inversor') || 'Strings')">
+          Compartilhar PDF
+        </button>
+      </div>
+    </div>
   </div>
-  <div class="page-chip-row"><span class="page-chip">⚡ Campo</span><span class="page-chip">✓ Validação</span><span class="page-chip">▣ PDF para OS</span></div>
-</section>
-<div class="container" style="max-width:620px;padding:0;"><form id="formCC">
-<div class="card-instrumento no-print">
-<div class="label-row"><span class="label-tech">Ensaios de Strings</span></div>
-<a href="/riso-strings" class="internal-card-link"><div class="internal-card-inner">
-<div class="page-hero-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 12h5l2-6 4 12 2-6h3"/><path d="M5 19h14"/><path d="M8 3h8"/></svg></div>
-<div><div class="internal-card-title">RISO de Strings</div><div class="internal-card-sub">Ensaio separado dos cabos positivo e negativo com circuito aberto e cabos soltos dos módulos.</div></div>
-<div class="internal-card-arrow">›</div></div></a>
 </div>
-<div class="card-instrumento"><span class="label-tech">Observações</span><textarea id="observacoes" class="form-control" rows="3"></textarea></div><button class="btn btn-instrumento" type="submit">GERAR REGISTRO E SALVAR</button></form><div id="box_laudo" class="card-instrumento d-none mt-4"><h6 class="text-center fw-bold border-bottom pb-2">REGISTRO DE CAMPO — STRINGS CC</h6><div id="laudo_render"></div><div class="row g-2 mt-3 no-print"><div class="col"><button class="btn btn-instrumento-outline" onclick="baixarPDF('box_laudo','Strings_CC',textoCampo('inversor')||'Strings')">Baixar PDF</button></div><div class="col"><button class="btn btn-instrumento" onclick="compartilharPDF('box_laudo','Strings_CC',textoCampo('inversor')||'Strings')">Compartilhar PDF</button></div></div></div></div>
+
 <script>
-const INFO_ID=`<h6>Uso em campo</h6><p>Usina e Técnico ficam memorizados localmente. A OS permanece específica de cada atividade.</p>`;
-const INFO_VOC=`<h6>Por que usar a temperatura do módulo</h6><p>A tensão de circuito aberto varia com a temperatura das células/módulo. Por isso o Portal corrige a Voc de referência usando <b>temperatura do módulo</b>, e não apenas a temperatura do módulo.</p><h6>Cálculo</h6><p>Voc esperada = quantidade de módulos × Voc STC × correção pelo coeficiente βVoc.</p><h6>Tolerância</h6><p>Você pode selecionar 3%, 5% ou informar uma tolerância personalizada conforme o critério adotado no ensaio ou no datasheet.</p>`;
-const INFO_TERRA=`<h6>O que está sendo medido</h6><p>São registradas a Voc total da string, a tensão do polo positivo para terra (V+/PE) e a tensão do polo negativo para terra (V-/PE).</p><h6>Por que usar módulo das tensões</h6><p>Dependendo da referência e do sentido das pontas do multímetro, V-/PE pode aparecer com sinal negativo. Para avaliar a distribuição de potencial, o Portal usa os <b>módulos</b> das tensões.</p><h6>Como o diagnóstico funciona</h6><p>Em uma string flutuante, a soma aproximada |V+/PE| + |V-/PE| tende a ser coerente com a Voc entre polos. O Portal compara essa soma com a Voc e usa uma faixa operacional de 8% para sinalizar padrões fora do esperado.</p><h6>Importante</h6><p>Esse comportamento é apenas um <b>indicador de campo</b>. Uma tensão aparentemente coerente não comprova ausência de fuga. Quando houver suspeita, o diagnóstico deve ser confirmado por ensaio de resistência de isolamento e procedimentos aplicáveis.</p>`;
-const INFO_RISO=`<h6>Função</h6><p>O ensaio de isolamento é a confirmação mais direta quando o diagnóstico de tensões para terra indicar possível fuga.</p><h6>Status do Portal</h6><p><b>≥ 1000 MΩ:</b> CONFORME.<br><b>&lt; 1000 MΩ:</b> APROVADO COM RESSALVA.</p>`;
-document.getElementById('tol_voc').addEventListener('change',()=>document.getElementById('tol_custom_box').classList.toggle('d-none',textoCampo('tol_voc')!=='custom'));
-function tolerancia(){return textoCampo('tol_voc')==='custom'?(numeroCampo('tol_custom')??5)/100:Number(textoCampo('tol_voc'));}
-function gerarStrings(){const q=Math.min(40,Math.max(0,parseInt(document.getElementById('qtd_strings').value)||0)),c=document.getElementById('strings');c.innerHTML='';for(let i=1;i<=q;i++)c.innerHTML+=`<div class="subcard"><div class="row g-2"><div class="col-3"><input id="tag_${i}" class="form-control dado" value="ST ${i}" placeholder="TAG"></div><div class="col-3"><input type="number" step="any" id="voc_${i}" class="form-control dado" placeholder="Voc"></div><div class="col-3"><input type="number" step="any" id="vp_${i}" class="form-control dado" placeholder="V+/T"></div><div class="col-3"><input type="number" step="any" id="vn_${i}" class="form-control dado" placeholder="V-/T"></div></div></div>`;}
-function vocEsperada(){const n=numeroCampo('n_modulos'),v=numeroCampo('voc_stc'),b=numeroCampo('beta_voc'),t=numeroCampo('temperatura_modulo');return[n,v,b,t].some(x=>x===null)?null:n*v*(1+(b/100)*(t-25));}
-</script></div>
-</body></html>
+function atualizarToleranciaCustom() {
+  const custom = document.getElementById('tol_voc').value === 'custom';
+  document.getElementById('box_tol_custom').classList.toggle('d-none', !custom);
+}
+
+function toleranciaVoc() {
+  const seletor = document.getElementById('tol_voc').value;
+  if (seletor === 'custom') {
+    const pct = numeroCampo('tol_custom');
+    return pct === null ? 0.05 : pct / 100;
+  }
+  return Number(seletor);
+}
+
+function gerarStrings() {
+  const qtd = parseInt(document.getElementById('qtd_strings').value || '0', 10);
+  const box = document.getElementById('lista_strings');
+  box.innerHTML = '';
+
+  for (let i = 1; i <= qtd; i++) {
+    box.insertAdjacentHTML('beforeend', `
+      <div class="subcard">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <strong>String ${i}</strong>
+          <input id="tag_${i}" class="form-control form-control-sm"
+                 style="max-width:180px" value="String ${i}">
+        </div>
+
+        <div class="row g-2">
+          <div class="col-4">
+            <label class="field-label">Voc</label>
+            <div class="input-group">
+              <input type="number" step="0.1" id="voc_${i}"
+                     class="form-control dado" required>
+              <span class="input-group-text">V</span>
+            </div>
+          </div>
+
+          <div class="col-4">
+            <label class="field-label">V+ → Terra</label>
+            <div class="input-group">
+              <input type="number" step="0.1" id="vp_${i}"
+                     class="form-control dado" required>
+              <span class="input-group-text">V</span>
+            </div>
+          </div>
+
+          <div class="col-4">
+            <label class="field-label">V− → Terra</label>
+            <div class="input-group">
+              <input type="number" step="0.1" id="vn_${i}"
+                     class="form-control dado" required>
+              <span class="input-group-text">V</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    `);
+  }
+}
+
+function calcularResultadoLocal(voc, vp, vn, nMod, vocStc, beta, temp, tol) {
+  const vocEsperada = nMod * vocStc * (1 + (beta / 100) * (temp - 25));
+  const desvioVoc = vocEsperada !== 0 ? Math.abs(voc - vocEsperada) / Math.abs(vocEsperada) : null;
+  const stVoc = desvioVoc !== null && desvioVoc <= tol ? STATUS.CONFORME : STATUS.ATENCAO;
+
+  const vpAbs = Math.abs(vp);
+  const vnAbs = Math.abs(vn);
+  const vocAbs = Math.abs(voc);
+  const erroFech = vocAbs > 0 ? Math.abs((vpAbs + vnAbs) - vocAbs) / vocAbs : null;
+
+  let stDiag, diagnostico;
+  if (erroFech === null) {
+    stDiag = STATUS.NAO_AVALIADO;
+    diagnostico = 'Dados insuficientes para avaliação.';
+  } else if (erroFech <= 0.08) {
+    stDiag = STATUS.CONFORME;
+    diagnostico = 'Tensões para terra coerentes com a Voc medida.';
+  } else {
+    stDiag = STATUS.ATENCAO;
+    diagnostico = 'Tensões para terra fora da coerência esperada. Avaliar a condição da string.';
+  }
+
+  return {
+    vocEsperada,
+    desvioVoc,
+    erroFech,
+    stVoc,
+    stDiag,
+    diagnostico,
+    geral: statusGeral([stVoc, stDiag])
+  };
+}
+
+document.getElementById('formStrings').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  salvarContextoCampo();
+
+  const usina = textoCampo('usina');
+  const os = textoCampo('os');
+  const tecnico = textoCampo('tecnico');
+  const skid = textoCampo('skid');
+  const inversor = textoCampo('inversor');
+  const obs = textoCampo('observacoes');
+
+  const qtd = parseInt(document.getElementById('qtd_strings').value || '0', 10);
+  const nMod = numeroCampo('n_modulos');
+  const vocStc = numeroCampo('voc_stc');
+  const beta = numeroCampo('beta_voc');
+  const temp = numeroCampo('temperatura_modulo');
+  const tol = toleranciaVoc();
+
+  const payloads = [];
+  const statuses = [];
+  let linhas = '';
+
+  for (let i = 1; i <= qtd; i++) {
+    const tag = textoCampo(`tag_${i}`) || `String ${i}`;
+    const voc = numeroCampo(`voc_${i}`);
+    const vp = numeroCampo(`vp_${i}`);
+    const vn = numeroCampo(`vn_${i}`);
+
+    const r = calcularResultadoLocal(voc, vp, vn, nMod, vocStc, beta, temp, tol);
+    statuses.push(r.geral);
+
+    payloads.push({
+      usina,
+      tag,
+      tecnico: tecnico || null,
+      os: os || null,
+      observacoes: obs || null,
+      skid: skid || null,
+      inversor: inversor || null,
+      origem: 'Campo',
+      destino: 'Campo',
+      voc,
+      v_pos_terra: vp,
+      v_neg_terra: vn,
+      n_modulos: nMod,
+      voc_stc: vocStc,
+      beta_voc: beta,
+      temperatura_modulo: temp,
+      tolerancia_voc: tol
+    });
+
+    linhas += `
+      <tr>
+        <td>${escaparHtml(tag)}</td>
+        <td>
+          <span class="valor-mono">${voc}</span><br>
+          <span style="font-size:.65rem;color:var(--texto-muted)">
+            Esp.: ${r.vocEsperada.toFixed(1)} V
+          </span><br>
+          ${badgeStatus(r.stVoc)}
+        </td>
+        <td><span class="valor-mono">${vp}</span></td>
+        <td><span class="valor-mono">${vn}</span></td>
+        <td>
+          ${badgeStatus(r.stDiag)}
+          <div style="font-size:.62rem;margin-top:4px">
+            ${r.erroFech !== null ? (r.erroFech*100).toFixed(1)+'%' : '-'}
+          </div>
+        </td>
+      </tr>`;
+  }
+
+  await salvarLoteComFila('/api/sync/cabos-cc', payloads, 'Strings CC salvas');
+
+  const geral = statusGeral(statuses);
+
+  document.getElementById('laudo_render').innerHTML = `
+    ${seloStatus(geral)}
+
+    <div class="header-laudo">
+      <div class="row g-2">
+        <div class="col-6"><b>Usina:</b> ${escaparHtml(usina)}</div>
+        <div class="col-6"><b>OS:</b> ${escaparHtml(os || '-')}</div>
+        <div class="col-6"><b>Técnico:</b> ${escaparHtml(tecnico)}</div>
+        <div class="col-6"><b>Data/hora:</b> ${dataHoraLocalTexto()}</div>
+        <div class="col-6"><b>Skid:</b> ${escaparHtml(skid || '-')}</div>
+        <div class="col-6"><b>Inversor:</b> ${escaparHtml(inversor || '-')}</div>
+        <div class="col-6"><b>Módulos/string:</b> ${nMod}</div>
+        <div class="col-6"><b>Temperatura módulo:</b> ${temp} °C</div>
+        <div class="col-6"><b>Voc módulo STC:</b> ${vocStc} V</div>
+        <div class="col-6"><b>Tolerância:</b> ${(tol*100).toFixed(1)}%</div>
+      </div>
+    </div>
+
+    <table class="table-laudo">
+      <thead>
+        <tr>
+          <th>String</th>
+          <th>Voc</th>
+          <th>V+ → Terra</th>
+          <th>V− → Terra</th>
+          <th>Diagnóstico</th>
+        </tr>
+      </thead>
+      <tbody>${linhas}</tbody>
+    </table>
+
+    <div class="info-strip">
+      O diagnóstico por tensões para terra é auxiliar e não substitui o ensaio de RISO.
+    </div>
+
+    <div class="mt-3">
+      <b>Observações</b>
+      <div class="observacao-laudo mt-1">${escaparHtml(obs || '-')}</div>
+    </div>
+  `;
+
+  limparRascunho('cabos_cc');
+  document.getElementById('box_laudo').classList.remove('d-none');
+  document.getElementById('box_laudo').scrollIntoView({behavior:'smooth'});
+});
+
+iniciarRascunho('cabos_cc');
+</script>
+</body>
+</html>
