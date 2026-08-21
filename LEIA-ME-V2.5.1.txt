@@ -1,0 +1,1 @@
+Atualização V2.5.1: adicionada opção de tensão de ensaio 10000 V no RISO de Cabos CA/MT.
