@@ -74,6 +74,38 @@
       border:0;background:var(--grafite);color:#fff;border-radius:8px;font-size:.7rem;
       font-weight:800;padding:8px 10px;white-space:nowrap
     }
+
+    .update-card{
+      display:none;
+      background:linear-gradient(135deg,#fffaf2,#fff);
+      border:1px solid #f0d2a5;
+      border-left:4px solid var(--ambar);
+      border-radius:12px;
+      padding:12px 13px;
+      margin-bottom:12px;
+      box-shadow:0 3px 10px rgba(28,33,40,.06)
+    }
+    .update-card.show{display:block}
+    .update-row{display:flex;align-items:center;gap:12px}
+    .update-icon{
+      width:38px;height:38px;flex:0 0 38px;border-radius:10px;
+      display:flex;align-items:center;justify-content:center;
+      background:var(--ambar-suave);color:var(--ambar);font-size:1.15rem;font-weight:900
+    }
+    .update-content{flex:1;min-width:0}
+    .update-title{font-weight:850;font-size:.8rem;color:var(--texto)}
+    .update-text{color:var(--texto-muted);font-size:.68rem;line-height:1.35;margin-top:2px}
+    .update-card button{
+      border:0;background:var(--ambar);color:#fff;border-radius:8px;
+      font-size:.68rem;font-weight:850;padding:9px 10px;white-space:nowrap;
+      box-shadow:0 3px 9px rgba(217,119,6,.2)
+    }
+    .update-card button:disabled{opacity:.65}
+    .home-version{
+      display:inline-block;margin-top:5px;padding:3px 7px;border-radius:999px;
+      background:#f1eee8;color:#817b72;font-size:.61rem;font-weight:750
+    }
+
     .home-footer{text-align:center;color:var(--texto-muted);font-size:.7rem;margin:28px 0 6px}
     .home-footer b{color:var(--texto)}
     @media(min-width:520px){.home-grid.two-cols{grid-template-columns:1fr 1fr}}
@@ -115,6 +147,18 @@
   <div id="iosInstallBanner" class="install-card no-print">
     <div class="install-title">Adicionar à Tela de Início</div>
     <div class="install-text">No Safari, toque em <b>Compartilhar</b> e depois em <b>Adicionar à Tela de Início</b>.</div>
+  </div>
+
+
+  <div id="updateBanner" class="update-card no-print" role="status" aria-live="polite">
+    <div class="update-row">
+      <div class="update-icon">↻</div>
+      <div class="update-content">
+        <div class="update-title">Nova versão disponível</div>
+        <div class="update-text">Uma atualização do Portal de Ensaios está pronta.</div>
+      </div>
+      <button id="btnUpdatePWA" type="button" onclick="atualizarPortalAgora()">ATUALIZAR AGORA</button>
+    </div>
   </div>
 
   <button id="btnSync" type="button" class="home-sync no-print" onclick="sincronizarAgoraHome()">
@@ -287,7 +331,8 @@
 
   <footer class="home-footer">
     Ferramenta de apoio de campo<br>
-    Desenvolvido por <b>MD Soluções Tecnológicas</b>
+    Desenvolvido por <b>MD Soluções Tecnológicas</b><br>
+    <span class="home-version">Portal de Ensaios · v2.5.4</span>
   </footer>
 </div>
 
@@ -352,8 +397,102 @@
     document.getElementById('iosInstallBanner').style.display = 'block';
   }
 
+  // ============================
+  // Atualização controlada do PWA
+  // ============================
+  let registroSW = null;
+  let atualizandoPortal = false;
+
+  function mostrarAtualizacaoPWA() {
+    const banner = document.getElementById('updateBanner');
+    if (banner) banner.classList.add('show');
+  }
+
+  function ocultarAtualizacaoPWA() {
+    const banner = document.getElementById('updateBanner');
+    if (banner) banner.classList.remove('show');
+  }
+
+  async function atualizarPortalAgora() {
+    if (!registroSW || !registroSW.waiting || atualizandoPortal) return;
+
+    atualizandoPortal = true;
+
+    const btn = document.getElementById('btnUpdatePWA');
+    if (btn) {
+      btn.disabled = true;
+      btn.textContent = 'ATUALIZANDO...';
+    }
+
+    // Solicita que a versão nova assuma o controle.
+    registroSW.waiting.postMessage({ type: 'SKIP_WAITING' });
+
+    // Fallback: se o navegador demorar a trocar o controlador,
+    // libera o botão após alguns segundos sem perder a página.
+    setTimeout(() => {
+      if (!atualizandoPortal) return;
+      atualizandoPortal = false;
+      if (btn) {
+        btn.disabled = false;
+        btn.textContent = 'ATUALIZAR AGORA';
+      }
+    }, 10000);
+  }
+
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('/sw.js');
+    window.addEventListener('load', async () => {
+      try {
+        registroSW = await navigator.serviceWorker.register('/sw.js', {
+          updateViaCache: 'none'
+        });
+
+        // Se já existe uma versão nova aguardando, avisa imediatamente.
+        if (registroSW.waiting && navigator.serviceWorker.controller) {
+          mostrarAtualizacaoPWA();
+        }
+
+        // Detecta quando um novo Service Worker é encontrado.
+        registroSW.addEventListener('updatefound', () => {
+          const novoSW = registroSW.installing;
+          if (!novoSW) return;
+
+          novoSW.addEventListener('statechange', () => {
+            if (
+              novoSW.state === 'installed' &&
+              navigator.serviceWorker.controller
+            ) {
+              mostrarAtualizacaoPWA();
+            }
+          });
+        });
+
+        // Força uma consulta por atualização ao abrir a home.
+        await registroSW.update();
+
+        // Verifica novamente quando o usuário volta para o Portal.
+        document.addEventListener('visibilitychange', () => {
+          if (document.visibilityState === 'visible' && registroSW) {
+            registroSW.update().catch(() => {});
+          }
+        });
+
+        // E também a cada 30 minutos enquanto a home permanecer aberta.
+        setInterval(() => {
+          if (registroSW) registroSW.update().catch(() => {});
+        }, 30 * 60 * 1000);
+
+      } catch (erro) {
+        console.warn('Não foi possível verificar atualização do PWA.', erro);
+      }
+    });
+
+    // A recarga ocorre somente depois que o usuário toca em Atualizar agora.
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+      if (!atualizandoPortal) return;
+      atualizandoPortal = false;
+      ocultarAtualizacaoPWA();
+      window.location.reload();
+    });
   }
 
   document.addEventListener('DOMContentLoaded', atualizarSyncHome);
