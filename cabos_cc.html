@@ -165,7 +165,7 @@
           <button type="button" class="btn-info-ensaio"
             onclick="abrirInfo('Diagnóstico pelas tensões para terra', `
               <h6>O que medir?</h6>
-              <p>Para cada string, registre <b>Voc</b>, <b>V+ para terra</b> e <b>V− para terra</b>.</p>
+              <p>Para cada string, registre a <b>VOC medida em campo</b>, <b>V+ para terra</b> e <b>V− para terra</b>.</p>
 
               <h6>Como o Portal interpreta?</h6>
               <p>O Portal compara individualmente o módulo de <b>V+ → Terra</b> e <b>V− → Terra</b> com a <b>Voc medida</b> da própria string.</p>
@@ -286,10 +286,10 @@ function gerarStrings() {
 
         <div class="row g-2">
           <div class="col-4">
-            <label class="field-label">Voc</label>
+            <label class="field-label">VOC Medido</label>
             <div class="input-group">
               <input type="number" step="0.1" id="voc_${i}"
-                     class="form-control dado" required>
+                     class="form-control dado" placeholder="Resultado obtido" required>
               <span class="input-group-text">V</span>
             </div>
           </div>
@@ -326,6 +326,55 @@ function calcularResultadoLocal(voc, vp, vn, nMod, vocStc, beta, temp, tol) {
   const stVoc = desvioVoc !== null && desvioVoc <= tol
     ? STATUS.CONFORME
     : STATUS.ATENCAO;
+
+  const desvioVocAssinado = vocEsperada !== 0
+    ? (voc - vocEsperada) / Math.abs(vocEsperada)
+    : null;
+
+  const vocModuloCorrigida = vocStc * (
+    1 + (beta / 100) * (temp - 25)
+  );
+
+  const modulosEquivalentes = vocModuloCorrigida !== 0
+    ? Math.round(Math.abs(voc) / Math.abs(vocModuloCorrigida))
+    : null;
+
+  const diferencaModulos = modulosEquivalentes !== null
+    ? nMod - modulosEquivalentes
+    : null;
+
+  let observacaoVoc = '';
+
+  if (stVoc === STATUS.ATENCAO && desvioVocAssinado !== null) {
+    const desvioAbs = Math.abs(desvioVocAssinado);
+
+    if (desvioVocAssinado < 0 && desvioAbs <= 0.10) {
+      observacaoVoc =
+        'Voc abaixo do esperado. Verificar módulos com comportamento anormal, ' +
+        'possível atuação de bypass, condição associada a ponto quente/mismatch e conexões.';
+    } else if (desvioVocAssinado < 0 && desvioAbs <= 0.25) {
+      observacaoVoc =
+        'Desvio elevado de Voc. Conferir seriamento, conexões, módulos ou trechos ' +
+        'fora do circuito e confirmar os dados informados do módulo e da temperatura.';
+    } else if (desvioVocAssinado < 0 && desvioAbs > 0.25) {
+      const estimativa = modulosEquivalentes !== null
+        ? ` A Voc medida equivale aproximadamente a ${modulosEquivalentes} módulo(s) em série`
+        : '';
+
+      const diferenca = diferencaModulos !== null && diferencaModulos > 0
+        ? `, cerca de ${diferencaModulos} a menos que os ${nMod} informados.`
+        : '.';
+
+      observacaoVoc =
+        'Desvio muito elevado de Voc. Conferir prioritariamente a quantidade real de módulos ' +
+        'no seriamento, conexões e possíveis trechos/módulos fora do circuito.' +
+        estimativa + diferenca;
+    } else if (desvioVocAssinado > 0) {
+      observacaoVoc =
+        'Voc acima do esperado. Conferir quantidade de módulos, modelo/Voc STC, ' +
+        'coeficiente βVoc e temperatura informada antes da conclusão técnica.';
+    }
+  }
 
   const vocAbs = Math.abs(voc);
   const vpAbs = Math.abs(vp);
@@ -366,6 +415,11 @@ function calcularResultadoLocal(voc, vp, vn, nMod, vocStc, beta, temp, tol) {
   return {
     vocEsperada,
     desvioVoc,
+    desvioVocAssinado,
+    vocModuloCorrigida,
+    modulosEquivalentes,
+    diferencaModulos,
+    observacaoVoc,
     pctPosTerra,
     pctNegTerra,
     pctMaxTerra,
@@ -436,7 +490,24 @@ document.getElementById('formStrings').addEventListener('submit', async (e) => {
           <span style="font-size:.65rem;color:var(--texto-muted)">
             Esp.: ${r.vocEsperada.toFixed(1)} V
           </span><br>
+          <span style="font-size:.62rem;color:var(--texto-muted)">
+            Desvio: ${r.desvioVocAssinado !== null ? (r.desvioVocAssinado*100).toFixed(1)+'%' : '-'}
+          </span><br>
           ${badgeStatus(r.stVoc)}
+          ${r.observacaoVoc ? `
+            <div style="
+              font-size:.58rem;
+              line-height:1.35;
+              margin-top:6px;
+              padding:6px;
+              border-radius:7px;
+              background:#fff7e8;
+              color:#7b4a12;
+              text-align:left;
+            ">
+              ${escaparHtml(r.observacaoVoc)}
+            </div>
+          ` : ''}
         </td>
         <td><span class="valor-mono">${vp}</span></td>
         <td><span class="valor-mono">${vn}</span></td>
@@ -476,7 +547,7 @@ document.getElementById('formStrings').addEventListener('submit', async (e) => {
       <thead>
         <tr>
           <th>String</th>
-          <th>Voc</th>
+          <th>VOC<br>Medido</th>
           <th>V+ → Terra</th>
           <th>V− → Terra</th>
           <th>Diagnóstico<br>Polo-Terra</th>
@@ -486,7 +557,12 @@ document.getElementById('formStrings').addEventListener('submit', async (e) => {
     </table>
 
     <div class="info-strip">
-      Diagnóstico polo-terra: até 10% da Voc = CONFORME; acima de 10% até 15% = ATENÇÃO; acima de 15% = ATENÇÃO com desvio elevado. Este diagnóstico é auxiliar e não substitui o ensaio de RISO.
+      <b>VOC:</b> quando a medição estiver fora da tolerância selecionada, as orientações apresentadas
+      são indicativas e devem ser confirmadas em campo. Desvios muito elevados podem ser compatíveis
+      com quantidade de módulos em série diferente da informada, trechos fora do circuito ou outras
+      anormalidades. A estimativa de módulos é apenas auxiliar.<br><br>
+      <b>Diagnóstico polo-terra:</b> até 10% da Voc = CONFORME; acima de 10% até 15% = ATENÇÃO;
+      acima de 15% = ATENÇÃO com desvio elevado. Este diagnóstico é auxiliar e não substitui o ensaio de RISO.
     </div>
 
     <div class="mt-3">
