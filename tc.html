@@ -1,27 +1,641 @@
-<!DOCTYPE html><html lang="pt-br"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Transformador de Corrente (TC)</title><link rel="manifest" href="/manifest.json"><meta name="theme-color" content="#1c2128"><link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"><link rel="stylesheet" href="/style.css"><script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script><script src="/ui.js"></script><script src="/rascunho.js"></script></head><body>
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Transformador de Corrente (TC)</title>
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#1c2128">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="/style.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script src="/ui.js"></script>
+<script src="/rascunho.js"></script>
+</head>
+<body>
 <div class="page-shell">
+
 <section class="page-hero no-print">
   <div class="page-hero-row">
     <a href="/" class="page-back">Menu</a>
-    <div class="page-hero-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="6"/><path d="M2 12h4M18 12h4"/><path d="M12 6v12"/></svg></div>
-    <div class="page-hero-text"><h1 class="page-title">Transformador de Corrente (TC)</h1><div class="page-subtitle">RTC, classe de exatidão e isolamento.</div></div>
+    <div class="page-hero-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <circle cx="8" cy="12" r="4"/>
+        <circle cx="16" cy="12" r="4"/>
+        <path d="M2 12h2M20 12h2"/>
+      </svg>
+    </div>
+    <div class="page-hero-text">
+      <h1 class="page-title">Transformador de Corrente (TC)</h1>
+      <div class="page-subtitle">Relação, secundários, resistência ôhmica e isolamento.</div>
+    </div>
   </div>
-  <div class="page-chip-row"><span class="page-chip">⚡ Campo</span><span class="page-chip">✓ Validação</span><span class="page-chip">▣ PDF para OS</span></div>
+  <div class="page-chip-row">
+    <span class="page-chip">⚡ Campo</span>
+    <span class="page-chip">✓ Validação</span>
+    <span class="page-chip">▣ PDF para OS</span>
+  </div>
 </section>
-<div class="container" style="max-width:620px;padding:0;"><form id="formInst">
-<div class="card-instrumento"><div class="label-row"><span class="label-tech">Identificação e classe</span><button type="button" class="btn-info-ensaio" onclick="abrirInfo('Classe de exatidão — TC',INFO_CLASSE)">i</button></div><div class="row g-2 mb-2"><div class="col"><input id="usina" class="form-control" placeholder="Usina" required></div><div class="col"><input id="tecnico" class="form-control" placeholder="Técnico"></div></div><div class="row g-2 mb-2"><div class="col"><input id="os" class="form-control" placeholder="OS"></div><div class="col"><input id="tag" class="form-control dado" placeholder="TAG TC" required></div></div><div class="row g-2"><div class="col-6"><label class="field-label">Finalidade</label><select id="finalidade" class="form-select"><option value="Medição">Medição</option><option value="Proteção">Proteção</option></select></div><div class="col-6"><label class="field-label">Classe de exatidão</label><select id="classe" class="form-select"><option>0,1</option><option>0,2</option><option>0,2S</option><option selected>0,5</option><option>0,5S</option><option>1</option><option>5P10</option><option>5P20</option><option>10P10</option><option>10P20</option></select></div></div></div>
-<div class="card-instrumento"><div class="label-row"><span class="label-tech">Relação de Corrente (RTC)</span><button type="button" class="btn-info-ensaio" onclick="abrirInfo('Relação de Corrente (RTC)',INFO_REL)">i</button></div><span class="norma-tech">O limite de erro é escolhido conforme a classe informada. Quando não houver mapeamento automático, o resultado fica NÃO AVALIADO em vez de reprovar incorretamente.</span><div class="row g-2 mb-2"><div class="col"><label class="field-label">Corrente primária (A)</label><input type="number" step="any" id="vpri" class="form-control dado" required></div><div class="col"><label class="field-label">Corrente secundária (A)</label><input type="number" step="any" id="vsec" class="form-control dado" required></div><div class="col"><label class="field-label">Relação teórica</label><input id="rn" class="form-control dado" readonly></div></div><div class="row g-2"><div class="col-6"><label class="field-label">Relação medida</label><input type="number" step="any" id="medido" class="form-control dado"></div></div></div>
-<div class="card-instrumento"><div class="label-row"><span class="label-tech">Resistência Ôhmica</span><button type="button" class="btn-info-ensaio" onclick="abrirInfo('Resistência ôhmica',INFO_OHM)">i</button></div><span class="norma-tech">Sem reprovação automática. Os valores ficam registrados como apoio para comparação e avaliação técnica.</span><div class="row g-2"><div class="col"><input type="number" step="any" id="h1" class="form-control dado" placeholder="Primário"></div><div class="col-4"><select id="uni_h" class="form-select"><option>Ω</option><option>mΩ</option><option>µΩ</option></select></div></div><div class="section-title-tech">Secundários</div><div class="row g-2"><div class="col"><input type="number" step="any" id="x1" class="form-control dado" placeholder="Sec. 1"></div><div class="col"><input type="number" step="any" id="x2" class="form-control dado" placeholder="Sec. 2"></div><div class="col"><input type="number" step="any" id="x3" class="form-control dado" placeholder="Sec. 3"></div><div class="col-4"><select id="uni_x" class="form-select"><option>Ω</option><option>mΩ</option><option>µΩ</option></select></div></div></div>
-<div class="card-instrumento"><div class="label-row"><span class="label-tech">Resistência de Isolamento</span><button type="button" class="btn-info-ensaio" onclick="abrirInfo('Resistência de isolamento',INFO_ISO)">i</button></div><span class="norma-tech">≥ 1000 MΩ → CONFORME. Abaixo → APROVADO COM RESSALVA.</span><div class="row g-2 mb-2"><div class="col-6"><label class="field-label">Tensão de ensaio (V)</label><input type="number" step="any" id="tensao_iso" class="form-control dado"></div></div><div class="row g-2"><div class="col"><input type="number" step="any" id="at_t" class="form-control dado" placeholder="Prim. x Terra"></div><div class="col"><input type="number" step="any" id="at_bt" class="form-control dado" placeholder="Prim. x Sec."></div><div class="col"><input type="number" step="any" id="bt_t" class="form-control dado" placeholder="Sec. x Terra"></div></div></div>
-<div class="card-instrumento"><span class="label-tech">Observações</span><textarea id="observacoes" class="form-control" rows="3"></textarea></div><button class="btn btn-instrumento" type="submit">GERAR REGISTRO E SALVAR</button></form><div id="box_laudo" class="card-instrumento d-none mt-4"><h6 class="text-center fw-bold border-bottom pb-2">REGISTRO DE CAMPO — TC</h6><div id="laudo_render"></div><div class="row g-2 mt-3 no-print"><div class="col"><button class="btn btn-instrumento-outline" onclick="baixarPDF('box_laudo','TC',textoCampo('tag'))">Baixar PDF</button></div><div class="col"><button class="btn btn-instrumento" onclick="compartilharPDF('box_laudo','TC',textoCampo('tag'))">Compartilhar PDF</button></div></div></div></div>
+
+<div class="container" style="max-width:620px;padding:0;">
+<form id="formInst">
+
+  <div class="card-instrumento">
+    <div class="label-row">
+      <span class="label-tech">Identificação do equipamento</span>
+      <button type="button" class="btn-info-ensaio"
+        onclick="abrirInfo('Secundários e exatidão',INFO_CLASSE)">i</button>
+    </div>
+
+    <div class="row g-2 mb-2">
+      <div class="col">
+        <input id="usina" class="form-control" placeholder="Usina" required>
+      </div>
+      <div class="col">
+        <input id="tecnico" class="form-control" placeholder="Técnico">
+      </div>
+    </div>
+
+    <div class="row g-2 mb-2">
+      <div class="col">
+        <input id="os" class="form-control" placeholder="OS">
+      </div>
+      <div class="col">
+        <input id="tag" class="form-control dado" placeholder="TAG TC" required>
+      </div>
+    </div>
+
+    <div class="row g-2">
+      <div class="col-6">
+        <label class="field-label">Finalidade do equipamento</label>
+        <select id="finalidade" class="form-select" onchange="gerarSecundarios()" required>
+          <option value="Medição">Medição</option>
+          <option value="Proteção">Proteção</option>
+          <option value="Ambos">Ambos</option>
+        </select>
+      </div>
+
+      <div class="col-6">
+        <label class="field-label">Quantidade de secundários</label>
+        <select id="qtd_sec" class="form-select" onchange="gerarSecundarios()" required>
+          <option value="1" selected>1 secundário</option>
+          <option value="2">2 secundários</option>
+          <option value="3">3 secundários</option>
+          <option value="4">4 secundários</option>
+          <option value="5">5 secundários</option>
+          <option value="6">6 secundários</option>
+          <option value="7">7 secundários</option>
+          <option value="8">8 secundários</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="info-strip mt-2">
+      A classe e a tolerância não são definidas automaticamente pelo Portal.
+      O técnico deve registrar os dados conforme a placa e o procedimento aplicável.
+    </div>
+  </div>
+
+  <div class="card-instrumento">
+    <div class="label-row">
+      <span class="label-tech">Relação de Corrente (RTC)</span>
+      <button type="button" class="btn-info-ensaio"
+        onclick="abrirInfo('Relação de Corrente (RTC)',INFO_REL)">i</button>
+    </div>
+
+    <div class="row g-2 mb-3">
+      <div class="col-7">
+        <label class="field-label">Nominal primário (A)</label>
+        <input type="number" min="0" step="any" id="vpri"
+          class="form-control dado" required oninput="atualizarRelacoes()">
+      </div>
+    </div>
+
+    <div id="secundarios"></div>
+  </div>
+
+  <div class="card-instrumento">
+    <div class="label-row">
+      <span class="label-tech">Resistência Ôhmica</span>
+      <button type="button" class="btn-info-ensaio"
+        onclick="abrirInfo('Resistência ôhmica',INFO_OHM)">i</button>
+    </div>
+
+    <span class="norma-tech">
+      Sem reprovação automática por valor absoluto. Os resultados são registrados
+      para comparação e avaliação técnica.
+    </span>
+
+    <div class="row g-2 mb-2">
+      <div class="col">
+        <label class="field-label">Primário</label>
+        <input type="number" min="0" step="any" id="h1"
+          class="form-control dado" placeholder="Resultado">
+      </div>
+      <div class="col-4">
+        <label class="field-label">Unidade</label>
+        <select id="uni_h" class="form-select">
+          <option>Ω</option><option>mΩ</option><option>µΩ</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="section-title-tech">Secundários</div>
+
+    <div class="row g-2 mb-2">
+      <div class="col-8">
+        <div id="ohm_secundarios"></div>
+      </div>
+      <div class="col-4">
+        <label class="field-label">Unidade</label>
+        <select id="uni_x" class="form-select">
+          <option>Ω</option><option>mΩ</option><option>µΩ</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="card-instrumento">
+    <div class="label-row">
+      <span class="label-tech">Resistência de Isolamento</span>
+      <button type="button" class="btn-info-ensaio"
+        onclick="abrirInfo('Resistência de isolamento',INFO_ISO)">i</button>
+    </div>
+
+    <span class="norma-tech">
+      ≥ 1000 MΩ → CONFORME. Abaixo → APROVADO COM RESSALVA.
+    </span>
+
+    <div class="row g-2 mb-2">
+      <div class="col-6">
+        <label class="field-label">Tensão de ensaio (V)</label>
+        <input type="number" min="0" step="any" id="tensao_iso"
+          class="form-control dado">
+      </div>
+      <div class="col-6">
+        <label class="field-label">Primário ↔ Terra</label>
+        <div class="input-group">
+          <input type="number" min="0" step="any" id="at_t" class="form-control dado">
+          <span class="input-group-text">MΩ</span>
+        </div>
+      </div>
+    </div>
+
+    <div id="iso_secundarios"></div>
+  </div>
+
+  <div class="card-instrumento">
+    <span class="label-tech">Observações</span>
+    <textarea id="observacoes" class="form-control" rows="3"></textarea>
+  </div>
+
+  <button class="btn btn-instrumento" type="submit">
+    GERAR REGISTRO E SALVAR
+  </button>
+</form>
+
+<div id="box_laudo" class="card-instrumento d-none mt-4">
+  <h6 class="text-center fw-bold border-bottom pb-2">
+    REGISTRO DE CAMPO — TC
+  </h6>
+  <div id="laudo_render"></div>
+
+  <div class="row g-2 mt-3 no-print">
+    <div class="col">
+      <button class="btn btn-instrumento-outline"
+        onclick="baixarPDF('box_laudo','TC',textoCampo('tag'))">Baixar PDF</button>
+    </div>
+    <div class="col">
+      <button class="btn btn-instrumento"
+        onclick="compartilharPDF('box_laudo','TC',textoCampo('tag'))">Compartilhar PDF</button>
+    </div>
+  </div>
+</div>
+</div>
+</div>
+
 <script>
 const TIPO='TC';
-const INFO_CLASSE=`<h6>Onde encontrar</h6><p>Procure na placa de identificação do TC, normalmente junto da relação nominal, potência/carga nominal e identificação dos enrolamentos ou núcleos. A classe pode aparecer em formatos como <b>0,2</b>, <b>0,5</b>, <b>1</b>, <b>0,5S</b>, <b>5P20</b> ou <b>10P10</b>.</p><h6>Por que é importante</h6><p>A classe informa a exatidão esperada do transformador de instrumento dentro das condições previstas para sua aplicação. Por isso, o mesmo erro percentual pode ser aceitável para uma classe e inadequado para outra.</p><h6>Finalidade</h6><p>Selecione <b>Medição</b> ou <b>Proteção</b> conforme a função do enrolamento/núcleo ensaiado. Em caso de dúvida, confirme a placa, projeto ou documentação do equipamento.</p><div class="help-note">O Portal é uma ferramenta de apoio. Critério específico de fabricante, projeto ou procedimento aplicável prevalece quando existir.</div>`;
-const INFO_REL=`<h6>Como funciona</h6><p>O Portal calcula a relação teórica a partir dos valores nominais e compara com a relação medida. O erro é avaliado de acordo com a classe selecionada.</p>`;
-const INFO_OHM=`<h6>Objetivo</h6><p>Registrar a resistência dos enrolamentos para comparação técnica. Nesta tela não há reprovação automática por valor absoluto.</p>`;
-const INFO_ISO=`<h6>Critério interno</h6><p><b>≥ 1000 MΩ:</b> CONFORME.<br><b>&lt; 1000 MΩ:</b> APROVADO COM RESSALVA.</p><p>Informe a tensão aplicada no ensaio para que o registro tenha contexto suficiente.</p>`;
-function limiteClasse(){const c=textoCampo('classe').toUpperCase().replace(',','.');const n=Number(c);if(Number.isFinite(n))return n;if(TIPO==='TP'&&c==='3P')return 3;if(TIPO==='TP'&&c==='6P')return 6;if(TIPO==='TC'&&c.startsWith('5P'))return 1;if(TIPO==='TC'&&c.startsWith('10P'))return 3;return null;}
-function calcRn(){const a=numeroCampo('vpri'),b=numeroCampo('vsec');document.getElementById('rn').value=(a&&b)?(a/b).toFixed(5):'';}document.getElementById('vpri').addEventListener('input',calcRn);document.getElementById('vsec').addEventListener('input',calcRn);
-document.getElementById('formInst').addEventListener('submit',async e=>{e.preventDefault();salvarContextoCampo();const rn=numeroCampo('rn'),m=numeroCampo('medido'),lim=limiteClasse(),err=(m===null||!rn)?null:Math.abs(m-rn)/Math.abs(rn)*100,stRel=(err===null||lim===null)?STATUS.NAO_AVALIADO:(err<=lim?STATUS.CONFORME:STATUS.ATENCAO),isos=[numeroCampo('at_t'),numeroCampo('at_bt'),numeroCampo('bt_t')],stIso=statusGeral(isos.map(statusIsolamento)),geral=statusGeral([stRel,stIso]);const payload={usina:textoCampo('usina'),tag:textoCampo('tag'),tecnico:textoCampo('tecnico')||null,os:textoCampo('os')||null,observacoes:textoCampo('observacoes')||null,tipo:TIPO,tap:'Relação nominal',nom_pri:numeroCampo('vpri'),nom_sec:numeroCampo('vsec'),rn_teorico:rn,ttr_a:m,ttr_b:null,ttr_c:null,classe:textoCampo('classe')||null,finalidade:textoCampo('finalidade')||null,h1:numeroCampo('h1'),h2:null,h3:null,uni_h:textoCampo('uni_h'),x1:numeroCampo('x1'),x2:numeroCampo('x2'),x3:numeroCampo('x3'),uni_x:textoCampo('uni_x'),temperatura_c:null,at_t:isos[0],at_bt:isos[1],bt_t:isos[2],tensao_ensaio_isolamento_v:numeroCampo('tensao_iso')};await salvarComFila('/api/sync/trafo',payload,`${TIPO} salvo`);limparRascunho(TIPO.toLowerCase());document.getElementById('laudo_render').innerHTML=`${seloStatus(geral)}<div class="header-laudo"><b>Usina:</b> ${escaparHtml(textoCampo('usina'))}<br><b>TAG:</b> ${escaparHtml(textoCampo('tag'))} &nbsp; <b>OS:</b> ${escaparHtml(textoCampo('os')||'-')}<br><b>Técnico:</b> ${escaparHtml(textoCampo('tecnico')||'-')}<br><b>Finalidade:</b> ${escaparHtml(textoCampo('finalidade'))} &nbsp; <b>Classe:</b> ${escaparHtml(textoCampo('classe'))}<br><b>Data/Hora:</b> ${dataHoraLocalTexto()}</div><span class="label-tech">Relação de Corrente (RTC)</span><table class="table-laudo"><tr><th>Primário</th><th>Secundário</th><th>Relação teórica</th><th>Medida</th><th>Erro</th><th>Limite</th><th>Status</th></tr><tr><td>${numeroCampo('vpri')??'-'}</td><td>${numeroCampo('vsec')??'-'}</td><td>${rn??'-'}</td><td>${m??'-'}</td><td>${err===null?'-':err.toFixed(3)+'%'}</td><td>${lim===null?'-':lim+'%'}</td><td>${badgeStatus(stRel)}</td></tr></table><span class="label-tech">Resistência ôhmica</span><table class="table-laudo"><tr><th>Primário</th><th>Sec. 1</th><th>Sec. 2</th><th>Sec. 3</th></tr><tr><td>${numeroCampo('h1')??'-'} ${escaparHtml(textoCampo('uni_h'))}</td><td>${numeroCampo('x1')??'-'} ${escaparHtml(textoCampo('uni_x'))}</td><td>${numeroCampo('x2')??'-'} ${escaparHtml(textoCampo('uni_x'))}</td><td>${numeroCampo('x3')??'-'} ${escaparHtml(textoCampo('uni_x'))}</td></tr></table><span class="label-tech">Isolamento</span><div class="small mb-2">Tensão aplicada: <b>${numeroCampo('tensao_iso')??'-'} V</b></div><table class="table-laudo"><tr><th>Prim.-Terra</th><th>Prim.-Sec.</th><th>Sec.-Terra</th></tr><tr>${isos.map(v=>`<td>${v===null?'-':v+' MΩ'}<br>${badgeStatus(statusIsolamento(v))}</td>`).join('')}</tr></table><span class="label-tech">Observações</span><div class="observacao-laudo">${escaparHtml(textoCampo('observacoes')||'Sem observações.')}</div>`;document.getElementById('box_laudo').classList.remove('d-none');document.getElementById('box_laudo').scrollIntoView({behavior:'smooth'});});iniciarRascunho(TIPO.toLowerCase());
-</script></div>
-</body></html>
+const UNIDADE_NOMINAL='A';
+
+const INFO_CLASSE=`
+  <h6>Classe da placa</h6>
+  <p>
+    Registre exatamente a classe/exatidão indicada no secundário ensaiado.
+    O Portal não limita a lista de classes, evitando impedir o registro de equipamentos
+    com designações diferentes.
+  </p>
+
+  <h6>Tolerância / erro máximo (%)</h6>
+  <p>
+    O percentual deve ser informado pelo técnico com base na classe indicada na placa
+    e no critério aplicável ao ensaio. O Portal apenas compara o erro calculado com
+    o percentual que foi informado.
+  </p>
+
+  <h6>Quando não houver limite percentual direto</h6>
+  <p>
+    Se a classe ou o método aplicável não puder ser representado por um único limite
+    percentual, deixe o campo de tolerância vazio. A relação será registrada como
+    <b>NÃO AVALIADO</b> para evitar uma classificação incorreta.
+  </p>
+
+  <h6>Finalidade Ambos</h6>
+  <p>
+    Quando o equipamento possuir secundários destinados a funções diferentes,
+    selecione <b>Ambos</b>. Cada secundário passará a ter sua própria finalidade.
+  </p>
+`;
+
+const INFO_REL=`
+  <h6>Como preencher</h6>
+  <p>
+    Informe o valor nominal do primário e, para cada secundário, o nominal da placa
+    e a relação medida pelo instrumento.
+  </p>
+
+  <h6>Como o Portal avalia</h6>
+  <p>
+    A relação teórica é calculada automaticamente. O erro percentual é comparado
+    exclusivamente com a tolerância informada pelo técnico para aquele secundário.
+  </p>
+`;
+
+const INFO_OHM=`
+  <h6>Objetivo</h6>
+  <p>
+    Registrar a resistência dos enrolamentos para comparação técnica.
+    O Portal cria somente a quantidade de campos correspondente aos secundários informados.
+  </p>
+`;
+
+const INFO_ISO=`
+  <h6>Critério interno</h6>
+  <p><b>≥ 1000 MΩ:</b> CONFORME.<br>
+  <b>&lt; 1000 MΩ:</b> APROVADO COM RESSALVA.</p>
+
+  <p>
+    O Portal cria as medições Primário ↔ Secundário e Secundário ↔ Terra
+    de acordo com a quantidade de secundários cadastrada.
+  </p>
+`;
+
+function finalidadeSecundario(i){
+  const geral=textoCampo('finalidade')||'Medição';
+  if(geral==='Ambos') return textoCampo(`sec_finalidade_${i}`)||'Medição';
+  return geral;
+}
+
+function gerarSecundarios(){
+  const qtd=parseInt(document.getElementById('qtd_sec').value||'1',10);
+  const finalidade=textoCampo('finalidade')||'Medição';
+
+  const atuais={};
+  document.querySelectorAll('#secundarios input[id],#secundarios select[id],#ohm_secundarios input[id],#iso_secundarios input[id]')
+    .forEach(el=>atuais[el.id]=el.value);
+
+  let html='';
+  let ohm='';
+  let iso='';
+
+  for(let i=1;i<=qtd;i++){
+    html+=`
+      <div class="subcard mb-3">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <strong>Secundário ${i}</strong>
+          ${finalidade==='Ambos' ? `
+            <select id="sec_finalidade_${i}" class="form-select form-select-sm"
+              style="max-width:145px" required>
+              <option value="Medição">Medição</option>
+              <option value="Proteção">Proteção</option>
+            </select>
+          ` : `<span class="page-chip" style="color:var(--texto)">${finalidade}</span>`}
+        </div>
+
+        <div class="row g-2 mb-2">
+          <div class="col-6">
+            <label class="field-label">Classe / exatidão da placa</label>
+            <input id="sec_classe_${i}" class="form-control"
+              placeholder="Ex.: 0,3 / 5P20 / 3P / PX" required>
+          </div>
+
+          <div class="col-6">
+            <label class="field-label">Limite de erro (%)</label>
+            <input type="number" min="0" step="0.001" id="sec_tol_${i}"
+              class="form-control dado" placeholder="Conforme placa">
+          </div>
+        </div>
+
+        <div class="row g-2 mb-2">
+          <div class="col-6">
+            <label class="field-label">Nominal secundário (A)</label>
+            <input type="number" min="0" step="any" id="sec_nom_${i}"
+              class="form-control dado" required oninput="atualizarRelacao(${i})">
+          </div>
+
+          <div class="col-6">
+            <label class="field-label">Relação teórica</label>
+            <input id="sec_rn_${i}" class="form-control dado" readonly>
+          </div>
+        </div>
+
+        <div class="row g-2">
+          <div class="col-6">
+            <label class="field-label">Relação medida</label>
+            <input type="number" min="0" step="any" id="sec_med_${i}"
+              class="form-control dado" required>
+          </div>
+        </div>
+      </div>
+    `;
+
+    ohm+=`
+      <div class="mb-2">
+        <label class="field-label">Secundário ${i}</label>
+        <input type="number" min="0" step="any" id="sec_ohm_${i}"
+          class="form-control dado" placeholder="Resultado">
+      </div>
+    `;
+
+    iso+=`
+      <div class="subcard mb-2">
+        <strong>Secundário ${i}</strong>
+        <div class="row g-2 mt-1">
+          <div class="col-6">
+            <label class="field-label">Primário ↔ Sec. ${i}</label>
+            <div class="input-group">
+              <input type="number" min="0" step="any" id="sec_riso_ps_${i}"
+                class="form-control dado">
+              <span class="input-group-text">MΩ</span>
+            </div>
+          </div>
+          <div class="col-6">
+            <label class="field-label">Sec. ${i} ↔ Terra</label>
+            <div class="input-group">
+              <input type="number" min="0" step="any" id="sec_riso_st_${i}"
+                class="form-control dado">
+              <span class="input-group-text">MΩ</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  document.getElementById('secundarios').innerHTML=html;
+  document.getElementById('ohm_secundarios').innerHTML=ohm;
+  document.getElementById('iso_secundarios').innerHTML=iso;
+
+  Object.entries(atuais).forEach(([id,val])=>{
+    const el=document.getElementById(id);
+    if(el) el.value=val;
+  });
+
+  atualizarRelacoes();
+}
+
+function atualizarRelacao(i){
+  const pri=numeroCampo('vpri');
+  const sec=numeroCampo(`sec_nom_${i}`);
+  const el=document.getElementById(`sec_rn_${i}`);
+
+  el.value=(pri!==null&&sec!==null&&sec!==0)
+    ? (pri/sec).toFixed(6)
+    : '';
+}
+
+function atualizarRelacoes(){
+  const qtd=parseInt(document.getElementById('qtd_sec').value||'1',10);
+  for(let i=1;i<=qtd;i++) atualizarRelacao(i);
+}
+
+function coletarSecundarios(){
+  const qtd=parseInt(document.getElementById('qtd_sec').value||'1',10);
+  const itens=[];
+
+  for(let i=1;i<=qtd;i++){
+    const nominal=numeroCampo(`sec_nom_${i}`);
+    const rn=numeroCampo(`sec_rn_${i}`);
+    const medido=numeroCampo(`sec_med_${i}`);
+    const tolerancia=numeroCampo(`sec_tol_${i}`);
+
+    const erro=(medido===null||rn===null||rn===0)
+      ? null
+      : Math.abs(medido-rn)/Math.abs(rn)*100;
+
+    const statusRel=(erro===null||tolerancia===null)
+      ? STATUS.NAO_AVALIADO
+      : (erro<=tolerancia ? STATUS.CONFORME : STATUS.ATENCAO);
+
+    itens.push({
+      indice:i,
+      finalidade:finalidadeSecundario(i),
+      classe:textoCampo(`sec_classe_${i}`)||null,
+      tolerancia_pct:tolerancia,
+      nominal_secundario:nominal,
+      rn_teorico:rn,
+      relacao_medida:medido,
+      erro_pct:erro,
+      status_relacao:statusRel,
+      resistencia_ohmica:numeroCampo(`sec_ohm_${i}`),
+      riso_prim_sec:numeroCampo(`sec_riso_ps_${i}`),
+      riso_sec_terra:numeroCampo(`sec_riso_st_${i}`)
+    });
+  }
+
+  return itens;
+}
+
+document.getElementById('formInst').addEventListener('submit',async e=>{
+  e.preventDefault();
+  salvarContextoCampo();
+
+  const secundarios=coletarSecundarios();
+  const statusRelacoes=secundarios.map(s=>s.status_relacao);
+  const statusTtr=statusGeral(statusRelacoes);
+
+  const atT=numeroCampo('at_t');
+  const statusIsos=[statusIsolamento(atT)];
+
+  secundarios.forEach(s=>{
+    statusIsos.push(statusIsolamento(s.riso_prim_sec));
+    statusIsos.push(statusIsolamento(s.riso_sec_terra));
+  });
+
+  const stIso=statusGeral(statusIsos);
+  const geral=statusGeral([statusTtr,stIso]);
+
+  const primeira=secundarios[0]||{};
+  const payload={
+    usina:textoCampo('usina'),
+    tag:textoCampo('tag'),
+    tecnico:textoCampo('tecnico')||null,
+    os:textoCampo('os')||null,
+    observacoes:textoCampo('observacoes')||null,
+
+    tipo:TIPO,
+    tap:'Relação nominal',
+    nom_pri:numeroCampo('vpri'),
+    nom_sec:primeira.nominal_secundario??null,
+    rn_teorico:primeira.rn_teorico??null,
+
+    ttr_a:secundarios[0]?.relacao_medida??null,
+    ttr_b:secundarios[1]?.relacao_medida??null,
+    ttr_c:secundarios[2]?.relacao_medida??null,
+
+    classe:secundarios.length===1 ? secundarios[0].classe : 'Múltiplos secundários',
+    finalidade:textoCampo('finalidade')||null,
+
+    h1:numeroCampo('h1'),
+    h2:null,
+    h3:null,
+    uni_h:textoCampo('uni_h'),
+
+    x1:secundarios[0]?.resistencia_ohmica??null,
+    x2:secundarios[1]?.resistencia_ohmica??null,
+    x3:secundarios[2]?.resistencia_ohmica??null,
+    uni_x:textoCampo('uni_x'),
+
+    temperatura_c:null,
+
+    at_t:atT,
+    at_bt:secundarios[0]?.riso_prim_sec??null,
+    bt_t:secundarios[0]?.riso_sec_terra??null,
+
+    tensao_ensaio_isolamento_v:numeroCampo('tensao_iso'),
+
+    quantidade_secundarios:secundarios.length,
+    secundarios_json:JSON.stringify(secundarios)
+  };
+
+  await salvarComFila('/api/sync/trafo',payload,`${TIPO} salvo`);
+  limparRascunho(TIPO.toLowerCase());
+
+  const linhasRel=secundarios.map(s=>`
+    <tr>
+      <td>Sec. ${s.indice}</td>
+      <td>${escaparHtml(s.finalidade||'-')}</td>
+      <td>${escaparHtml(s.classe||'-')}</td>
+      <td>${s.tolerancia_pct===null?'-':s.tolerancia_pct+'%'}</td>
+      <td>${s.nominal_secundario??'-'} A</td>
+      <td>${s.rn_teorico===null?'-':s.rn_teorico.toFixed(6)}</td>
+      <td>${s.relacao_medida??'-'}</td>
+      <td>${s.erro_pct===null?'-':s.erro_pct.toFixed(3)+'%'}</td>
+      <td>${badgeStatus(s.status_relacao)}</td>
+    </tr>
+  `).join('');
+
+  const linhasOhm=secundarios.map(s=>`
+    <tr>
+      <td>Sec. ${s.indice}</td>
+      <td>${s.resistencia_ohmica===null?'-':s.resistencia_ohmica+' '+escaparHtml(textoCampo('uni_x'))}</td>
+    </tr>
+  `).join('');
+
+  let linhasIso=`
+    <tr>
+      <td>Primário ↔ Terra</td>
+      <td>${atT===null?'-':atT+' MΩ'}</td>
+      <td>${badgeStatus(statusIsolamento(atT))}</td>
+    </tr>
+  `;
+
+  secundarios.forEach(s=>{
+    linhasIso+=`
+      <tr>
+        <td>Primário ↔ Sec. ${s.indice}</td>
+        <td>${s.riso_prim_sec===null?'-':s.riso_prim_sec+' MΩ'}</td>
+        <td>${badgeStatus(statusIsolamento(s.riso_prim_sec))}</td>
+      </tr>
+      <tr>
+        <td>Sec. ${s.indice} ↔ Terra</td>
+        <td>${s.riso_sec_terra===null?'-':s.riso_sec_terra+' MΩ'}</td>
+        <td>${badgeStatus(statusIsolamento(s.riso_sec_terra))}</td>
+      </tr>
+    `;
+  });
+
+  document.getElementById('laudo_render').innerHTML=`
+    ${seloStatus(geral)}
+
+    <div class="header-laudo">
+      <b>Usina:</b> ${escaparHtml(textoCampo('usina'))}<br>
+      <b>TAG:</b> ${escaparHtml(textoCampo('tag'))}
+      &nbsp; <b>OS:</b> ${escaparHtml(textoCampo('os')||'-')}<br>
+      <b>Técnico:</b> ${escaparHtml(textoCampo('tecnico')||'-')}<br>
+      <b>Finalidade:</b> ${escaparHtml(textoCampo('finalidade'))}
+      &nbsp; <b>Secundários:</b> ${secundarios.length}<br>
+      <b>Data/Hora:</b> ${dataHoraLocalTexto()}
+    </div>
+
+    <span class="label-tech">Relação de Corrente (RTC)</span>
+    <div class="small mb-2">
+      Nominal primário: <b>${numeroCampo('vpri')??'-'} A</b>
+    </div>
+
+    <table class="table-laudo">
+      <thead>
+        <tr>
+          <th>Sec.</th>
+          <th>Finalidade</th>
+          <th>Classe</th>
+          <th>Limite</th>
+          <th>Nominal</th>
+          <th>Relação teórica</th>
+          <th>Medida</th>
+          <th>Erro</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>${linhasRel}</tbody>
+    </table>
+
+    <div class="info-strip">
+      A tolerância de cada secundário foi informada pelo técnico com base na placa
+      e/ou procedimento aplicável. Quando o limite percentual não foi preenchido,
+      a relação é registrada como NÃO AVALIADO.
+    </div>
+
+    <span class="label-tech">Resistência ôhmica</span>
+    <table class="table-laudo">
+      <tr><th>Enrolamento</th><th>Resultado</th></tr>
+      <tr>
+        <td>Primário</td>
+        <td>${numeroCampo('h1')===null?'-':numeroCampo('h1')+' '+escaparHtml(textoCampo('uni_h'))}</td>
+      </tr>
+      ${linhasOhm}
+    </table>
+
+    <span class="label-tech">Resistência de isolamento</span>
+    <div class="small mb-2">
+      Tensão aplicada: <b>${numeroCampo('tensao_iso')??'-'} V</b>
+    </div>
+
+    <table class="table-laudo">
+      <tr><th>Medição</th><th>Resultado</th><th>Status</th></tr>
+      ${linhasIso}
+    </table>
+
+    <span class="label-tech">Observações</span>
+    <div class="observacao-laudo">
+      ${escaparHtml(textoCampo('observacoes')||'Sem observações.')}
+    </div>
+  `;
+
+  document.getElementById('box_laudo').classList.remove('d-none');
+  document.getElementById('box_laudo').scrollIntoView({behavior:'smooth'});
+});
+
+document.addEventListener('DOMContentLoaded',()=>{
+  gerarSecundarios();
+  iniciarRascunho(TIPO.toLowerCase());
+
+  setTimeout(()=>{
+    gerarSecundarios();
+    restaurarRascunho(TIPO.toLowerCase());
+    atualizarRelacoes();
+  },0);
+});
+</script>
+</body>
+</html>

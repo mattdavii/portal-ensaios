@@ -56,9 +56,44 @@ function calcular(){
  if(vals.length<2){document.getElementById('resultado').classList.add('d-none');return}
  const media=vals.reduce((a,b)=>a+b.v,0)/vals.length;
  let rows='',min=Infinity,max=-Infinity;
- vals.forEach(x=>{const d=((x.v-media)/media)*100;min=Math.min(min,x.v);max=Math.max(max,x.v);const st=d<=-lim?STATUS.ATENCAO:STATUS.CONFORME;rows+=`<tr><td>${escaparHtml(x.tag)}</td><td class="valor-mono">${x.v.toFixed(2)} A</td><td class="${st===STATUS.ATENCAO?'text-warning':''}">${d>=0?'+':''}${d.toFixed(1)}%</td><td>${badgeStatus(st)}</td></tr>`})
- const dispersao=media?((max-min)/media)*100:0;
- document.getElementById('saida').innerHTML=`<div class="row g-2 mb-3"><div class="col-6"><div class="subcard text-center"><div class="field-label">Média</div><div class="valor-mono fs-5">${media.toFixed(2)} A</div></div></div><div class="col-6"><div class="subcard text-center"><div class="field-label">Dispersão máx-mín</div><div class="valor-mono fs-5">${dispersao.toFixed(1)}%</div></div></div></div><table class="table-laudo"><thead><tr><th>String</th><th>Corrente</th><th>Desvio</th><th>Status</th></tr></thead><tbody>${rows}</tbody></table>`;
+
+ if(media===0){
+   vals.forEach(x=>{
+     rows+=`<tr><td>${escaparHtml(x.tag)}</td><td class="valor-mono">${x.v.toFixed(2)} A</td><td>-</td><td>${badgeStatus(STATUS.NAO_AVALIADO)}</td></tr>`;
+   });
+
+   document.getElementById('saida').innerHTML=`
+     <div class="info-strip mb-3">
+       <b>NÃO AVALIADO:</b> a média das correntes é 0 A. Não é possível calcular desvio percentual
+       entre strings usando média igual a zero.
+     </div>
+     <div class="row g-2 mb-3">
+       <div class="col-6"><div class="subcard text-center"><div class="field-label">Média</div><div class="valor-mono fs-5">0.00 A</div></div></div>
+       <div class="col-6"><div class="subcard text-center"><div class="field-label">Strings consideradas</div><div class="valor-mono fs-5">${vals.length} / ${q}</div></div></div>
+     </div>
+     <table class="table-laudo"><thead><tr><th>String</th><th>Corrente</th><th>Desvio</th><th>Status</th></tr></thead><tbody>${rows}</tbody></table>
+   `;
+   document.getElementById('resultado').classList.remove('d-none');
+   return;
+ }
+
+ vals.forEach(x=>{
+   const d=((x.v-media)/media)*100;
+   min=Math.min(min,x.v);
+   max=Math.max(max,x.v);
+   const st=d<=-lim?STATUS.ATENCAO:STATUS.CONFORME;
+   rows+=`<tr><td>${escaparHtml(x.tag)}</td><td class="valor-mono">${x.v.toFixed(2)} A</td><td class="${st===STATUS.ATENCAO?'text-warning':''}">${d>=0?'+':''}${d.toFixed(1)}%</td><td>${badgeStatus(st)}</td></tr>`;
+ });
+
+ const dispersao=((max-min)/media)*100;
+ document.getElementById('saida').innerHTML=`
+   <div class="row g-2 mb-3">
+     <div class="col-4"><div class="subcard text-center"><div class="field-label">Média</div><div class="valor-mono fs-5">${media.toFixed(2)} A</div></div></div>
+     <div class="col-4"><div class="subcard text-center"><div class="field-label">Dispersão máx-mín</div><div class="valor-mono fs-5">${dispersao.toFixed(1)}%</div></div></div>
+     <div class="col-4"><div class="subcard text-center"><div class="field-label">Consideradas</div><div class="valor-mono fs-5">${vals.length} / ${q}</div></div></div>
+   </div>
+   <table class="table-laudo"><thead><tr><th>String</th><th>Corrente</th><th>Desvio</th><th>Status</th></tr></thead><tbody>${rows}</tbody></table>
+ `;
  document.getElementById('resultado').classList.remove('d-none');
 }
 gerar();

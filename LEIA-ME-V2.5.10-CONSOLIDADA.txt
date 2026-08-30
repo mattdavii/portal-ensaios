@@ -1,0 +1,42 @@
+PORTAL DE ENSAIOS — V2.5.10 CONSOLIDADA
+
+Este pacote reúne as versões mais recentes de todos os arquivos do app.
+
+VERSÕES INCORPORADAS
+- Strings CC: v2.5.7
+  • VOC Medido
+  • análise agrupada de VOC
+  • diagnóstico Polo-Terra 10% / 15%
+
+- Ajustes auxiliares: v2.5.8
+  • Comparador de Strings: média 0 A = NÃO AVALIADO
+  • Continuidade: pontos criados exigem preenchimento
+  • RISO CA/MT: exige ao menos uma leitura
+  • Relação TC/TP rápida: unidade automática A/V
+
+- TP/TC + backend: v2.5.10
+  • classe/exatidão em campo livre
+  • tolerância (%) informada pelo técnico
+  • finalidade Medição / Proteção / Ambos
+  • 1 a 8 secundários
+  • campos dinâmicos por secundário
+  • armazenamento completo em secundarios_json
+  • migração automática do SQLite
+
+- PWA
+  • versão exibida: v2.5.10
+  • atualização controlada pelo usuário
+  • nova versão detectada na home
+
+REMOVIDO
+- tempo_curvas_protecao.html / ferramenta de relés.
+
+IMPORTANTE
+- O arquivo logo.png não foi recriado neste pacote porque é um ativo original do repositório.
+  Mantenha o logo.png já existente na raiz do GitHub.
+- Não apague o banco existente: database.py faz as migrações automaticamente.
+- sw_atualizado.txt é apenas uma cópia do sw.js para facilitar edição pelo celular.
+
+RESULTADOS
+Os resultados do Portal são ferramentas de apoio e só devem ser considerados definitivos
+após avaliação do setor de Engenharia ou responsável designado.

@@ -170,8 +170,31 @@ def s_sec(d:models.EnsaioManobra):return _manobra('ensaio_seccionadora',d,models
 
 @app.post('/api/sync/trafo')
 def s_trafo(d:models.EnsaioTrafo):
-    r=d.validar();sa=models.status_isolamento(d.at_t);sab=models.status_isolamento(d.at_bt);sbt=models.status_isolamento(d.bt_t)
-    _exec('''INSERT INTO ensaio_final (usina,tag,tipo,tap,nom_pri,nom_sec,rn_teorico,ttr_a,ttr_b,ttr_c,status_ttr,h1,h2,h3,uni_h,status_h,x1,x2,x3,uni_x,status_x,at_t,at_bt,bt_t,status_at_t,status_at_bt,status_bt_t,classe,finalidade,temperatura_c,tensao_ensaio_isolamento_v,limite_ttr_pct,tecnico,os,observacoes,status_geral_v2) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)''',(d.usina,d.tag,d.tipo,d.tap,d.nom_pri,d.nom_sec,d.rn_teorico,d.ttr_a,d.ttr_b,d.ttr_c,r['status_ttr'],d.h1,d.h2,d.h3,d.uni_h,r['status_h'],d.x1,d.x2,d.x3,d.uni_x,r['status_x'],d.at_t,d.at_bt,d.bt_t,sa,sab,sbt,d.classe,d.finalidade,d.temperatura_c,d.tensao_ensaio_isolamento_v,r['limite_ttr_pct'],d.tecnico,d.os,d.observacoes,r['status_geral']))
+    r=d.validar()
+    sa=models.status_isolamento(d.at_t)
+    sab=models.status_isolamento(d.at_bt)
+    sbt=models.status_isolamento(d.bt_t)
+
+    _exec('''INSERT INTO ensaio_final (
+        usina,tag,tipo,tap,nom_pri,nom_sec,rn_teorico,
+        ttr_a,ttr_b,ttr_c,status_ttr,
+        h1,h2,h3,uni_h,status_h,
+        x1,x2,x3,uni_x,status_x,
+        at_t,at_bt,bt_t,status_at_t,status_at_bt,status_bt_t,
+        classe,finalidade,temperatura_c,tensao_ensaio_isolamento_v,
+        limite_ttr_pct,tecnico,os,observacoes,status_geral_v2,
+        quantidade_secundarios,secundarios_json
+    ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)''',(
+        d.usina,d.tag,d.tipo,d.tap,d.nom_pri,d.nom_sec,d.rn_teorico,
+        d.ttr_a,d.ttr_b,d.ttr_c,r['status_ttr'],
+        d.h1,d.h2,d.h3,d.uni_h,r['status_h'],
+        d.x1,d.x2,d.x3,d.uni_x,r['status_x'],
+        d.at_t,d.at_bt,d.bt_t,sa,sab,sbt,
+        d.classe,d.finalidade,d.temperatura_c,d.tensao_ensaio_isolamento_v,
+        r['limite_ttr_pct'],d.tecnico,d.os,d.observacoes,r['status_geral'],
+        d.quantidade_secundarios,d.secundarios_json
+    ))
+
     return {'status':'ok','resultado':r}
 
 

@@ -63,6 +63,14 @@ function stIso(v){return v===null?STATUS.NAO_AVALIADO:(v>=1000?STATUS.CONFORME:S
 document.getElementById('formRisoCa').addEventListener('submit',async e=>{
  e.preventDefault();salvarContextoCampo();
  const vals={rt:numeroCampo('rt'),st:numeroCampo('st'),tt:numeroCampo('tt'),rs:numeroCampo('rs'),st_ff:numeroCampo('st_ff'),tr:numeroCampo('tr')};
+
+ const leiturasValidas=Object.values(vals).filter(v=>v!==null);
+
+ if(leiturasValidas.length===0){
+   alert('Informe pelo menos uma medição de resistência de isolamento antes de gerar o registro.');
+   return;
+ }
+
  const sts=Object.fromEntries(Object.entries(vals).map(([k,v])=>[k,stIso(v)])),geral=statusGeral(Object.values(sts));
  const payload={usina:textoCampo('usina'),tag:textoCampo('tag'),tecnico:textoCampo('tecnico')||null,os:textoCampo('os')||null,observacoes:textoCampo('observacoes')||null,classe_circuito:textoCampo('classe_circuito'),tensao_ensaio_v:numeroCampo('tensao_ensaio'),r_terra:vals.rt,s_terra:vals.st,t_terra:vals.tt,rs:vals.rs,st:vals.st_ff,tr:vals.tr};
  await salvarComFila('/api/sync/riso-cabos-ca-mt',payload,'RISO de cabos salvo');

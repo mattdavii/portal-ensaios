@@ -32,7 +32,7 @@
 
 <div class="card-instrumento">
 <div class="label-row"><span class="label-tech">Configuração</span><button type="button" class="btn-info-ensaio" onclick="abrirInfo('Como usar', `<p>Informe a relação nominal do TC ou TP, por exemplo <b>600/5 A</b> ou <b>13800/115 V</b>.</p><p>Depois informe um valor no primário ou secundário; o Portal calcula o correspondente no outro lado.</p>` )">i</button></div>
-<div class="row g-2 mb-2"><div class="col-5"><label class="field-label">Tipo</label><select id="tipo" class="form-select" onchange="calc()"><option>TC</option><option>TP</option></select></div><div class="col-7"><label class="field-label">Unidade</label><input id="unidade" class="form-control" value="A" oninput="calc()"></div></div>
+<div class="row g-2 mb-2"><div class="col-5"><label class="field-label">Tipo</label><select id="tipo" class="form-select" onchange="tipoAlterado()"><option>TC</option><option>TP</option></select></div><div class="col-7"><label class="field-label">Unidade</label><input id="unidade" class="form-control" value="A" oninput="calc()"></div></div>
 <div class="row g-2"><div class="col-6"><label class="field-label">Nominal primário</label><input id="pri_nom" type="number" step="any" class="form-control dado" oninput="calc()"></div><div class="col-6"><label class="field-label">Nominal secundário</label><input id="sec_nom" type="number" step="any" class="form-control dado" oninput="calc()"></div></div>
 </div>
 <div class="card-instrumento">
@@ -42,8 +42,17 @@
 </div>
 <div id="relacaoBox" class="card-instrumento d-none text-center"><div class="field-label">Relação nominal</div><div id="relacao" class="valor-mono fs-4"></div></div>
 <script>
+function tipoAlterado(){
+  const tipo=textoCampo('tipo');
+  const unidade=document.getElementById('unidade');
+
+  unidade.value=tipo==='TP'?'V':'A';
+  calc();
+}
+
 function fator(){const p=numeroCampo('pri_nom'),s=numeroCampo('sec_nom');return p&&s?p/s:null}
 function calc(){const f=fator();if(!f){document.getElementById('relacaoBox').classList.add('d-none');return}document.getElementById('relacao').textContent=f.toFixed(4)+':1';document.getElementById('relacaoBox').classList.remove('d-none');fromPri();fromSec()}
 function fromPri(){const f=fator(),v=numeroCampo('pri'),u=textoCampo('unidade');document.getElementById('sec').value=(f&&v!==null)?(v/f).toFixed(4)+' '+u:''}
 function fromSec(){const f=fator(),v=numeroCampo('sec_in'),u=textoCampo('unidade');document.getElementById('pri_out').value=(f&&v!==null)?(v*f).toFixed(4)+' '+u:''}
+tipoAlterado();
 </script></div></div></body></html>

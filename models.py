@@ -1,3 +1,4 @@
+import json
 from typing import Optional, Dict, List
 from pydantic import BaseModel
 
@@ -292,25 +293,169 @@ class EnsaioTrafo(MetadadosCampo):
     bt_t: Optional[float] = None
     tensao_ensaio_isolamento_v: Optional[float] = None
 
+    quantidade_secundarios: Optional[int] = None
+    secundarios_json: Optional[str] = None
+
     def validar(self) -> Dict:
-        tipo=self.tipo.upper()
-        limite_pct=TOL_TTR_TRAFO*100 if tipo=="TRAFO" else limite_classe_instrumento(tipo,self.classe)
-        erros=[]
-        for medido in [self.ttr_a,self.ttr_b,self.ttr_c]:
-            e=erro_relativo(medido,self.rn_teorico); erros.append(None if e is None else e*100)
-        ev=[e for e in erros if e is not None]
-        status_ttr=STATUS_NAO_AVALIADO if not ev or limite_pct is None else (STATUS_CONFORME if max(ev)<=limite_pct else STATUS_ATENCAO)
+        tipo = self.tipo.upper()
+
         def equilibrio(vals):
-            validos=[v for v in vals if v is not None]
-            if len(validos)<3:return {"status":STATUS_NAO_AVALIADO,"desvio":None}
-            media=sum(validos)/3
-            if media==0:return {"status":STATUS_ATENCAO,"desvio":None}
-            d=max(abs(v-media)/abs(media) for v in validos)
-            return {"status":STATUS_CONFORME if d<=TOL_OHMICA_TRAFO else STATUS_ATENCAO,"desvio":d*100}
-        eqh=equilibrio([self.h1,self.h2,self.h3]) if tipo=="TRAFO" else {"status":STATUS_NAO_AVALIADO,"desvio":None}
-        eqx=equilibrio([self.x1,self.x2,self.x3]) if tipo=="TRAFO" else {"status":STATUS_NAO_AVALIADO,"desvio":None}
-        status_iso=status_geral([status_isolamento(self.at_t),status_isolamento(self.at_bt),status_isolamento(self.bt_t)])
-        return {"limite_ttr_pct":limite_pct,"erro_ttr_a_pct":None if erros[0] is None else round(erros[0],3),"erro_ttr_b_pct":None if erros[1] is None else round(erros[1],3),"erro_ttr_c_pct":None if erros[2] is None else round(erros[2],3),"status_ttr":status_ttr,"status_h":eqh["status"],"desvio_h_pct":None if eqh["desvio"] is None else round(eqh["desvio"],2),"status_x":eqx["status"],"desvio_x_pct":None if eqx["desvio"] is None else round(eqx["desvio"],2),"status_isolamento":status_iso,"status_geral":status_geral([status_ttr,eqh["status"],eqx["status"],status_iso])}
+            validos = [v for v in vals if v is not None]
+            if len(validos) < 3:
+                return {"status": STATUS_NAO_AVALIADO, "desvio": None}
+            media = sum(validos) / 3
+            if media == 0:
+                return {"status": STATUS_ATENCAO, "desvio": None}
+            d = max(abs(v - media) / abs(media) for v in validos)
+            return {
+                "status": STATUS_CONFORME if d <= TOL_OHMICA_TRAFO else STATUS_ATENCAO,
+                "desvio": d * 100,
+            }
+
+        # Transformador de potência mantém a lógica original.
+        if tipo == "TRAFO":
+            limite_pct = TOL_TTR_TRAFO * 100
+            erros = []
+
+            for medido in [self.ttr_a, self.ttr_b, self.ttr_c]:
+                e = erro_relativo(medido, self.rn_teorico)
+                erros.append(None if e is None else e * 100)
+
+            ev = [e for e in erros if e is not None]
+
+            status_ttr = (
+                STATUS_NAO_AVALIADO
+                if not ev
+                else (STATUS_CONFORME if max(ev) <= limite_pct else STATUS_ATENCAO)
+            )
+
+            eqh = equilibrio([self.h1, self.h2, self.h3])
+            eqx = equilibrio([self.x1, self.x2, self.x3])
+
+            status_iso = status_geral([
+                status_isolamento(self.at_t),
+                status_isolamento(self.at_bt),
+                status_isolamento(self.bt_t),
+            ])
+
+            return {
+                "limite_ttr_pct": limite_pct,
+                "erro_ttr_a_pct": None if erros[0] is None else round(erros[0], 3),
+                "erro_ttr_b_pct": None if erros[1] is None else round(erros[1], 3),
+                "erro_ttr_c_pct": None if erros[2] is None else round(erros[2], 3),
+                "status_ttr": status_ttr,
+                "status_h": eqh["status"],
+                "desvio_h_pct": None if eqh["desvio"] is None else round(eqh["desvio"], 2),
+                "status_x": eqx["status"],
+                "desvio_x_pct": None if eqx["desvio"] is None else round(eqx["desvio"], 2),
+                "status_isolamento": status_iso,
+                "status_geral": status_geral([
+                    status_ttr, eqh["status"], eqx["status"], status_iso
+                ]),
+            }
+
+        # TP/TC novos: cada secundário possui classe e limite percentual próprios.
+        secundarios = []
+
+        if self.secundarios_json:
+            try:
+                dados = json.loads(self.secundarios_json)
+                if isinstance(dados, list):
+                    secundarios = dados
+            except (TypeError, ValueError, json.JSONDecodeError):
+                secundarios = []
+
+        if secundarios:
+            erros = []
+            status_relacoes = []
+            status_isos = [status_isolamento(self.at_t)]
+
+            for sec in secundarios:
+                rn = sec.get("rn_teorico")
+                medido = sec.get("relacao_medida")
+                tolerancia = sec.get("tolerancia_pct")
+
+                e = erro_relativo(medido, rn)
+                erro_pct = None if e is None else e * 100
+                erros.append(erro_pct)
+
+                if erro_pct is None or tolerancia is None:
+                    st_rel = STATUS_NAO_AVALIADO
+                else:
+                    try:
+                        limite = float(tolerancia)
+                        st_rel = STATUS_CONFORME if erro_pct <= limite else STATUS_ATENCAO
+                    except (TypeError, ValueError):
+                        st_rel = STATUS_NAO_AVALIADO
+
+                status_relacoes.append(st_rel)
+
+                status_isos.append(status_isolamento(sec.get("riso_prim_sec")))
+                status_isos.append(status_isolamento(sec.get("riso_sec_terra")))
+
+            status_ttr = status_geral(status_relacoes)
+            status_iso = status_geral(status_isos)
+
+            limite_unico = None
+            if len(secundarios) == 1:
+                try:
+                    tol = secundarios[0].get("tolerancia_pct")
+                    limite_unico = None if tol is None else float(tol)
+                except (TypeError, ValueError):
+                    limite_unico = None
+
+            erros_compat = (erros + [None, None, None])[:3]
+
+            return {
+                "limite_ttr_pct": limite_unico,
+                "erro_ttr_a_pct": None if erros_compat[0] is None else round(erros_compat[0], 3),
+                "erro_ttr_b_pct": None if erros_compat[1] is None else round(erros_compat[1], 3),
+                "erro_ttr_c_pct": None if erros_compat[2] is None else round(erros_compat[2], 3),
+                "status_ttr": status_ttr,
+                "status_h": STATUS_NAO_AVALIADO,
+                "desvio_h_pct": None,
+                "status_x": STATUS_NAO_AVALIADO,
+                "desvio_x_pct": None,
+                "status_isolamento": status_iso,
+                "status_geral": status_geral([status_ttr, status_iso]),
+            }
+
+        # Compatibilidade com registros antigos de TP/TC.
+        limite_pct = limite_classe_instrumento(tipo, self.classe)
+        erros = []
+
+        for medido in [self.ttr_a, self.ttr_b, self.ttr_c]:
+            e = erro_relativo(medido, self.rn_teorico)
+            erros.append(None if e is None else e * 100)
+
+        ev = [e for e in erros if e is not None]
+
+        status_ttr = (
+            STATUS_NAO_AVALIADO
+            if not ev or limite_pct is None
+            else (STATUS_CONFORME if max(ev) <= limite_pct else STATUS_ATENCAO)
+        )
+
+        status_iso = status_geral([
+            status_isolamento(self.at_t),
+            status_isolamento(self.at_bt),
+            status_isolamento(self.bt_t),
+        ])
+
+        return {
+            "limite_ttr_pct": limite_pct,
+            "erro_ttr_a_pct": None if erros[0] is None else round(erros[0], 3),
+            "erro_ttr_b_pct": None if erros[1] is None else round(erros[1], 3),
+            "erro_ttr_c_pct": None if erros[2] is None else round(erros[2], 3),
+            "status_ttr": status_ttr,
+            "status_h": STATUS_NAO_AVALIADO,
+            "desvio_h_pct": None,
+            "status_x": STATUS_NAO_AVALIADO,
+            "desvio_x_pct": None,
+            "status_isolamento": status_iso,
+            "status_geral": status_geral([status_ttr, status_iso]),
+        }
+
 
 
 class EnsaioRisoCabosCaMt(MetadadosCampo):
