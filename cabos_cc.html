@@ -168,10 +168,20 @@
               <p>Para cada string, registre <b>Voc</b>, <b>V+ para terra</b> e <b>V− para terra</b>.</p>
 
               <h6>Como o Portal interpreta?</h6>
-              <p>O Portal utiliza o módulo das tensões para terra e verifica se a soma <b>|V+/PE| + |V−/PE|</b> é coerente com a Voc medida da string.</p>
+              <p>O Portal compara individualmente o módulo de <b>V+ → Terra</b> e <b>V− → Terra</b> com a <b>Voc medida</b> da própria string.</p>
+
+              <p>
+                <b>Até 10% da Voc:</b> CONFORME.<br>
+                <b>Acima de 10% até 15%:</b> ATENÇÃO.<br>
+                <b>Acima de 15%:</b> ATENÇÃO — desvio elevado.
+              </p>
 
               <h6>Por que isso é útil?</h6>
-              <p>Em um circuito CC flutuante, uma alteração significativa nessa relação pode indicar uma condição anormal de isolamento ou referência para terra.</p>
+              <p>
+                Neste diagnóstico de campo, espera-se que a tensão medida entre cada polo e terra
+                permaneça baixa em relação à Voc da string. Uma elevação pode indicar comportamento
+                sugestivo de fuga para terra pelo polo oposto e deve ser avaliada tecnicamente.
+              </p>
 
               <h6>Importante</h6>
               <p>Essa análise é um <b>diagnóstico auxiliar</b>. Ela não substitui o ensaio de resistência de isolamento. Quando houver necessidade de RISO, utilize a página específica <b>RISO de Strings</b>.</p>
@@ -179,7 +189,7 @@
         </div>
 
         <div class="info-strip">
-          Registre as três tensões de cada string. O diagnóstico para terra é apenas auxiliar e é tratado separadamente do ensaio de RISO.
+          Registre Voc, V+ → Terra e V− → Terra. Para o diagnóstico auxiliar, quanto menor a tensão polo-terra em relação à Voc, melhor.
         </div>
 
         <div id="lista_strings"></div>
@@ -309,30 +319,57 @@ function gerarStrings() {
 
 function calcularResultadoLocal(voc, vp, vn, nMod, vocStc, beta, temp, tol) {
   const vocEsperada = nMod * vocStc * (1 + (beta / 100) * (temp - 25));
-  const desvioVoc = vocEsperada !== 0 ? Math.abs(voc - vocEsperada) / Math.abs(vocEsperada) : null;
-  const stVoc = desvioVoc !== null && desvioVoc <= tol ? STATUS.CONFORME : STATUS.ATENCAO;
+  const desvioVoc = vocEsperada !== 0
+    ? Math.abs(voc - vocEsperada) / Math.abs(vocEsperada)
+    : null;
 
+  const stVoc = desvioVoc !== null && desvioVoc <= tol
+    ? STATUS.CONFORME
+    : STATUS.ATENCAO;
+
+  const vocAbs = Math.abs(voc);
   const vpAbs = Math.abs(vp);
   const vnAbs = Math.abs(vn);
-  const vocAbs = Math.abs(voc);
-  const erroFech = vocAbs > 0 ? Math.abs((vpAbs + vnAbs) - vocAbs) / vocAbs : null;
 
-  let stDiag, diagnostico;
-  if (erroFech === null) {
+  const pctPosTerra = vocAbs > 0 ? vpAbs / vocAbs : null;
+  const pctNegTerra = vocAbs > 0 ? vnAbs / vocAbs : null;
+
+  const pctMaxTerra = (
+    pctPosTerra !== null && pctNegTerra !== null
+  ) ? Math.max(pctPosTerra, pctNegTerra) : null;
+
+  let stDiag, diagnostico, faixaDiagnostico;
+
+  if (pctMaxTerra === null) {
     stDiag = STATUS.NAO_AVALIADO;
-    diagnostico = 'Dados insuficientes para avaliação.';
-  } else if (erroFech <= 0.08) {
+    faixaDiagnostico = 'NÃO AVALIADO';
+    diagnostico = 'Dados insuficientes para avaliação do diagnóstico polo-terra.';
+  } else if (pctMaxTerra <= 0.10) {
     stDiag = STATUS.CONFORME;
-    diagnostico = 'Tensões para terra coerentes com a Voc medida.';
+    faixaDiagnostico = 'ATÉ 10%';
+    diagnostico =
+      'As tensões polo-terra permanecem baixas em relação à Voc medida da string.';
+  } else if (pctMaxTerra <= 0.15) {
+    stDiag = STATUS.ATENCAO;
+    faixaDiagnostico = 'ENTRE 10% E 15%';
+    diagnostico =
+      'Uma das tensões polo-terra encontra-se entre 10% e 15% da Voc medida. ' +
+      'O resultado requer atenção e avaliação técnica.';
   } else {
     stDiag = STATUS.ATENCAO;
-    diagnostico = 'Tensões para terra fora da coerência esperada. Avaliar a condição da string.';
+    faixaDiagnostico = 'ACIMA DE 15%';
+    diagnostico =
+      'Uma das tensões polo-terra supera 15% da Voc medida. ' +
+      'Foi identificado desvio elevado neste diagnóstico auxiliar.';
   }
 
   return {
     vocEsperada,
     desvioVoc,
-    erroFech,
+    pctPosTerra,
+    pctNegTerra,
+    pctMaxTerra,
+    faixaDiagnostico,
     stVoc,
     stDiag,
     diagnostico,
@@ -405,8 +442,9 @@ document.getElementById('formStrings').addEventListener('submit', async (e) => {
         <td><span class="valor-mono">${vn}</span></td>
         <td>
           ${badgeStatus(r.stDiag)}
-          <div style="font-size:.62rem;margin-top:4px">
-            ${r.erroFech !== null ? (r.erroFech*100).toFixed(1)+'%' : '-'}
+          <div style="font-size:.60rem;margin-top:5px;line-height:1.35">
+            V+: ${r.pctPosTerra !== null ? (r.pctPosTerra*100).toFixed(1)+'%' : '-'}<br>
+            V−: ${r.pctNegTerra !== null ? (r.pctNegTerra*100).toFixed(1)+'%' : '-'}
           </div>
         </td>
       </tr>`;
@@ -441,14 +479,14 @@ document.getElementById('formStrings').addEventListener('submit', async (e) => {
           <th>Voc</th>
           <th>V+ → Terra</th>
           <th>V− → Terra</th>
-          <th>Diagnóstico</th>
+          <th>Diagnóstico<br>Polo-Terra</th>
         </tr>
       </thead>
       <tbody>${linhas}</tbody>
     </table>
 
     <div class="info-strip">
-      O diagnóstico por tensões para terra é auxiliar e não substitui o ensaio de RISO.
+      Diagnóstico polo-terra: até 10% da Voc = CONFORME; acima de 10% até 15% = ATENÇÃO; acima de 15% = ATENÇÃO com desvio elevado. Este diagnóstico é auxiliar e não substitui o ensaio de RISO.
     </div>
 
     <div class="mt-3">

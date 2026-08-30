@@ -17,7 +17,8 @@ TOL_TTR_TRAFO = 0.005
 LIMITE_ATERRAMENTO_OHM = 10.0
 TOL_PATAMAR_ATERRAMENTO = 0.10
 LIMITE_CONTINUIDADE_MOHM = 1000.0
-TOL_DIAGNOSTICO_STRING = 0.08
+LIMITE_POLO_TERRA_CONFORME = 0.10
+LIMITE_POLO_TERRA_ELEVADO = 0.15
 
 
 def status_isolamento(valor: Optional[float]) -> str:
@@ -88,41 +89,85 @@ class EnsaioCabosCC(MetadadosCampo):
         voc_esperada = self.n_modulos * self.voc_stc * (
             1 + (self.beta_voc / 100.0) * (self.temperatura_modulo - 25.0)
         )
-        desvio_voc = abs(self.voc - voc_esperada) / abs(voc_esperada) if voc_esperada else None
-        status_voc = STATUS_CONFORME if desvio_voc is not None and desvio_voc <= self.tolerancia_voc else STATUS_ATENCAO
 
-        vp = abs(self.v_pos_terra)
-        vn = abs(self.v_neg_terra)
+        desvio_voc = (
+            abs(self.voc - voc_esperada) / abs(voc_esperada)
+            if voc_esperada else None
+        )
+
+        status_voc = (
+            STATUS_CONFORME
+            if desvio_voc is not None and desvio_voc <= self.tolerancia_voc
+            else STATUS_ATENCAO
+        )
+
         voc_abs = abs(self.voc)
-        erro_fechamento = abs((vp + vn) - voc_abs) / voc_abs if voc_abs > 0 else None
+        vp_abs = abs(self.v_pos_terra)
+        vn_abs = abs(self.v_neg_terra)
 
-        if erro_fechamento is None:
+        pct_pos_terra = vp_abs / voc_abs if voc_abs > 0 else None
+        pct_neg_terra = vn_abs / voc_abs if voc_abs > 0 else None
+
+        pct_max_terra = (
+            max(pct_pos_terra, pct_neg_terra)
+            if pct_pos_terra is not None and pct_neg_terra is not None
+            else None
+        )
+
+        if pct_max_terra is None:
             status_diagnostico = STATUS_NAO_AVALIADO
-            diagnostico = "Dados insuficientes para avaliação."
-        elif erro_fechamento <= TOL_DIAGNOSTICO_STRING:
+            faixa_diagnostico = "NÃO AVALIADO"
+            diagnostico = "Dados insuficientes para avaliação do diagnóstico polo-terra."
+
+        elif pct_max_terra <= LIMITE_POLO_TERRA_CONFORME:
             status_diagnostico = STATUS_CONFORME
+            faixa_diagnostico = "ATÉ 10%"
             diagnostico = (
-                "As tensões medidas para terra apresentam coerência com a tensão total "
-                "da string. Não foi identificado desvio significativo por este método de diagnóstico."
+                "As tensões polo-terra permanecem baixas em relação à Voc medida da string."
             )
+
+        elif pct_max_terra <= LIMITE_POLO_TERRA_ELEVADO:
+            status_diagnostico = STATUS_ATENCAO
+            faixa_diagnostico = "ENTRE 10% E 15%"
+            diagnostico = (
+                "Uma das tensões polo-terra encontra-se entre 10% e 15% da Voc medida. "
+                "O resultado requer atenção e avaliação técnica."
+            )
+
         else:
             status_diagnostico = STATUS_ATENCAO
+            faixa_diagnostico = "ACIMA DE 15%"
             diagnostico = (
-                "As tensões medidas para terra não apresentam a coerência esperada com a tensão "
-                "total da string. Avaliar a condição do circuito e, quando aplicável, utilizar "
-                "o ensaio específico de RISO de Strings."
+                "Uma das tensões polo-terra supera 15% da Voc medida. "
+                "Foi identificado desvio elevado neste diagnóstico auxiliar."
             )
 
         geral = status_geral([status_voc, status_diagnostico])
+
         return {
             "voc_esperada": round(voc_esperada, 2),
             "desvio_voc_pct": round((desvio_voc or 0) * 100, 2),
-            "erro_fechamento_pct": round((erro_fechamento or 0) * 100, 2),
+
+            "pct_pos_terra": (
+                round(pct_pos_terra * 100, 2)
+                if pct_pos_terra is not None else None
+            ),
+            "pct_neg_terra": (
+                round(pct_neg_terra * 100, 2)
+                if pct_neg_terra is not None else None
+            ),
+            "pct_max_terra": (
+                round(pct_max_terra * 100, 2)
+                if pct_max_terra is not None else None
+            ),
+
+            "faixa_diagnostico": faixa_diagnostico,
             "status_voc": status_voc,
             "status_diagnostico": status_diagnostico,
             "diagnostico": diagnostico,
             "status_geral": geral,
         }
+
 
 
 class EnsaioRisoString(MetadadosCampo):

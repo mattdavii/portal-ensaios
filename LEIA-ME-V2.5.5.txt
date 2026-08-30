@@ -1,0 +1,30 @@
+PORTAL DE ENSAIOS — V2.5.5
+
+ALTERAÇÃO PRINCIPAL — STRINGS CC
+
+O diagnóstico Polo → Terra foi revisado.
+
+Nova lógica:
+- V+ → Terra é avaliado individualmente em relação à Voc medida.
+- V− → Terra é avaliado individualmente em relação à Voc medida.
+- O maior percentual entre os dois polos define o diagnóstico da string.
+
+Critério interno:
+- até 10% da Voc: CONFORME
+- acima de 10% até 15%: ATENÇÃO
+- acima de 15%: ATENÇÃO — desvio elevado
+
+Exemplo:
+Voc = 900 V
+V+ → Terra = 20 V => 2,22%
+V− → Terra = 26 V => 2,89%
+Diagnóstico Polo-Terra = CONFORME
+
+A análise anterior baseada em |V+/PE| + |V-/PE| ≈ Voc foi removida.
+
+O diagnóstico continua sendo auxiliar e não substitui o ensaio de RISO.
+
+Também mantidos:
+- atualização controlada do PWA
+- ferramenta de curvas de proteção removida
+- versão exibida na home: v2.5.5

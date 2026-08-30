@@ -20,7 +20,19 @@ def criar_tabelas():
     for n,tp in {'classe':'TEXT','finalidade':'TEXT','temperatura_c':'REAL','tensao_ensaio_isolamento_v':'REAL','limite_ttr_pct':'REAL'}.items():_add(conn,'ensaio_final',n,tp)
     for t in ['ensaio_disjuntor_mt','ensaio_disjuntor_bt','ensaio_seccionadora']:
         _add(conn,t,'corrente_ensaio_a','REAL');_add(conn,t,'tensao_ensaio_isolamento_v','REAL');_add(conn,t,'desequilibrio_pct','REAL')
-    for n,tp in {'temperatura_modulo':'REAL','tolerancia_voc':'REAL','riso_mohm':'REAL','tensao_riso_v':'REAL','erro_fechamento_pct':'REAL','diagnostico':'TEXT','status_riso':'TEXT'}.items():_add(conn,'ensaio_cabos_cc',n,tp)
+    for n,tp in {
+        'temperatura_modulo':'REAL',
+        'tolerancia_voc':'REAL',
+        'riso_mohm':'REAL',
+        'tensao_riso_v':'REAL',
+        'erro_fechamento_pct':'REAL',
+        'diagnostico':'TEXT',
+        'status_riso':'TEXT',
+        'pct_pos_terra':'REAL',
+        'pct_neg_terra':'REAL',
+        'pct_max_terra':'REAL',
+        'faixa_diagnostico':'TEXT'
+    }.items():_add(conn,'ensaio_cabos_cc',n,tp)
     _add(conn,'ensaio_res_malha','status_valor','TEXT')
 
     conn.execute("""

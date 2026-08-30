@@ -44,18 +44,69 @@ def pagina(pagina:str):
 @app.post('/api/sync/cabos-cc')
 def s_cc(d:models.EnsaioCabosCC):
     r=d.validar()
+
     _exec("""INSERT INTO ensaio_cabos_cc (
-        usina,skid,inversor,tag,origem,destino,voc,v_pos_terra,v_neg_terra,
-        n_modulos,voc_stc,beta_voc,t_medida,temperatura_modulo,tolerancia_voc,
-        voc_esperada,erro_fechamento_pct,status_consistencia,status_voc,status_geral,
-        tecnico,os,observacoes,status_geral_v2
-    ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",(
-        d.usina,d.skid,d.inversor,d.tag,d.origem,d.destino,d.voc,d.v_pos_terra,d.v_neg_terra,
-        d.n_modulos,d.voc_stc,d.beta_voc,d.temperatura_modulo,d.temperatura_modulo,d.tolerancia_voc,
-        r['voc_esperada'],r['erro_fechamento_pct'],r['status_diagnostico'],r['status_voc'],r['status_geral'],
-        d.tecnico,d.os,d.observacoes,r['status_geral']
+        usina,
+        skid,
+        inversor,
+        tag,
+        origem,
+        destino,
+        voc,
+        v_pos_terra,
+        v_neg_terra,
+        n_modulos,
+        voc_stc,
+        beta_voc,
+        t_medida,
+        temperatura_modulo,
+        tolerancia_voc,
+        voc_esperada,
+        pct_pos_terra,
+        pct_neg_terra,
+        pct_max_terra,
+        faixa_diagnostico,
+        diagnostico,
+        status_consistencia,
+        status_voc,
+        status_geral,
+        tecnico,
+        os,
+        observacoes,
+        status_geral_v2
+    ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",(
+        d.usina,
+        d.skid,
+        d.inversor,
+        d.tag,
+        d.origem,
+        d.destino,
+        d.voc,
+        d.v_pos_terra,
+        d.v_neg_terra,
+        d.n_modulos,
+        d.voc_stc,
+        d.beta_voc,
+        d.temperatura_modulo,
+        d.temperatura_modulo,
+        d.tolerancia_voc,
+        r['voc_esperada'],
+        r['pct_pos_terra'],
+        r['pct_neg_terra'],
+        r['pct_max_terra'],
+        r['faixa_diagnostico'],
+        r['diagnostico'],
+        r['status_diagnostico'],
+        r['status_voc'],
+        r['status_geral'],
+        d.tecnico,
+        d.os,
+        d.observacoes,
+        r['status_geral']
     ))
+
     return {'status':'ok','resultado':r}
+
 
 @app.post('/api/sync/riso-strings')
 def s_riso_strings(d:models.EnsaioRisoString):

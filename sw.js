@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'portal-v2-5-4-20260822';
+const CACHE_VERSION = 'portal-v2-5-5-20260830';
 
 const CORE = [
   '/',
