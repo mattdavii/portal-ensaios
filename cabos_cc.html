@@ -317,6 +317,101 @@ function gerarStrings() {
   }
 }
 
+function categoriaAnaliseVoc(r) {
+  if (!r || r.stVoc !== STATUS.ATENCAO || r.desvioVocAssinado === null) return null;
+
+  const desvioAbs = Math.abs(r.desvioVocAssinado);
+
+  if (r.desvioVocAssinado < 0 && desvioAbs <= 0.10) return 'moderado';
+  if (r.desvioVocAssinado < 0 && desvioAbs <= 0.25) return 'elevado';
+  if (r.desvioVocAssinado < 0 && desvioAbs > 0.25) return 'muito_elevado';
+  if (r.desvioVocAssinado > 0) return 'acima_esperado';
+
+  return null;
+}
+
+function textoListaStrings(itens) {
+  const nomes = itens.map(x => x.tag);
+
+  if (nomes.length === 1) return nomes[0];
+  if (nomes.length === 2) return `${nomes[0]} e ${nomes[1]}`;
+
+  return `${nomes.slice(0, -1).join(', ')} e ${nomes[nomes.length - 1]}`;
+}
+
+function renderAnaliseVocAgrupada(grupos) {
+  const blocos = [];
+
+  if (grupos.moderado.length) {
+    blocos.push(`
+      <div class="observacao-laudo mb-2">
+        <b>VOC abaixo do esperado — ${escaparHtml(textoListaStrings(grupos.moderado))}</b><br>
+        Desvio de até 10% em relação ao valor esperado. Verificar módulos com comportamento anormal,
+        possível atuação de bypass, condição associada a ponto quente/mismatch e conexões.
+      </div>
+    `);
+  }
+
+  if (grupos.elevado.length) {
+    blocos.push(`
+      <div class="observacao-laudo mb-2">
+        <b>Desvio elevado de VOC — ${escaparHtml(textoListaStrings(grupos.elevado))}</b><br>
+        Conferir seriamento, conexões, módulos ou trechos fora do circuito e confirmar os dados
+        informados do módulo e da temperatura.
+      </div>
+    `);
+  }
+
+  if (grupos.muito_elevado.length) {
+    const estimativas = grupos.muito_elevado.map(x => {
+      const base = x.r.modulosEquivalentes !== null
+        ? `${escaparHtml(x.tag)} ≈ ${x.r.modulosEquivalentes} módulo(s)`
+        : `${escaparHtml(x.tag)}: estimativa indisponível`;
+
+      const diferenca = x.r.diferencaModulos !== null && x.r.diferencaModulos > 0
+        ? ` (${x.r.diferencaModulos} a menos que os ${x.nMod} informados)`
+        : '';
+
+      return base + diferenca;
+    }).join('; ');
+
+    blocos.push(`
+      <div class="observacao-laudo mb-2">
+        <b>Desvio muito elevado de VOC — ${escaparHtml(textoListaStrings(grupos.muito_elevado))}</b><br>
+        Conferir prioritariamente a quantidade real de módulos no seriamento, conexões e possíveis
+        trechos/módulos fora do circuito.<br>
+        <span style="font-size:.68rem">
+          <b>Estimativa auxiliar:</b> ${estimativas}.
+        </span>
+      </div>
+    `);
+  }
+
+  if (grupos.acima_esperado.length) {
+    blocos.push(`
+      <div class="observacao-laudo mb-2">
+        <b>VOC acima do esperado — ${escaparHtml(textoListaStrings(grupos.acima_esperado))}</b><br>
+        Conferir quantidade de módulos, modelo/VOC STC, coeficiente βVoc e temperatura informada
+        antes da conclusão técnica.
+      </div>
+    `);
+  }
+
+  if (!blocos.length) return '';
+
+  return `
+    <div class="mt-3">
+      <b>Análise da VOC</b>
+      <div class="mt-2">${blocos.join('')}</div>
+
+      <div style="font-size:.65rem;color:var(--texto-muted);line-height:1.4;margin-top:5px">
+        As orientações acima são indicativas e devem ser confirmadas em campo.
+        Não constituem diagnóstico definitivo da causa.
+      </div>
+    </div>
+  `;
+}
+
 function calcularResultadoLocal(voc, vp, vn, nMod, vocStc, beta, temp, tol) {
   const vocEsperada = nMod * vocStc * (1 + (beta / 100) * (temp - 25));
   const desvioVoc = vocEsperada !== 0
@@ -453,6 +548,13 @@ document.getElementById('formStrings').addEventListener('submit', async (e) => {
   const statuses = [];
   let linhas = '';
 
+  const gruposAnaliseVoc = {
+    moderado: [],
+    elevado: [],
+    muito_elevado: [],
+    acima_esperado: []
+  };
+
   for (let i = 1; i <= qtd; i++) {
     const tag = textoCampo(`tag_${i}`) || `String ${i}`;
     const voc = numeroCampo(`voc_${i}`);
@@ -461,6 +563,16 @@ document.getElementById('formStrings').addEventListener('submit', async (e) => {
 
     const r = calcularResultadoLocal(voc, vp, vn, nMod, vocStc, beta, temp, tol);
     statuses.push(r.geral);
+
+    const categoriaVoc = categoriaAnaliseVoc(r);
+
+    if (categoriaVoc && gruposAnaliseVoc[categoriaVoc]) {
+      gruposAnaliseVoc[categoriaVoc].push({
+        tag,
+        r,
+        nMod
+      });
+    }
 
     payloads.push({
       usina,
@@ -494,20 +606,6 @@ document.getElementById('formStrings').addEventListener('submit', async (e) => {
             Desvio: ${r.desvioVocAssinado !== null ? (r.desvioVocAssinado*100).toFixed(1)+'%' : '-'}
           </span><br>
           ${badgeStatus(r.stVoc)}
-          ${r.observacaoVoc ? `
-            <div style="
-              font-size:.58rem;
-              line-height:1.35;
-              margin-top:6px;
-              padding:6px;
-              border-radius:7px;
-              background:#fff7e8;
-              color:#7b4a12;
-              text-align:left;
-            ">
-              ${escaparHtml(r.observacaoVoc)}
-            </div>
-          ` : ''}
         </td>
         <td><span class="valor-mono">${vp}</span></td>
         <td><span class="valor-mono">${vn}</span></td>
@@ -556,11 +654,12 @@ document.getElementById('formStrings').addEventListener('submit', async (e) => {
       <tbody>${linhas}</tbody>
     </table>
 
+    ${renderAnaliseVocAgrupada(gruposAnaliseVoc)}
+
     <div class="info-strip">
-      <b>VOC:</b> quando a medição estiver fora da tolerância selecionada, as orientações apresentadas
-      são indicativas e devem ser confirmadas em campo. Desvios muito elevados podem ser compatíveis
-      com quantidade de módulos em série diferente da informada, trechos fora do circuito ou outras
-      anormalidades. A estimativa de módulos é apenas auxiliar.<br><br>
+      <b>VOC:</b> o valor esperado considera quantidade de módulos, VOC STC, βVoc e temperatura
+      do módulo. Quando houver desvios, as strings com comportamento semelhante são agrupadas
+      na seção “Análise da VOC”.<br><br>
       <b>Diagnóstico polo-terra:</b> até 10% da Voc = CONFORME; acima de 10% até 15% = ATENÇÃO;
       acima de 15% = ATENÇÃO com desvio elevado. Este diagnóstico é auxiliar e não substitui o ensaio de RISO.
     </div>
