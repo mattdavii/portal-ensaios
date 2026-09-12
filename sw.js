@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'portal-v2-5-11-20260830';
+const CACHE_VERSION = 'portal-v2-5-11-pdf-20260912';
 
 const CORE = [
   '/',
