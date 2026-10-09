@@ -34,8 +34,14 @@ def ui():return _file('ui.js','application/javascript')
 def rascunho():return _file('rascunho.js','application/javascript')
 @app.api_route('/resistencia.js',methods=['GET','HEAD'])
 def resistencia():return _file('resistencia.js','application/javascript')
+@app.api_route('/trafo.js',methods=['GET','HEAD'])
+def trafo_script():return _file('trafo.js','application/javascript')
 @app.api_route('/logo.png',methods=['GET','HEAD'])
 def logo():return _file('logo.png','image/png','public, max-age=86400')
+@app.api_route('/vendor/html2pdf.bundle.min.js',methods=['GET','HEAD'])
+def html2pdf_local():return _file('vendor/html2pdf.bundle.min.js','application/javascript','public, max-age=31536000, immutable')
+@app.api_route('/vendor/bootstrap.min.css',methods=['GET','HEAD'])
+def bootstrap_local():return _file('vendor/bootstrap.min.css','text/css','public, max-age=31536000, immutable')
 @app.api_route('/{pagina}',methods=['GET','HEAD'])
 def pagina(pagina:str):
     if pagina in PAGINAS:return _file(PAGINAS[pagina])
@@ -183,16 +189,16 @@ def s_trafo(d:models.EnsaioTrafo):
         at_t,at_bt,bt_t,status_at_t,status_at_bt,status_bt_t,
         classe,finalidade,temperatura_c,tensao_ensaio_isolamento_v,
         limite_ttr_pct,tecnico,os,observacoes,status_geral_v2,
-        quantidade_secundarios,secundarios_json
-    ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)''',(
-        d.usina,d.tag,d.tipo,d.tap,d.nom_pri,d.nom_sec,d.rn_teorico,
+        quantidade_secundarios,secundarios_json,ligacao_at,ligacao_bt
+    ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)''',(
+        d.usina,d.tag,d.tipo,d.tap,d.nom_pri,d.nom_sec,r.get('rn_teorico',d.rn_teorico),
         d.ttr_a,d.ttr_b,d.ttr_c,r['status_ttr'],
         d.h1,d.h2,d.h3,d.uni_h,r['status_h'],
         d.x1,d.x2,d.x3,d.uni_x,r['status_x'],
         d.at_t,d.at_bt,d.bt_t,sa,sab,sbt,
         d.classe,d.finalidade,d.temperatura_c,d.tensao_ensaio_isolamento_v,
         r['limite_ttr_pct'],d.tecnico,d.os,d.observacoes,r['status_geral'],
-        d.quantidade_secundarios,d.secundarios_json
+        d.quantidade_secundarios,d.secundarios_json,d.ligacao_at,d.ligacao_bt
     ))
 
     return {'status':'ok','resultado':r}

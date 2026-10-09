@@ -1,4 +1,5 @@
 import json
+import math
 from typing import Optional, Dict, List
 from pydantic import BaseModel
 
@@ -28,6 +29,14 @@ def status_isolamento(valor: Optional[float]) -> str:
     return STATUS_CONFORME if valor >= LIMITE_ISOLAMENTO_MOHM else STATUS_RESSALVA
 
 
+def numero_finito(valor) -> Optional[float]:
+    try:
+        numero = float(valor)
+    except (TypeError, ValueError):
+        return None
+    return numero if math.isfinite(numero) else None
+
+
 def status_geral(statuses: List[str], permitir_refazer: bool = False) -> str:
     validos = [s for s in statuses if s and s != STATUS_NAO_AVALIADO]
     if not validos:
@@ -44,7 +53,40 @@ def status_geral(statuses: List[str], permitir_refazer: bool = False) -> str:
 def erro_relativo(medido: Optional[float], referencia: Optional[float]) -> Optional[float]:
     if medido is None or referencia in (None, 0):
         return None
+    if not math.isfinite(medido) or not math.isfinite(referencia):
+        return None
     return abs(medido - referencia) / abs(referencia)
+
+
+def fator_ligacao(ligacao: Optional[str]) -> Optional[float]:
+    valor = (ligacao or "").strip().upper()
+    if valor in {"ESTRELA", "Y", "WYE"}:
+        return math.sqrt(3.0)
+    if valor in {"DELTA", "D", "Δ"}:
+        return 1.0
+    return None
+
+
+def relacao_teorica_trafo(
+    v_primario: Optional[float],
+    v_secundario: Optional[float],
+    ligacao_at: Optional[str],
+    ligacao_bt: Optional[str],
+) -> Optional[float]:
+    fator_at = fator_ligacao(ligacao_at)
+    fator_bt = fator_ligacao(ligacao_bt)
+    if (
+        v_primario is None
+        or v_secundario is None
+        or v_primario <= 0
+        or v_secundario <= 0
+        or fator_at is None
+        or fator_bt is None
+        or not math.isfinite(v_primario)
+        or not math.isfinite(v_secundario)
+    ):
+        return None
+    return (v_primario / fator_at) / (v_secundario / fator_bt)
 
 
 def limite_classe_instrumento(tipo: str, classe: Optional[str]) -> Optional[float]:
@@ -274,6 +316,8 @@ class EnsaioTrafo(MetadadosCampo):
     nom_pri: Optional[float] = None
     nom_sec: Optional[float] = None
     rn_teorico: Optional[float] = None
+    ligacao_at: Optional[str] = None
+    ligacao_bt: Optional[str] = None
     ttr_a: Optional[float] = None
     ttr_b: Optional[float] = None
     ttr_c: Optional[float] = None
@@ -302,23 +346,41 @@ class EnsaioTrafo(MetadadosCampo):
         def equilibrio(vals):
             validos = [v for v in vals if v is not None]
             if len(validos) < 3:
-                return {"status": STATUS_NAO_AVALIADO, "desvio": None}
+                return {
+                    "status": STATUS_NAO_AVALIADO,
+                    "media": None,
+                    "desvios": [None, None, None],
+                    "desvio": None,
+                }
             media = sum(validos) / 3
             if media == 0:
-                return {"status": STATUS_ATENCAO, "desvio": None}
-            d = max(abs(v - media) / abs(media) for v in validos)
+                return {
+                    "status": STATUS_ATENCAO,
+                    "media": media,
+                    "desvios": [None, None, None],
+                    "desvio": None,
+                }
+            desvios = [abs(v - media) / abs(media) * 100 for v in validos]
+            d = max(desvios)
             return {
-                "status": STATUS_CONFORME if d <= TOL_OHMICA_TRAFO else STATUS_ATENCAO,
-                "desvio": d * 100,
+                "status": STATUS_CONFORME if d <= TOL_OHMICA_TRAFO * 100 else STATUS_ATENCAO,
+                "media": media,
+                "desvios": desvios,
+                "desvio": d,
             }
 
         # Transformador de potência mantém a lógica original.
         if tipo == "TRAFO":
             limite_pct = TOL_TTR_TRAFO * 100
             erros = []
+            rn_calculado = relacao_teorica_trafo(
+                self.nom_pri, self.nom_sec, self.ligacao_at, self.ligacao_bt
+            )
+            # Compatibilidade com registros offline criados antes das ligações AT/BT.
+            rn_efetivo = rn_calculado if rn_calculado is not None else self.rn_teorico
 
             for medido in [self.ttr_a, self.ttr_b, self.ttr_c]:
-                e = erro_relativo(medido, self.rn_teorico)
+                e = erro_relativo(medido, rn_efetivo)
                 erros.append(None if e is None else e * 100)
 
             ev = [e for e in erros if e is not None]
@@ -339,14 +401,19 @@ class EnsaioTrafo(MetadadosCampo):
             ])
 
             return {
+                "rn_teorico": None if rn_efetivo is None else round(rn_efetivo, 6),
                 "limite_ttr_pct": limite_pct,
                 "erro_ttr_a_pct": None if erros[0] is None else round(erros[0], 3),
                 "erro_ttr_b_pct": None if erros[1] is None else round(erros[1], 3),
                 "erro_ttr_c_pct": None if erros[2] is None else round(erros[2], 3),
                 "status_ttr": status_ttr,
                 "status_h": eqh["status"],
+                "media_h": None if eqh["media"] is None else round(eqh["media"], 6),
+                "desvios_h_pct": [None if d is None else round(d, 2) for d in eqh["desvios"]],
                 "desvio_h_pct": None if eqh["desvio"] is None else round(eqh["desvio"], 2),
                 "status_x": eqx["status"],
+                "media_x": None if eqx["media"] is None else round(eqx["media"], 6),
+                "desvios_x_pct": [None if d is None else round(d, 2) for d in eqx["desvios"]],
                 "desvio_x_pct": None if eqx["desvio"] is None else round(eqx["desvio"], 2),
                 "status_isolamento": status_iso,
                 "status_geral": status_geral([
@@ -367,12 +434,22 @@ class EnsaioTrafo(MetadadosCampo):
 
         if secundarios:
             erros = []
+            relacoes_teoricas = []
             status_relacoes = []
             status_isos = [status_isolamento(self.at_t)]
 
             for sec in secundarios:
-                rn = sec.get("rn_teorico")
-                medido = sec.get("relacao_medida")
+                nominal_secundario = sec.get("nominal_secundario")
+                try:
+                    rn = (
+                        float(self.nom_pri) / float(nominal_secundario)
+                        if self.nom_pri is not None and float(nominal_secundario) > 0
+                        else None
+                    )
+                except (TypeError, ValueError):
+                    rn = None
+                relacoes_teoricas.append(rn)
+                medido = numero_finito(sec.get("relacao_medida"))
                 tolerancia = sec.get("tolerancia_pct")
 
                 e = erro_relativo(medido, rn)
@@ -384,14 +461,18 @@ class EnsaioTrafo(MetadadosCampo):
                 else:
                     try:
                         limite = float(tolerancia)
-                        st_rel = STATUS_CONFORME if erro_pct <= limite else STATUS_ATENCAO
+                        st_rel = (
+                            STATUS_NAO_AVALIADO
+                            if limite < 0
+                            else (STATUS_CONFORME if erro_pct <= limite else STATUS_ATENCAO)
+                        )
                     except (TypeError, ValueError):
                         st_rel = STATUS_NAO_AVALIADO
 
                 status_relacoes.append(st_rel)
 
-                status_isos.append(status_isolamento(sec.get("riso_prim_sec")))
-                status_isos.append(status_isolamento(sec.get("riso_sec_terra")))
+                status_isos.append(status_isolamento(numero_finito(sec.get("riso_prim_sec"))))
+                status_isos.append(status_isolamento(numero_finito(sec.get("riso_sec_terra"))))
 
             status_ttr = status_geral(status_relacoes)
             status_iso = status_geral(status_isos)
@@ -407,14 +488,22 @@ class EnsaioTrafo(MetadadosCampo):
             erros_compat = (erros + [None, None, None])[:3]
 
             return {
+                "rn_teorico": (
+                    None if not relacoes_teoricas or relacoes_teoricas[0] is None
+                    else round(relacoes_teoricas[0], 6)
+                ),
                 "limite_ttr_pct": limite_unico,
                 "erro_ttr_a_pct": None if erros_compat[0] is None else round(erros_compat[0], 3),
                 "erro_ttr_b_pct": None if erros_compat[1] is None else round(erros_compat[1], 3),
                 "erro_ttr_c_pct": None if erros_compat[2] is None else round(erros_compat[2], 3),
                 "status_ttr": status_ttr,
                 "status_h": STATUS_NAO_AVALIADO,
+                "media_h": None,
+                "desvios_h_pct": [None, None, None],
                 "desvio_h_pct": None,
                 "status_x": STATUS_NAO_AVALIADO,
+                "media_x": None,
+                "desvios_x_pct": [None, None, None],
                 "desvio_x_pct": None,
                 "status_isolamento": status_iso,
                 "status_geral": status_geral([status_ttr, status_iso]),
@@ -443,14 +532,19 @@ class EnsaioTrafo(MetadadosCampo):
         ])
 
         return {
+            "rn_teorico": self.rn_teorico,
             "limite_ttr_pct": limite_pct,
             "erro_ttr_a_pct": None if erros[0] is None else round(erros[0], 3),
             "erro_ttr_b_pct": None if erros[1] is None else round(erros[1], 3),
             "erro_ttr_c_pct": None if erros[2] is None else round(erros[2], 3),
             "status_ttr": status_ttr,
             "status_h": STATUS_NAO_AVALIADO,
+            "media_h": None,
+            "desvios_h_pct": [None, None, None],
             "desvio_h_pct": None,
             "status_x": STATUS_NAO_AVALIADO,
+            "media_x": None,
+            "desvios_x_pct": [None, None, None],
             "desvio_x_pct": None,
             "status_isolamento": status_iso,
             "status_geral": status_geral([status_ttr, status_iso]),

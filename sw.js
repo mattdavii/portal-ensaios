@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'portal-v2-5-11-pdf-20260912';
+const CACHE_VERSION = 'portal-v2-5-11-calculos-pdf-offline-20261009';
 
 const CORE = [
   '/',
@@ -6,6 +6,9 @@ const CORE = [
   '/ui.js',
   '/rascunho.js',
   '/resistencia.js',
+  '/trafo.js',
+  '/vendor/bootstrap.min.css',
+  '/vendor/html2pdf.bundle.min.js',
   '/manifest.json',
   '/logo.png',
   '/trafo',

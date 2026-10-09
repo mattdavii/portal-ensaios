@@ -17,7 +17,15 @@ def criar_tabelas():
     tabelas=['ensaio_final','ensaio_disjuntor_mt','ensaio_disjuntor_bt','ensaio_seccionadora','ensaio_cabos_cc','ensaio_cont_malha','ensaio_res_malha']
     for t in tabelas:
         for n,tp in comuns.items():_add(conn,t,n,tp)
-    for n,tp in {'classe':'TEXT','finalidade':'TEXT','temperatura_c':'REAL','tensao_ensaio_isolamento_v':'REAL','limite_ttr_pct':'REAL'}.items():_add(conn,'ensaio_final',n,tp)
+    for n,tp in {
+        'classe':'TEXT',
+        'finalidade':'TEXT',
+        'temperatura_c':'REAL',
+        'tensao_ensaio_isolamento_v':'REAL',
+        'limite_ttr_pct':'REAL',
+        'ligacao_at':'TEXT',
+        'ligacao_bt':'TEXT'
+    }.items():_add(conn,'ensaio_final',n,tp)
     _add(conn,'ensaio_final','quantidade_secundarios','INTEGER')
     _add(conn,'ensaio_final','secundarios_json','TEXT')
     for t in ['ensaio_disjuntor_mt','ensaio_disjuntor_bt','ensaio_seccionadora']:

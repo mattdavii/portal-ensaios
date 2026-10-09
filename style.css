@@ -31,7 +31,8 @@
 .page-actions.two{grid-template-columns:1fr 1fr}
 .form-hint{color:var(--texto-muted);font-size:.68rem;line-height:1.4;margin-top:4px}
 .info-strip{
-  background:linear-gradient(135deg,rgba(217,119,6,.07),rgba(255,255,255,0)),#fff;
+  background-color:#fff;
+  background-image:linear-gradient(135deg,rgba(217,119,6,.07),rgba(255,255,255,0));
   border:1px solid var(--borda);border-left:4px solid var(--ambar);
   border-radius:10px;padding:10px 12px;font-size:.74rem;color:var(--texto-muted);margin-bottom:12px
 }
