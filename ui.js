@@ -117,7 +117,9 @@ function abrirInfo(titulo,html){garantirModalInfo();document.getElementById('mod
 
 const CHAVE_TEMA='portal_tema_v1';
 function aplicarTemaPortal(){
-  const tema=localStorage.getItem(CHAVE_TEMA)||'claro';
+  const tema=localStorage.getItem(CHAVE_TEMA)||'escuro';
+  document.body.classList.add('glass-tech');
+  document.body.classList.toggle('tema-claro',tema==='claro');
   document.body.classList.toggle('tema-escuro',tema==='escuro');
   const botao=document.querySelector('.tema-toggle');
   if(botao)botao.innerHTML=tema==='escuro'?'☀️ Claro':'🌙 Escuro';
@@ -267,6 +269,7 @@ function _prepararElementoPDF(elementId){
 
   const clone=original.cloneNode(true);
   clone.removeAttribute('id');
+  clone.classList.add('pdf-render-neutral');
   clone.classList.remove('d-none','mt-3','mt-4');
 
   clone.querySelectorAll('.no-print').forEach(el=>el.remove());
