@@ -133,8 +133,11 @@ function iniciarTemaPortal(){
 function iniciarNavegacaoMobile(){
   if(document.querySelector('.portal-bottom-nav')||location.pathname==='/'||location.pathname==='/index.html')return;
   const nav=document.createElement('nav');nav.className='portal-bottom-nav no-print';nav.setAttribute('aria-label','Navegação rápida');
-  nav.innerHTML='<a href="/" class="ativo"><strong>⌂</strong><span>Início</span></a><a href="#formEnsaio"><strong>✎</strong><span>Formulário</span></a><a href="#box_laudo"><strong>▣</strong><span>Resultado</span></a>';
+  const form=document.querySelector('form[id]');
+  const laudo=document.getElementById('box_laudo');
+  nav.innerHTML=`<a href="/" class="ativo"><strong>⌂</strong><span>Início</span></a>${form?`<a href="#${form.id}"><strong>✎</strong><span>Formulário</span></a>`:''}${laudo?`<a href="#${laudo.id}"><strong>▣</strong><span>Resultado</span></a>`:''}`;
   document.body.appendChild(nav);
+  nav.querySelectorAll('a[href^="#"]').forEach(link=>link.addEventListener('click',()=>{nav.querySelectorAll('a').forEach(a=>a.classList.remove('ativo'));link.classList.add('ativo');}));
 }
 function iniciarEtapasFormulario(){
   const form=document.querySelector('.page-shell form');

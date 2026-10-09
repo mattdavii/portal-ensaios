@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'portal-v2-8-design-mobile-20261009';
+const CACHE_VERSION = 'portal-v2-8-1-nav-mobile-20261009';
 
 const CORE = [
   '/',
