@@ -144,9 +144,15 @@ function iniciarEtapasFormulario(){
   if(!form||form.querySelector('.portal-progress'))return;
   const blocos=[...form.querySelectorAll(':scope > .card-instrumento')];
   if(blocos.length<2)return;
+  form.classList.add('portal-form-organizado');
+  blocos.forEach((bloco,i)=>{bloco.classList.add('form-step');bloco.dataset.step=String(i+1);bloco.dataset.stepLabel=bloco.querySelector('.label-tech')?.textContent?.trim()||`Etapa ${i+1}`;});
   const nav=document.createElement('nav');nav.className='portal-progress no-print';nav.setAttribute('aria-label','Etapas do ensaio');
   blocos.forEach((bloco,i)=>{const titulo=bloco.querySelector('.label-tech,.section-title-tech')?.textContent?.trim()||`Etapa ${i+1}`;bloco.id=bloco.id||`etapa-${i+1}`;const a=document.createElement('a');a.href=`#${bloco.id}`;a.textContent=`${i+1}. ${titulo}`;if(i===0)a.classList.add('ativo');a.addEventListener('click',()=>{nav.querySelectorAll('a').forEach(x=>x.classList.remove('ativo'));a.classList.add('ativo');});nav.appendChild(a);});
   form.parentElement.insertBefore(nav,form);
+}
+function prepararResultadosVisuais(){
+  const laudo=document.getElementById('box_laudo');
+  if(laudo)laudo.classList.add('portal-result-card');
 }
 
 const CHAVE_CONTEXTO='portal_contexto_campo_v2';
@@ -631,4 +637,4 @@ async function compartilharPDF(elementId,tipo,tag){
 
 function dataHoraLocalTexto(){return new Intl.DateTimeFormat('pt-BR',{dateStyle:'short',timeStyle:'short'}).format(new Date());}
 
-document.addEventListener('DOMContentLoaded',()=>{garantirModalInfo();iniciarContextoCampo();iniciarTemaPortal();iniciarNavegacaoMobile();iniciarEtapasFormulario();});
+document.addEventListener('DOMContentLoaded',()=>{garantirModalInfo();iniciarContextoCampo();iniciarTemaPortal();iniciarNavegacaoMobile();iniciarEtapasFormulario();prepararResultadosVisuais();});
