@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'portal-v2-8-2-form-layout-20261009';
+const CACHE_VERSION = 'portal-v2-9-glass-tech-20261009';
 
 const CORE = [
   '/',
