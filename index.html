@@ -35,6 +35,15 @@
       border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.08);
       color:rgba(255,255,255,.88);border-radius:999px;padding:6px 9px
     }
+    .home-search{position:relative;margin-top:18px}
+    .home-search input{width:100%;border:1px solid rgba(255,255,255,.18);border-radius:12px;background:rgba(255,255,255,.1);color:#fff;min-height:44px;padding:0 14px 0 42px;font-size:.82rem;outline:none}
+    .home-search input::placeholder{color:rgba(255,255,255,.62)}
+    .home-search input:focus{border-color:#f4b45b;box-shadow:0 0 0 3px rgba(217,119,6,.25);background:rgba(255,255,255,.14)}
+    .home-search::before{content:'⌕';position:absolute;left:14px;top:8px;color:rgba(255,255,255,.78);font-size:1.35rem;line-height:1}
+    .home-search-help{color:rgba(255,255,255,.58);font-size:.65rem;margin:6px 2px 0}
+    .home-empty{display:none;background:#fff;border:1px dashed var(--borda);border-radius:12px;color:var(--texto-muted);font-size:.78rem;padding:16px;text-align:center}
+    .home-empty.show{display:block}
+    .home-card[hidden]{display:none}
 
     .home-section{margin-top:18px}
     .home-section-title{
@@ -132,6 +141,10 @@
       <span class="home-chip">▣ PDF para OS</span>
       <span class="home-chip">☁ Offline</span>
     </div>
+    <div class="home-search">
+      <input id="buscaEnsaios" type="search" autocomplete="off" placeholder="Buscar ensaio ou ferramenta..." aria-label="Buscar ensaio ou ferramenta">
+      <div class="home-search-help">Digite “trafo”, “isolamento”, “malha” ou “strings”.</div>
+    </div>
   </section>
 
   <div id="installBanner" class="install-card no-print">
@@ -208,6 +221,8 @@
       </div>
     </div>
   </section>
+
+  <div id="homeEmpty" class="home-empty" role="status">Nenhum ensaio encontrado. Tente outro termo.</div>
 
   <section class="home-section">
     <div class="home-section-title">Manobra e Proteção</div>
@@ -500,6 +515,25 @@
   }
 
   document.addEventListener('DOMContentLoaded', atualizarSyncHome);
+
+  const buscaEnsaios = document.getElementById('buscaEnsaios');
+  const homeCards = [...document.querySelectorAll('.home-card')];
+  const homeEmpty = document.getElementById('homeEmpty');
+  function filtrarEnsaios(){
+    const termo=(buscaEnsaios.value||'').trim().toLocaleLowerCase('pt-BR');
+    let visiveis=0;
+    homeCards.forEach(card=>{
+      const mostrar=!termo||card.textContent.toLocaleLowerCase('pt-BR').includes(termo);
+      card.hidden=!mostrar;
+      if(mostrar)visiveis++;
+    });
+    document.querySelectorAll('.home-section').forEach(sec=>{
+      const cards=[...sec.querySelectorAll('.home-card')];
+      sec.hidden=Boolean(termo&&cards.length&&!cards.some(card=>!card.hidden));
+    });
+    homeEmpty.classList.toggle('show',Boolean(termo&&!visiveis));
+  }
+  buscaEnsaios.addEventListener('input',filtrarEnsaios);
 </script>
 </body>
 </html>
