@@ -115,6 +115,37 @@ function seloStatus(s){const m={
 function garantirModalInfo(){if(document.getElementById('modalInfoPortal'))return;const modal=document.createElement('div');modal.id='modalInfoPortal';modal.className='portal-modal-backdrop';modal.innerHTML=`<div class="portal-modal" role="dialog" aria-modal="true"><div class="portal-modal-header"><strong id="modalInfoTitulo">Informação</strong><button type="button" class="portal-modal-fechar" aria-label="Fechar">×</button></div><div id="modalInfoConteudo" class="portal-modal-body"></div></div>`;document.body.appendChild(modal);const fechar=()=>modal.classList.remove('aberto');modal.querySelector('.portal-modal-fechar').addEventListener('click',fechar);modal.addEventListener('click',e=>{if(e.target===modal)fechar();});document.addEventListener('keydown',e=>{if(e.key==='Escape')fechar();});}
 function abrirInfo(titulo,html){garantirModalInfo();document.getElementById('modalInfoTitulo').textContent=titulo;document.getElementById('modalInfoConteudo').innerHTML=html;document.getElementById('modalInfoPortal').classList.add('aberto');}
 
+const CHAVE_TEMA='portal_tema_v1';
+function aplicarTemaPortal(){
+  const tema=localStorage.getItem(CHAVE_TEMA)||'claro';
+  document.body.classList.toggle('tema-escuro',tema==='escuro');
+  const botao=document.querySelector('.tema-toggle');
+  if(botao)botao.innerHTML=tema==='escuro'?'☀️ Claro':'🌙 Escuro';
+}
+function iniciarTemaPortal(){
+  if(document.querySelector('.tema-toggle')){aplicarTemaPortal();return;}
+  const alvo=document.querySelector('.page-hero-row')||document.querySelector('.topbar');
+  if(!alvo)return;
+  const botao=document.createElement('button');botao.type='button';botao.className='tema-toggle no-print';botao.setAttribute('aria-label','Alternar tema');
+  botao.addEventListener('click',()=>{const novo=document.body.classList.contains('tema-escuro')?'claro':'escuro';localStorage.setItem(CHAVE_TEMA,novo);aplicarTemaPortal();});
+  alvo.appendChild(botao);aplicarTemaPortal();
+}
+function iniciarNavegacaoMobile(){
+  if(document.querySelector('.portal-bottom-nav')||location.pathname==='/'||location.pathname==='/index.html')return;
+  const nav=document.createElement('nav');nav.className='portal-bottom-nav no-print';nav.setAttribute('aria-label','Navegação rápida');
+  nav.innerHTML='<a href="/" class="ativo"><strong>⌂</strong><span>Início</span></a><a href="#formEnsaio"><strong>✎</strong><span>Formulário</span></a><a href="#box_laudo"><strong>▣</strong><span>Resultado</span></a>';
+  document.body.appendChild(nav);
+}
+function iniciarEtapasFormulario(){
+  const form=document.querySelector('.page-shell form');
+  if(!form||form.querySelector('.portal-progress'))return;
+  const blocos=[...form.querySelectorAll(':scope > .card-instrumento')];
+  if(blocos.length<2)return;
+  const nav=document.createElement('nav');nav.className='portal-progress no-print';nav.setAttribute('aria-label','Etapas do ensaio');
+  blocos.forEach((bloco,i)=>{const titulo=bloco.querySelector('.label-tech,.section-title-tech')?.textContent?.trim()||`Etapa ${i+1}`;bloco.id=bloco.id||`etapa-${i+1}`;const a=document.createElement('a');a.href=`#${bloco.id}`;a.textContent=`${i+1}. ${titulo}`;if(i===0)a.classList.add('ativo');a.addEventListener('click',()=>{nav.querySelectorAll('a').forEach(x=>x.classList.remove('ativo'));a.classList.add('ativo');});nav.appendChild(a);});
+  form.parentElement.insertBefore(nav,form);
+}
+
 const CHAVE_CONTEXTO='portal_contexto_campo_v2';
 function lerContextoCampo(){try{return JSON.parse(localStorage.getItem(CHAVE_CONTEXTO)||'{}');}catch(_){return{};}}
 function salvarContextoCampo(){const atual=lerContextoCampo();const usina=document.getElementById('usina');const tecnico=document.getElementById('tecnico');try{localStorage.setItem(CHAVE_CONTEXTO,JSON.stringify({...atual,usina:usina?.value?.trim()||atual.usina||'',tecnico:tecnico?.value?.trim()||atual.tecnico||''}));}catch(_){}}
@@ -597,4 +628,4 @@ async function compartilharPDF(elementId,tipo,tag){
 
 function dataHoraLocalTexto(){return new Intl.DateTimeFormat('pt-BR',{dateStyle:'short',timeStyle:'short'}).format(new Date());}
 
-document.addEventListener('DOMContentLoaded',()=>{garantirModalInfo();iniciarContextoCampo();});
+document.addEventListener('DOMContentLoaded',()=>{garantirModalInfo();iniciarContextoCampo();iniciarTemaPortal();iniciarNavegacaoMobile();iniciarEtapasFormulario();});

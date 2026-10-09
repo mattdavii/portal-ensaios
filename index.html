@@ -48,6 +48,7 @@
     .home-local-panel{background:#fff;border:1px solid var(--borda);border-radius:14px;padding:14px;box-shadow:0 2px 8px rgba(28,33,40,.045)}
     .home-local-title{display:flex;align-items:center;justify-content:space-between;gap:8px;color:var(--texto);font-size:.78rem;font-weight:850;text-transform:uppercase;letter-spacing:.45px}
     .home-local-title small{color:var(--texto-muted);font-size:.62rem;font-weight:650;text-transform:none;letter-spacing:0}
+    .home-local-title select{margin-left:auto;border:1px solid var(--borda);border-radius:7px;color:var(--texto-muted);font-size:.62rem;font-weight:700;padding:4px 6px;text-transform:none;letter-spacing:0;max-width:108px}
     .home-local-list{display:grid;gap:7px;margin-top:10px}
     .home-local-item{display:flex;align-items:center;gap:9px;border:1px solid #eeeae2;border-radius:10px;padding:9px;text-decoration:none;color:inherit;min-width:0}
     .home-local-item:hover{background:#fcfaf6;border-color:#efc083}
@@ -194,7 +195,7 @@
 
   <section class="home-local" aria-label="Atividade neste dispositivo">
     <div class="home-local-panel">
-      <div class="home-local-title">Ensaios recentes <small>neste dispositivo</small></div>
+      <div class="home-local-title">Ensaios recentes <small>neste dispositivo</small><select id="filtroRecentes" aria-label="Filtrar ensaios recentes"><option value="">Todos</option></select></div>
       <div id="recentesLista" class="home-local-list"></div>
     </div>
     <div class="home-local-panel">
@@ -547,7 +548,10 @@
   function renderizarAtividadeLocal(){
     const recentes=typeof lerEnsaiosRecentes==='function'?lerEnsaiosRecentes():[];
     const rl=document.getElementById('recentesLista');
-    rl.innerHTML=recentes.length?recentes.slice(0,5).map(item=>`<a class="home-local-item" href="${item.url.replace('/api/sync','')}"><span class="home-local-dot"></span><span class="home-local-copy"><span class="home-local-name">${escaparHtml(item.nome)}</span><span class="home-local-meta">${escaparHtml([item.usina,item.tag].filter(Boolean).join(' · ')||'Sem identificação')} · ${dataLocal(item.ts)}</span></span></a>`).join(''):'<div class="home-local-empty">Os ensaios concluídos aparecerão aqui.</div>';
+    const filtro=document.getElementById('filtroRecentes');
+    if(filtro){const tipos=[...new Map(recentes.map(item=>[item.url,item.nome])).entries()];const atual=filtro.value;filtro.innerHTML='<option value="">Todos</option>'+tipos.map(([url,nome])=>`<option value="${escaparHtml(url)}">${escaparHtml(nome)}</option>`).join('');filtro.value=tipos.some(([url])=>url===atual)?atual:'';}
+    const filtrados=filtro?.value?recentes.filter(item=>item.url===filtro.value):recentes;
+    rl.innerHTML=filtrados.length?filtrados.slice(0,5).map(item=>`<a class="home-local-item" href="${item.url.replace('/api/sync','')}"><span class="home-local-dot"></span><span class="home-local-copy"><span class="home-local-name">${escaparHtml(item.nome)}</span><span class="home-local-meta">${escaparHtml([item.usina,item.tag].filter(Boolean).join(' · ')||'Sem identificação')} · ${dataLocal(item.ts)}</span></span></a>`).join(''):'<div class="home-local-empty">Nenhum ensaio encontrado neste filtro.</div>';
     const rascunhos=[];
     Object.keys(localStorage).filter(k=>k.startsWith('rascunho_')).forEach(k=>{try{const pagina=k.slice(9),dados=JSON.parse(localStorage.getItem(k)||'{}');if(dados?.ts)rascunhos.push({pagina,ts:dados.ts,dados:dados.dados||{}});}catch(_){}});
     const dl=document.getElementById('rascunhosLista');
@@ -556,6 +560,7 @@
   document.addEventListener('click',event=>{const btn=event.target.closest('[data-limpar-rascunho]');if(!btn)return;const pagina=btn.dataset.limparRascunho;try{localStorage.removeItem(`rascunho_${pagina}`);}catch(_){}renderizarAtividadeLocal();});
   document.addEventListener('portal:recentes-atualizado',renderizarAtividadeLocal);
   document.addEventListener('DOMContentLoaded',renderizarAtividadeLocal);
+  document.getElementById('filtroRecentes').addEventListener('change',renderizarAtividadeLocal);
 
   const buscaEnsaios = document.getElementById('buscaEnsaios');
   const homeCards = [...document.querySelectorAll('.home-card')];
