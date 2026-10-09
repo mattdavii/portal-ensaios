@@ -115,7 +115,9 @@ function seloStatus(s){const m={
 function garantirModalInfo(){if(document.getElementById('modalInfoPortal'))return;const modal=document.createElement('div');modal.id='modalInfoPortal';modal.className='portal-modal-backdrop';modal.innerHTML=`<div class="portal-modal" role="dialog" aria-modal="true"><div class="portal-modal-header"><strong id="modalInfoTitulo">Informação</strong><button type="button" class="portal-modal-fechar" aria-label="Fechar">×</button></div><div id="modalInfoConteudo" class="portal-modal-body"></div></div>`;document.body.appendChild(modal);const fechar=()=>modal.classList.remove('aberto');modal.querySelector('.portal-modal-fechar').addEventListener('click',fechar);modal.addEventListener('click',e=>{if(e.target===modal)fechar();});document.addEventListener('keydown',e=>{if(e.key==='Escape')fechar();});}
 function abrirInfo(titulo,html){garantirModalInfo();document.getElementById('modalInfoTitulo').textContent=titulo;document.getElementById('modalInfoConteudo').innerHTML=html;document.getElementById('modalInfoPortal').classList.add('aberto');}
 
-const CHAVE_TEMA='portal_tema_v1';
+// v2 faz a migração do padrão antigo claro para o Glass Tech escuro.
+// A escolha explícita do usuário continua persistindo entre as páginas.
+const CHAVE_TEMA='portal_tema_v2';
 function aplicarTemaPortal(){
   const tema=localStorage.getItem(CHAVE_TEMA)||'escuro';
   document.body.classList.add('glass-tech');
