@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'portal-v2-10-glass-default-20261009';
+const CACHE_VERSION = 'portal-v2-11-glass-home-20261009';
 
 const CORE = [
   '/',

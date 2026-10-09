@@ -128,7 +128,7 @@ function aplicarTemaPortal(){
 }
 function iniciarTemaPortal(){
   if(document.querySelector('.tema-toggle')){aplicarTemaPortal();return;}
-  const alvo=document.querySelector('.page-hero-row')||document.querySelector('.topbar');
+  const alvo=document.querySelector('.page-hero-row')||document.querySelector('.topbar')||document.querySelector('.home-hero');
   if(!alvo)return;
   const botao=document.createElement('button');botao.type='button';botao.className='tema-toggle no-print';botao.setAttribute('aria-label','Alternar tema');
   botao.addEventListener('click',()=>{const novo=document.body.classList.contains('tema-escuro')?'claro':'escuro';localStorage.setItem(CHAVE_TEMA,novo);aplicarTemaPortal();});
