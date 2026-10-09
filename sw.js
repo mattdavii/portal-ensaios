@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'portal-v2-6-layout-campo-20261009';
+const CACHE_VERSION = 'portal-v2-7-atividade-local-20261009';
 
 const CORE = [
   '/',

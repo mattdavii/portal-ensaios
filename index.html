@@ -44,6 +44,20 @@
     .home-empty{display:none;background:#fff;border:1px dashed var(--borda);border-radius:12px;color:var(--texto-muted);font-size:.78rem;padding:16px;text-align:center}
     .home-empty.show{display:block}
     .home-card[hidden]{display:none}
+    .home-local{display:grid;grid-template-columns:1fr;gap:10px;margin-top:18px}
+    .home-local-panel{background:#fff;border:1px solid var(--borda);border-radius:14px;padding:14px;box-shadow:0 2px 8px rgba(28,33,40,.045)}
+    .home-local-title{display:flex;align-items:center;justify-content:space-between;gap:8px;color:var(--texto);font-size:.78rem;font-weight:850;text-transform:uppercase;letter-spacing:.45px}
+    .home-local-title small{color:var(--texto-muted);font-size:.62rem;font-weight:650;text-transform:none;letter-spacing:0}
+    .home-local-list{display:grid;gap:7px;margin-top:10px}
+    .home-local-item{display:flex;align-items:center;gap:9px;border:1px solid #eeeae2;border-radius:10px;padding:9px;text-decoration:none;color:inherit;min-width:0}
+    .home-local-item:hover{background:#fcfaf6;border-color:#efc083}
+    .home-local-dot{width:8px;height:8px;flex:0 0 8px;border-radius:50%;background:var(--ambar)}
+    .home-local-copy{min-width:0;flex:1}
+    .home-local-name{font-size:.74rem;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .home-local-meta{color:var(--texto-muted);font-size:.63rem;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .home-local-clear{border:0;background:transparent;color:#a09a90;font-size:1rem;line-height:1;padding:3px 5px}
+    .home-local-clear:hover{color:var(--vermelho)}
+    .home-local-empty{color:var(--texto-muted);font-size:.7rem;padding:8px 0 2px}
 
     .home-section{margin-top:18px}
     .home-section-title{
@@ -177,6 +191,17 @@
   <button id="btnSync" type="button" class="home-sync no-print" onclick="sincronizarAgoraHome()">
     ☁ SINCRONIZAR <span id="countSync"></span> PENDÊNCIA(S)
   </button>
+
+  <section class="home-local" aria-label="Atividade neste dispositivo">
+    <div class="home-local-panel">
+      <div class="home-local-title">Ensaios recentes <small>neste dispositivo</small></div>
+      <div id="recentesLista" class="home-local-list"></div>
+    </div>
+    <div class="home-local-panel">
+      <div class="home-local-title">Rascunhos salvos <small>continuar preenchimento</small></div>
+      <div id="rascunhosLista" class="home-local-list"></div>
+    </div>
+  </section>
 
   <section class="home-section">
     <div class="home-section-title">Ativos de Potência</div>
@@ -515,6 +540,22 @@
   }
 
   document.addEventListener('DOMContentLoaded', atualizarSyncHome);
+
+  const rotasRascunho={trafo:'/trafo',tp:'/tp',tc:'/tc',disjuntor_mt:'/disjuntor-mt',disjuntor_bt:'/disjuntor-bt',seccionadora:'/seccionadora',res_malha:'/res-malha',cont_malha:'/cont-malha',cabos_cc:'/cabos-cc',riso_strings:'/riso-strings',riso_cabos_ca_mt:'/riso-cabos-ca-mt',comparador_strings:'/comparador-strings',desequilibrio_fases:'/desequilibrio-fases',voc_string:'/voc-string',relacao_tc_tp:'/relacao-tc-tp',queda_tensao:'/queda-tensao'};
+  const nomesRascunho={trafo:'Transformador de potência',tp:'TP',tc:'TC',disjuntor_mt:'Disjuntor MT',disjuntor_bt:'Disjuntor BT',seccionadora:'Seccionadora',res_malha:'Resistência de aterramento',cont_malha:'Continuidade da malha',cabos_cc:'Strings CC',riso_strings:'RISO de Strings',riso_cabos_ca_mt:'RISO de cabos CA/MT',comparador_strings:'Comparador de Strings',desequilibrio_fases:'Desequilíbrio entre fases',voc_string:'Voc de String',relacao_tc_tp:'Relação TC/TP',queda_tensao:'Queda de tensão'};
+  function dataLocal(ts){return new Intl.DateTimeFormat('pt-BR',{dateStyle:'short',timeStyle:'short'}).format(new Date(ts));}
+  function renderizarAtividadeLocal(){
+    const recentes=typeof lerEnsaiosRecentes==='function'?lerEnsaiosRecentes():[];
+    const rl=document.getElementById('recentesLista');
+    rl.innerHTML=recentes.length?recentes.slice(0,5).map(item=>`<a class="home-local-item" href="${item.url.replace('/api/sync','')}"><span class="home-local-dot"></span><span class="home-local-copy"><span class="home-local-name">${escaparHtml(item.nome)}</span><span class="home-local-meta">${escaparHtml([item.usina,item.tag].filter(Boolean).join(' · ')||'Sem identificação')} · ${dataLocal(item.ts)}</span></span></a>`).join(''):'<div class="home-local-empty">Os ensaios concluídos aparecerão aqui.</div>';
+    const rascunhos=[];
+    Object.keys(localStorage).filter(k=>k.startsWith('rascunho_')).forEach(k=>{try{const pagina=k.slice(9),dados=JSON.parse(localStorage.getItem(k)||'{}');if(dados?.ts)rascunhos.push({pagina,ts:dados.ts,dados:dados.dados||{}});}catch(_){}});
+    const dl=document.getElementById('rascunhosLista');
+    dl.innerHTML=rascunhos.length?rascunhos.sort((a,b)=>b.ts-a.ts).map(item=>{const d=item.dados||{};const identificacao=[d.usina,d.tag,d.inversor].filter(Boolean).join(' · ')||'Preenchimento em andamento';return `<div class="home-local-item"><a href="${rotasRascunho[item.pagina]||'/'}" class="home-local-copy text-decoration-none"><span class="home-local-name">${escaparHtml(nomesRascunho[item.pagina]||item.pagina)}</span><span class="home-local-meta">${escaparHtml(identificacao)} · ${dataLocal(item.ts)}</span></a><button class="home-local-clear" type="button" data-limpar-rascunho="${escaparHtml(item.pagina)}" aria-label="Apagar rascunho">×</button></div>`;}).join(''):'<div class="home-local-empty">Nenhum rascunho salvo neste dispositivo.</div>';
+  }
+  document.addEventListener('click',event=>{const btn=event.target.closest('[data-limpar-rascunho]');if(!btn)return;const pagina=btn.dataset.limparRascunho;try{localStorage.removeItem(`rascunho_${pagina}`);}catch(_){}renderizarAtividadeLocal();});
+  document.addEventListener('portal:recentes-atualizado',renderizarAtividadeLocal);
+  document.addEventListener('DOMContentLoaded',renderizarAtividadeLocal);
 
   const buscaEnsaios = document.getElementById('buscaEnsaios');
   const homeCards = [...document.querySelectorAll('.home-card')];

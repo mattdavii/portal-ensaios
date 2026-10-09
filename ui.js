@@ -122,8 +122,25 @@ function iniciarContextoCampo(){const c=lerContextoCampo();const u=document.getE
 
 function lerFilaSync(){try{return JSON.parse(localStorage.getItem('sync_queue')||'[]');}catch(_){return[];}}
 function gravarFilaSync(f){try{localStorage.setItem('sync_queue',JSON.stringify(f));}catch(_){}}
+const CHAVE_RECENTES='portal_ensaios_recentes_v1';
+const NOMES_ENSAIO={
+  '/api/sync/trafo':'Transformador de potência','/api/sync/tp':'TP','/api/sync/tc':'TC',
+  '/api/sync/disjuntor-mt':'Disjuntor MT','/api/sync/disjuntor-bt':'Disjuntor BT','/api/sync/seccionadora':'Seccionadora',
+  '/api/sync/res-malha':'Resistência de aterramento','/api/sync/cont-malha':'Continuidade da malha',
+  '/api/sync/cabos-cc':'Strings CC','/api/sync/riso-strings':'RISO de Strings','/api/sync/riso-cabos-ca-mt':'RISO de cabos CA/MT',
+  '/api/sync/comparador-strings':'Comparador de Strings','/api/sync/desequilibrio-fases':'Desequilíbrio entre fases',
+  '/api/sync/voc-string':'Voc de String','/api/sync/relacao-tc-tp':'Relação TC/TP','/api/sync/queda-tensao':'Queda de tensão'
+};
+function lerEnsaiosRecentes(){try{const v=JSON.parse(localStorage.getItem(CHAVE_RECENTES)||'[]');return Array.isArray(v)?v:[];}catch(_){return[];}}
+function gravarEnsaiosRecentes(v){try{localStorage.setItem(CHAVE_RECENTES,JSON.stringify(v.slice(0,12)));}catch(_) {}}
+function registrarEnsaioRecente(url,payload){
+  const item={id:`${Date.now()}-${Math.random().toString(16).slice(2)}`,url,nome:NOMES_ENSAIO[url]||'Ensaio',usina:payload?.usina||'',tag:payload?.tag||payload?.inversor||'',ts:Date.now()};
+  const anteriores=lerEnsaiosRecentes().filter(v=>!(v.url===item.url&&v.tag===item.tag&&v.usina===item.usina));
+  gravarEnsaiosRecentes([item,...anteriores]);
+  document.dispatchEvent(new CustomEvent('portal:recentes-atualizado'));
+}
 function enfileirarSync(url,data){const f=lerFilaSync();f.push({id:(globalThis.crypto?.randomUUID?globalThis.crypto.randomUUID():`${Date.now()}-${Math.random()}`),url,data,criado_em:new Date().toISOString()});gravarFilaSync(f);}
-async function salvarComFilaSilencioso(url,payload){if(navigator.onLine){try{const r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});if(r.ok)return true;}catch(_){}}enfileirarSync(url,payload);return false;}
+async function salvarComFilaSilencioso(url,payload){if(navigator.onLine){try{const r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});if(r.ok){registrarEnsaioRecente(url,payload);return true;}}catch(_){}}enfileirarSync(url,payload);registrarEnsaioRecente(url,payload);return false;}
 async function salvarComFila(url,payload,mensagemOk='Salvo com sucesso'){const ok=await salvarComFilaSilencioso(url,payload);mostrarToast(ok?`✅ ${mensagemOk}`:'⚠️ Salvo offline — será sincronizado depois',ok?'ok':'offline');return ok;}
 async function salvarLoteComFila(url,payloads,mensagemOk='Ensaio salvo'){let on=0,off=0;for(const p of payloads){(await salvarComFilaSilencioso(url,p))?on++:off++;}mostrarToast(off===0?`✅ ${mensagemOk}`:`⚠️ ${off} registro(s) salvo(s) offline`,off===0?'ok':'offline');return{online:on,offline:off};}
 async function sincronizarFila(){if(!navigator.onLine){mostrarToast('⚠️ Você está sem internet','offline');return;}const fila=lerFilaSync(),pend=[];for(const item of fila){try{const r=await fetch(item.url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(item.data)});if(!r.ok)pend.push(item);}catch(_){pend.push(item);}}gravarFilaSync(pend);mostrarToast(pend.length?`⚠️ ${pend.length} pendência(s) não enviada(s)`:'✅ Tudo sincronizado',pend.length?'erro':'ok');document.dispatchEvent(new CustomEvent('portal:sync-atualizado'));}
